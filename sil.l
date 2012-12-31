@@ -59,5 +59,6 @@ decl	{ printf("DECL\n"); }
 enddecl	{ printf("END DECLARATION\n"); }
 print	{ printf("PRINT\n"); }
 begin	{ printf("BEGIN\n"); }
+return  { printf("RETURN\n"); }
 {id}	{ printf("Identifier -> %s\n", (int)yytext); }
 {number}	{ printf("Number -> %d\n", atoi(yytext)); }
