@@ -6,7 +6,8 @@
 %token EQUAL ASSIGN NEQUAL LESS_THAN LESS_EQUAL GREATER_THAN GREATER_EQ PLUS MINUS 
 %token MULT DIVIDE LPAREN RPAREN RFLOWER LFLOWER DO ENDWHILE PRINT BEGINN END RETURN RECORD
 %%
-body : declaration functions { printf("PARSING SUCCESS\n"); }
+body : declaration { printf("PARSING SUCCESS\n"); }
+	| declaration functions { printf("PARSING SUCCESS\n"); }
 	;
 declaration : DECL dstatemnts ENDDECL
 	;
@@ -38,16 +39,16 @@ pvars : ID COMMA pvars
 	|ADDRESSOF ID
 	|ADDRESSOF ID COMMA pvars
 	;
-functions : function | functions function
+functions : function 
+	| functions function
 	;
 function : type ID LPAREN parametr RPAREN LFLOWER fbody RFLOWER
 	;
 fbody : declaration 
 	| declaration bbody 
 	;
-bbody : BEGINN stmntlist return END
+bbody : BEGINN  END
 	;
-stmntlist : 
 %%
 
 int main(){
