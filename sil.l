@@ -5,7 +5,7 @@ ws	[ ]
 tab	\t
 nl	\n
 wss	{ws}+
-tabs {tab}{tab}+
+tabs 	{tab}+
 nls	{nl}+
 letter	[A-Za-z]
 digit	[0-9]
@@ -59,6 +59,7 @@ decl	{ return DECL; }
 enddecl	{ return ENDDECL; }
 print	{ return PRINT; }
 begin	{ return BEGINN; }
+end	{ return END; }
 return  { return RETURN; }
 record  { return RECORD; }
 {id}	{ yylval = yytext; return ID; }

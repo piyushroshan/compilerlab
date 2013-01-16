@@ -79,8 +79,9 @@
      ENDWHILE = 297,
      PRINT = 298,
      BEGINN = 299,
-     RETURN = 300,
-     RECORD = 301
+     END = 300,
+     RETURN = 301,
+     RECORD = 302
    };
 #endif
 /* Tokens.  */
@@ -126,8 +127,9 @@
 #define ENDWHILE 297
 #define PRINT 298
 #define BEGINN 299
-#define RETURN 300
-#define RECORD 301
+#define END 300
+#define RETURN 301
+#define RECORD 302
 
 
 

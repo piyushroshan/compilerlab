@@ -1,62 +1,66 @@
+%{
+#include "y.tab.h"
+%}
 ws	[ ]
-tab	[\t]
-nl	[\n]
-wss	{ws}{ws}+
-tabs	{tab}{tab}+
-nls	{nl}{nl}+
+tab	\t
+nl	\n
+wss	{ws}+
+tabs 	{tab}+
+nls	{nl}+
 letter	[A-Za-z]
 digit	[0-9]
 id	{letter}({letter}|{digit})*
 number	{digit}+
 
+
 %%
 
-TRUE	{ printf("BOOLEAN True\n");}
-FALSE	{ printf("BOOLEAN False\n");}
-boolean	{ printf("BOOLEAN TYPE\n");}
-integer	{ printf("INTEGER TYPE\n");}
-{ws}	{ printf("whitespace\n");}
-{tab}	{ printf("tab\n");}
-{nl}	{ printf("newline\n");}
-{wss}	{ printf("whitespaces\n");}
-{tabs}	{ printf("tabs\n");}
-{nls}	{ printf("newlines\n");}
-"//"	{ printf("Comment line\n"); }
-"=="    { printf("Boolean equal\n"); }
-"="     { printf("Assignment\n"); }
-"!="    { printf("Not Equal\n"); }
-"<"     { printf("LESS THAN\n"); }
-"<="    { printf("LESS EQUAL\n"); }
-">"     { printf("GREATER THAN\n"); }
-">="    { printf("GREATER THAN\n"); }
-"+"     { printf("PLUS\n"); }
-"-"     { printf("MINUS\n"); }
-"*"     { printf("MULT\n"); }
-"/"     { printf("DIVIDE\n"); }
-")"     { printf("Right PAREN\n"); }
-"("     { printf("Left PAREN\n"); }
-"]"	{ printf("Right SQUARE\n"); }
-"["	{ printf("Left SQUARE\n"); }
-"}"     { printf("Right FLOWER\n"); }
-"{"     { printf("Left FLOWER\n"); }
-","	{ printf("Coma\n");}
-";"	{ printf("TERMINATOR\n");}
-"&"     { printf("Address Operator\n");}
-"%"     { printf("MODULUS\n");}
-AND	{ printf("AND\n");}
-OR	{ printf("OR\n");}
-NOT	{ printf("NOT\n");}
-read	{ printf("READ\n");}
-write	{ printf("WRITE\n");}
-if	{ printf("IF\n");}
-then	{ printf("THEN\n");}
-else	{ printf("ELSE\n");}
-while   { printf("WHILE\n"); }
-do   	{ printf("DO\n"); }
-endwhile	{ printf("ENDWHILE\n"); }
-decl	{ printf("DECL\n"); }
-enddecl	{ printf("END DECLARATION\n"); }
-print	{ printf("PRINT\n"); }
-begin	{ printf("BEGIN\n"); }
-{id}	{ printf("Identifier -> %s\n", (int)yytext); }
-{number}	{ printf("Number -> %d\n", atoi(yytext)); }
+TRUE	{ return TRUE;}
+FALSE	{ return FALSE;}
+boolean	{ return BOOLEAN;}
+integer	{ return INTEGER;}
+{wss}	{ }
+{tabs}	{ }
+{nls}	{ }
+"//".*	{ }
+"=="    { return EQUAL; }
+"="     { return ASSIGN; }
+"!="    { return NEQUAL; }
+"<"     { return LESS_THAN; }
+"<="    { return LESS_EQUAL; }
+">"     { return GREATER_THAN; }
+">="    { return GREATER_EQ; }
+"+"     { return PLUS; }
+"-"     { return MINUS; }
+"*"     { return MULT; }
+"/"     { return DIVIDE; }
+")"     { return RPAREN; }
+"("     { return LPAREN; }
+"]"	{ return RSQUARE; }
+"["	{ return LSQUARE; }
+"}"     { return RFLOWER; }
+"{"     { return LFLOWER; }
+","	{ return COMMA;}
+";"	{ return SEMICOLON;}
+"&"     { return ADDRESSOF;}
+"%"     { return MODULUS;}
+AND	{ return AND;}
+OR	{ return OR;}
+NOT	{ return NOT;}
+read	{ return READ;}
+write	{ return WRITE;}
+if	{ return IF;}
+then	{ return THEN;}
+else	{ return ELSE;}
+while   { return WHILE; }
+do   	{ return DO; }
+endwhile	{ return ENDWHILE; }
+decl	{ return DECL; }
+enddecl	{ return ENDDECL; }
+print	{ return PRINT; }
+begin	{ return BEGINN; }
+end	{ return END; }
+return  { return RETURN; }
+record  { return RECORD; }
+{id}	{ yylval = yytext; return ID; }
+{number}	{ yylval = atoi(yytext); return NUMBER; }

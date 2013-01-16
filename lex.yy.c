@@ -366,8 +366,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 49
-#define YY_END_OF_BUFFER 50
+#define YY_NUM_RULES 50
+#define YY_END_OF_BUFFER 51
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -377,20 +377,20 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[126] =
     {   0,
-        0,    0,   50,   49,   49,    7,    5,   49,   29,   28,
-       21,   20,   18,   16,   26,   17,   19,   48,   27,   12,
-       10,   14,   47,   47,   47,   47,   47,   47,   23,   22,
-       47,   47,   47,   47,   47,   47,   47,   47,   25,   24,
-        6,    7,    5,   11,    8,   48,   13,    9,   15,   47,
-       47,   47,   47,   31,   47,   47,   47,   47,   39,   47,
-       47,   35,   47,   47,   47,   47,   47,   47,    8,   30,
-       47,   32,   47,   47,   47,   47,   47,   47,   47,   47,
-       47,   47,   47,   47,   47,   47,   47,    1,   47,   47,
-       41,   37,   47,   47,   47,   47,   33,   47,   47,   36,
+        0,    0,   51,   50,    6,    7,    5,   50,   29,   28,
+       21,   20,   18,   16,   26,   17,   19,   49,   27,   12,
+       10,   14,   48,   48,   48,   48,   48,   48,   23,   22,
+       48,   48,   48,   48,   48,   48,   48,   48,   25,   24,
+        6,    7,    5,   11,    8,   49,   13,    9,   15,   48,
+       48,   48,   48,   31,   48,   48,   48,   48,   39,   48,
+       48,   35,   48,   48,   48,   48,   48,   48,    8,   30,
+       48,   32,   48,   48,   48,   48,   48,   45,   48,   48,
+       48,   48,   48,   48,   48,   48,   48,    1,   48,   48,
+       41,   37,   48,   48,   48,   48,   33,   48,   48,   36,
 
-       47,   47,    2,   44,   47,   47,   47,   47,   43,   47,
-       47,   38,   34,   47,   47,   47,   47,   46,   45,    3,
-       42,   47,    4,   40,    0
+       48,   48,    2,   44,   48,   48,   48,   48,   43,   48,
+       48,   38,   34,   48,   48,   48,   48,   47,   46,    3,
+       42,   48,    4,   40,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -1037,29 +1037,34 @@ YY_RULE_SETUP
 case 45:
 YY_RULE_SETUP
 #line 62 "sil.l"
-{ return RETURN; }
+{ return END; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 63 "sil.l"
-{ return RECORD; }
+{ return RETURN; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 64 "sil.l"
-{ yylval = yytext; return ID; }
+{ return RECORD; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
 #line 65 "sil.l"
-{ yylval = atoi(yytext); return NUMBER; }
+{ yylval = yytext; return ID; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
 #line 66 "sil.l"
+{ yylval = atoi(yytext); return NUMBER; }
+	YY_BREAK
+case 50:
+YY_RULE_SETUP
+#line 67 "sil.l"
 ECHO;
 	YY_BREAK
-#line 1063 "lex.yy.c"
+#line 1068 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2057,4 +2062,4 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 66 "sil.l"
+#line 67 "sil.l"
