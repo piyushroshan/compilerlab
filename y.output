@@ -1,0 +1,1395 @@
+   0  $accept : body $end
+
+   1  body : declaration
+   2       | declaration main_function
+   3       | declaration functions main_function
+
+   4  declaration : DECL dstatemnts ENDDECL
+
+   5  dstatemnts : dstatemnt
+   6             | dstatemnt dstatemnts
+
+   7  dstatemnt : type dvars
+
+   8  dvars : var SEMICOLON
+   9        | var COMMA dvars
+
+  10  type : INTEGER
+  11       | BOOLEAN
+
+  12  var : ID
+  13      | ID LSQUARE NUMBER RSQUARE
+  14      | ID LPAREN parametr RPAREN
+  15      | ADDRESSOF ID
+
+  16  parametr :
+  17           | type plvars
+
+  18  plvars : pvars SEMICOLON parametr
+  19         | pvars
+
+  20  pvars : ID COMMA pvars
+  21        | ID
+  22        | ADDRESSOF ID
+  23        | ADDRESSOF ID COMMA pvars
+
+  24  functions : function
+  25            | functions function
+
+  26  function : type ID LPAREN parametr RPAREN LFLOWER fbody RFLOWER
+
+  27  main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER
+
+  28  fbody : declaration
+  29        | declaration bbody
+
+  30  bbody : BEGINN statements return END
+
+  31  ifelse : IF lexpression THEN statements ENDIF SEMICOLON
+  32         | IF lexpression THEN statements ELSE statements ENDIF SEMICOLON
+
+  33  statement : ifelse
+  34            | dowhile
+  35            | read
+  36            | write
+  37            | astatement
+
+  38  statements : statement
+  39             | statement statements
+
+  40  dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON
+
+  41  return : RETURN expression SEMICOLON
+
+  42  astatement : ID ASSIGN expression SEMICOLON
+
+  43  read : READ LPAREN ID RPAREN SEMICOLON
+
+  44  write : WRITE LPAREN aexpression RPAREN SEMICOLON
+
+  45  expression : aexpression
+  46             | lexpression
+
+  47  aexpression : aexpression PLUS aexpression
+  48              | aexpression MINUS aexpression
+  49              | aexpression MULT aexpression
+  50              | aexpression DIVIDE aexpression
+  51              | LPAREN aexpression RPAREN
+  52              | ID
+  53              | NUMBER
+
+  54  lexpression : aexpression EQUAL aexpression
+  55              | aexpression LESS_THAN aexpression
+  56              | aexpression GREATER_THAN aexpression
+  57              | aexpression GREATER_EQ aexpression
+  58              | aexpression LESS_EQUAL aexpression
+  59              | aexpression NEQUAL aexpression
+  60              | LPAREN lexpression RPAREN
+
+state 0
+	$accept : . body $end  (0)
+
+	DECL  shift 1
+	.  error
+
+	body  goto 2
+	declaration  goto 3
+
+
+state 1
+	declaration : DECL . dstatemnts ENDDECL  (4)
+
+	INTEGER  shift 4
+	BOOLEAN  shift 5
+	.  error
+
+	dstatemnts  goto 6
+	dstatemnt  goto 7
+	type  goto 8
+
+
+state 2
+	$accept : body . $end  (0)
+
+	$end  accept
+
+
+state 3
+	body : declaration .  (1)
+	body : declaration . main_function  (2)
+	body : declaration . functions main_function  (3)
+
+	INTEGER  shift 9
+	BOOLEAN  shift 5
+	$end  reduce 1
+
+	main_function  goto 10
+	functions  goto 11
+	type  goto 12
+	function  goto 13
+
+
+state 4
+	type : INTEGER .  (10)
+
+	.  reduce 10
+
+
+state 5
+	type : BOOLEAN .  (11)
+
+	.  reduce 11
+
+
+state 6
+	declaration : DECL dstatemnts . ENDDECL  (4)
+
+	ENDDECL  shift 14
+	.  error
+
+
+state 7
+	dstatemnts : dstatemnt .  (5)
+	dstatemnts : dstatemnt . dstatemnts  (6)
+
+	INTEGER  shift 4
+	BOOLEAN  shift 5
+	ENDDECL  reduce 5
+
+	dstatemnts  goto 15
+	dstatemnt  goto 7
+	type  goto 8
+
+
+state 8
+	dstatemnt : type . dvars  (7)
+
+	ID  shift 16
+	ADDRESSOF  shift 17
+	.  error
+
+	dvars  goto 18
+	var  goto 19
+
+
+state 9
+	type : INTEGER .  (10)
+	main_function : INTEGER . MAIN LPAREN RPAREN LFLOWER fbody RFLOWER  (27)
+
+	MAIN  shift 20
+	ID  reduce 10
+
+
+state 10
+	body : declaration main_function .  (2)
+
+	.  reduce 2
+
+
+state 11
+	body : declaration functions . main_function  (3)
+	functions : functions . function  (25)
+
+	INTEGER  shift 9
+	BOOLEAN  shift 5
+	.  error
+
+	main_function  goto 21
+	type  goto 12
+	function  goto 22
+
+
+state 12
+	function : type . ID LPAREN parametr RPAREN LFLOWER fbody RFLOWER  (26)
+
+	ID  shift 23
+	.  error
+
+
+state 13
+	functions : function .  (24)
+
+	.  reduce 24
+
+
+state 14
+	declaration : DECL dstatemnts ENDDECL .  (4)
+
+	.  reduce 4
+
+
+state 15
+	dstatemnts : dstatemnt dstatemnts .  (6)
+
+	.  reduce 6
+
+
+state 16
+	var : ID .  (12)
+	var : ID . LSQUARE NUMBER RSQUARE  (13)
+	var : ID . LPAREN parametr RPAREN  (14)
+
+	LSQUARE  shift 24
+	LPAREN  shift 25
+	SEMICOLON  reduce 12
+	COMMA  reduce 12
+
+
+state 17
+	var : ADDRESSOF . ID  (15)
+
+	ID  shift 26
+	.  error
+
+
+state 18
+	dstatemnt : type dvars .  (7)
+
+	.  reduce 7
+
+
+state 19
+	dvars : var . SEMICOLON  (8)
+	dvars : var . COMMA dvars  (9)
+
+	SEMICOLON  shift 27
+	COMMA  shift 28
+	.  error
+
+
+state 20
+	main_function : INTEGER MAIN . LPAREN RPAREN LFLOWER fbody RFLOWER  (27)
+
+	LPAREN  shift 29
+	.  error
+
+
+state 21
+	body : declaration functions main_function .  (3)
+
+	.  reduce 3
+
+
+state 22
+	functions : functions function .  (25)
+
+	.  reduce 25
+
+
+state 23
+	function : type ID . LPAREN parametr RPAREN LFLOWER fbody RFLOWER  (26)
+
+	LPAREN  shift 30
+	.  error
+
+
+state 24
+	var : ID LSQUARE . NUMBER RSQUARE  (13)
+
+	NUMBER  shift 31
+	.  error
+
+
+state 25
+	var : ID LPAREN . parametr RPAREN  (14)
+	parametr : .  (16)
+
+	INTEGER  shift 4
+	BOOLEAN  shift 5
+	RPAREN  reduce 16
+
+	type  goto 32
+	parametr  goto 33
+
+
+state 26
+	var : ADDRESSOF ID .  (15)
+
+	.  reduce 15
+
+
+state 27
+	dvars : var SEMICOLON .  (8)
+
+	.  reduce 8
+
+
+state 28
+	dvars : var COMMA . dvars  (9)
+
+	ID  shift 16
+	ADDRESSOF  shift 17
+	.  error
+
+	dvars  goto 34
+	var  goto 19
+
+
+state 29
+	main_function : INTEGER MAIN LPAREN . RPAREN LFLOWER fbody RFLOWER  (27)
+
+	RPAREN  shift 35
+	.  error
+
+
+state 30
+	function : type ID LPAREN . parametr RPAREN LFLOWER fbody RFLOWER  (26)
+	parametr : .  (16)
+
+	INTEGER  shift 4
+	BOOLEAN  shift 5
+	RPAREN  reduce 16
+
+	type  goto 32
+	parametr  goto 36
+
+
+state 31
+	var : ID LSQUARE NUMBER . RSQUARE  (13)
+
+	RSQUARE  shift 37
+	.  error
+
+
+state 32
+	parametr : type . plvars  (17)
+
+	ID  shift 38
+	ADDRESSOF  shift 39
+	.  error
+
+	plvars  goto 40
+	pvars  goto 41
+
+
+state 33
+	var : ID LPAREN parametr . RPAREN  (14)
+
+	RPAREN  shift 42
+	.  error
+
+
+state 34
+	dvars : var COMMA dvars .  (9)
+
+	.  reduce 9
+
+
+state 35
+	main_function : INTEGER MAIN LPAREN RPAREN . LFLOWER fbody RFLOWER  (27)
+
+	LFLOWER  shift 43
+	.  error
+
+
+state 36
+	function : type ID LPAREN parametr . RPAREN LFLOWER fbody RFLOWER  (26)
+
+	RPAREN  shift 44
+	.  error
+
+
+state 37
+	var : ID LSQUARE NUMBER RSQUARE .  (13)
+
+	.  reduce 13
+
+
+state 38
+	pvars : ID . COMMA pvars  (20)
+	pvars : ID .  (21)
+
+	COMMA  shift 45
+	SEMICOLON  reduce 21
+	RPAREN  reduce 21
+
+
+state 39
+	pvars : ADDRESSOF . ID  (22)
+	pvars : ADDRESSOF . ID COMMA pvars  (23)
+
+	ID  shift 46
+	.  error
+
+
+state 40
+	parametr : type plvars .  (17)
+
+	.  reduce 17
+
+
+state 41
+	plvars : pvars . SEMICOLON parametr  (18)
+	plvars : pvars .  (19)
+
+	SEMICOLON  shift 47
+	RPAREN  reduce 19
+
+
+state 42
+	var : ID LPAREN parametr RPAREN .  (14)
+
+	.  reduce 14
+
+
+state 43
+	main_function : INTEGER MAIN LPAREN RPAREN LFLOWER . fbody RFLOWER  (27)
+
+	DECL  shift 1
+	.  error
+
+	declaration  goto 48
+	fbody  goto 49
+
+
+state 44
+	function : type ID LPAREN parametr RPAREN . LFLOWER fbody RFLOWER  (26)
+
+	LFLOWER  shift 50
+	.  error
+
+
+state 45
+	pvars : ID COMMA . pvars  (20)
+
+	ID  shift 38
+	ADDRESSOF  shift 39
+	.  error
+
+	pvars  goto 51
+
+
+state 46
+	pvars : ADDRESSOF ID .  (22)
+	pvars : ADDRESSOF ID . COMMA pvars  (23)
+
+	COMMA  shift 52
+	SEMICOLON  reduce 22
+	RPAREN  reduce 22
+
+
+state 47
+	plvars : pvars SEMICOLON . parametr  (18)
+	parametr : .  (16)
+
+	INTEGER  shift 4
+	BOOLEAN  shift 5
+	RPAREN  reduce 16
+
+	type  goto 32
+	parametr  goto 53
+
+
+state 48
+	fbody : declaration .  (28)
+	fbody : declaration . bbody  (29)
+
+	BEGINN  shift 54
+	RFLOWER  reduce 28
+
+	bbody  goto 55
+
+
+state 49
+	main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody . RFLOWER  (27)
+
+	RFLOWER  shift 56
+	.  error
+
+
+state 50
+	function : type ID LPAREN parametr RPAREN LFLOWER . fbody RFLOWER  (26)
+
+	DECL  shift 1
+	.  error
+
+	declaration  goto 48
+	fbody  goto 57
+
+
+state 51
+	pvars : ID COMMA pvars .  (20)
+
+	.  reduce 20
+
+
+state 52
+	pvars : ADDRESSOF ID COMMA . pvars  (23)
+
+	ID  shift 38
+	ADDRESSOF  shift 39
+	.  error
+
+	pvars  goto 58
+
+
+state 53
+	plvars : pvars SEMICOLON parametr .  (18)
+
+	.  reduce 18
+
+
+state 54
+	bbody : BEGINN . statements return END  (30)
+
+	ID  shift 59
+	READ  shift 60
+	WRITE  shift 61
+	IF  shift 62
+	WHILE  shift 63
+	.  error
+
+	statements  goto 64
+	ifelse  goto 65
+	statement  goto 66
+	dowhile  goto 67
+	read  goto 68
+	write  goto 69
+	astatement  goto 70
+
+
+state 55
+	fbody : declaration bbody .  (29)
+
+	.  reduce 29
+
+
+state 56
+	main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER .  (27)
+
+	.  reduce 27
+
+
+state 57
+	function : type ID LPAREN parametr RPAREN LFLOWER fbody . RFLOWER  (26)
+
+	RFLOWER  shift 71
+	.  error
+
+
+state 58
+	pvars : ADDRESSOF ID COMMA pvars .  (23)
+
+	.  reduce 23
+
+
+state 59
+	astatement : ID . ASSIGN expression SEMICOLON  (42)
+
+	ASSIGN  shift 72
+	.  error
+
+
+state 60
+	read : READ . LPAREN ID RPAREN SEMICOLON  (43)
+
+	LPAREN  shift 73
+	.  error
+
+
+state 61
+	write : WRITE . LPAREN aexpression RPAREN SEMICOLON  (44)
+
+	LPAREN  shift 74
+	.  error
+
+
+state 62
+	ifelse : IF . lexpression THEN statements ENDIF SEMICOLON  (31)
+	ifelse : IF . lexpression THEN statements ELSE statements ENDIF SEMICOLON  (32)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 77
+	.  error
+
+	lexpression  goto 78
+	aexpression  goto 79
+
+
+state 63
+	dowhile : WHILE . lexpression DO statements ENDWHILE SEMICOLON  (40)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 77
+	.  error
+
+	lexpression  goto 80
+	aexpression  goto 79
+
+
+state 64
+	bbody : BEGINN statements . return END  (30)
+
+	RETURN  shift 81
+	.  error
+
+	return  goto 82
+
+
+state 65
+	statement : ifelse .  (33)
+
+	.  reduce 33
+
+
+state 66
+	statements : statement .  (38)
+	statements : statement . statements  (39)
+
+	ID  shift 59
+	READ  shift 60
+	WRITE  shift 61
+	IF  shift 62
+	WHILE  shift 63
+	ENDIF  reduce 38
+	ELSE  reduce 38
+	ENDWHILE  reduce 38
+	RETURN  reduce 38
+
+	statements  goto 83
+	ifelse  goto 65
+	statement  goto 66
+	dowhile  goto 67
+	read  goto 68
+	write  goto 69
+	astatement  goto 70
+
+
+state 67
+	statement : dowhile .  (34)
+
+	.  reduce 34
+
+
+state 68
+	statement : read .  (35)
+
+	.  reduce 35
+
+
+state 69
+	statement : write .  (36)
+
+	.  reduce 36
+
+
+state 70
+	statement : astatement .  (37)
+
+	.  reduce 37
+
+
+state 71
+	function : type ID LPAREN parametr RPAREN LFLOWER fbody RFLOWER .  (26)
+
+	.  reduce 26
+
+
+state 72
+	astatement : ID ASSIGN . expression SEMICOLON  (42)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 77
+	.  error
+
+	lexpression  goto 84
+	expression  goto 85
+	aexpression  goto 86
+
+
+state 73
+	read : READ LPAREN . ID RPAREN SEMICOLON  (43)
+
+	ID  shift 87
+	.  error
+
+
+state 74
+	write : WRITE LPAREN . aexpression RPAREN SEMICOLON  (44)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 89
+
+
+state 75
+	aexpression : ID .  (52)
+
+	.  reduce 52
+
+
+state 76
+	aexpression : NUMBER .  (53)
+
+	.  reduce 53
+
+
+state 77
+	aexpression : LPAREN . aexpression RPAREN  (51)
+	lexpression : LPAREN . lexpression RPAREN  (60)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 77
+	.  error
+
+	lexpression  goto 90
+	aexpression  goto 91
+
+
+state 78
+	ifelse : IF lexpression . THEN statements ENDIF SEMICOLON  (31)
+	ifelse : IF lexpression . THEN statements ELSE statements ENDIF SEMICOLON  (32)
+
+	THEN  shift 92
+	.  error
+
+
+state 79
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	lexpression : aexpression . EQUAL aexpression  (54)
+	lexpression : aexpression . LESS_THAN aexpression  (55)
+	lexpression : aexpression . GREATER_THAN aexpression  (56)
+	lexpression : aexpression . GREATER_EQ aexpression  (57)
+	lexpression : aexpression . LESS_EQUAL aexpression  (58)
+	lexpression : aexpression . NEQUAL aexpression  (59)
+
+	EQUAL  shift 93
+	NEQUAL  shift 94
+	LESS_THAN  shift 95
+	LESS_EQUAL  shift 96
+	GREATER_THAN  shift 97
+	GREATER_EQ  shift 98
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	.  error
+
+
+state 80
+	dowhile : WHILE lexpression . DO statements ENDWHILE SEMICOLON  (40)
+
+	DO  shift 103
+	.  error
+
+
+state 81
+	return : RETURN . expression SEMICOLON  (41)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 77
+	.  error
+
+	lexpression  goto 84
+	expression  goto 104
+	aexpression  goto 86
+
+
+state 82
+	bbody : BEGINN statements return . END  (30)
+
+	END  shift 105
+	.  error
+
+
+state 83
+	statements : statement statements .  (39)
+
+	.  reduce 39
+
+
+state 84
+	expression : lexpression .  (46)
+
+	.  reduce 46
+
+
+state 85
+	astatement : ID ASSIGN expression . SEMICOLON  (42)
+
+	SEMICOLON  shift 106
+	.  error
+
+
+state 86
+	expression : aexpression .  (45)
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	lexpression : aexpression . EQUAL aexpression  (54)
+	lexpression : aexpression . LESS_THAN aexpression  (55)
+	lexpression : aexpression . GREATER_THAN aexpression  (56)
+	lexpression : aexpression . GREATER_EQ aexpression  (57)
+	lexpression : aexpression . LESS_EQUAL aexpression  (58)
+	lexpression : aexpression . NEQUAL aexpression  (59)
+
+	EQUAL  shift 93
+	NEQUAL  shift 94
+	LESS_THAN  shift 95
+	LESS_EQUAL  shift 96
+	GREATER_THAN  shift 97
+	GREATER_EQ  shift 98
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 45
+
+
+state 87
+	read : READ LPAREN ID . RPAREN SEMICOLON  (43)
+
+	RPAREN  shift 107
+	.  error
+
+
+state 88
+	aexpression : LPAREN . aexpression RPAREN  (51)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 108
+
+
+state 89
+	write : WRITE LPAREN aexpression . RPAREN SEMICOLON  (44)
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	RPAREN  shift 109
+	.  error
+
+
+state 90
+	lexpression : LPAREN lexpression . RPAREN  (60)
+
+	RPAREN  shift 110
+	.  error
+
+
+state 91
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	aexpression : LPAREN aexpression . RPAREN  (51)
+	lexpression : aexpression . EQUAL aexpression  (54)
+	lexpression : aexpression . LESS_THAN aexpression  (55)
+	lexpression : aexpression . GREATER_THAN aexpression  (56)
+	lexpression : aexpression . GREATER_EQ aexpression  (57)
+	lexpression : aexpression . LESS_EQUAL aexpression  (58)
+	lexpression : aexpression . NEQUAL aexpression  (59)
+
+	EQUAL  shift 93
+	NEQUAL  shift 94
+	LESS_THAN  shift 95
+	LESS_EQUAL  shift 96
+	GREATER_THAN  shift 97
+	GREATER_EQ  shift 98
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	RPAREN  shift 111
+	.  error
+
+
+state 92
+	ifelse : IF lexpression THEN . statements ENDIF SEMICOLON  (31)
+	ifelse : IF lexpression THEN . statements ELSE statements ENDIF SEMICOLON  (32)
+
+	ID  shift 59
+	READ  shift 60
+	WRITE  shift 61
+	IF  shift 62
+	WHILE  shift 63
+	.  error
+
+	statements  goto 112
+	ifelse  goto 65
+	statement  goto 66
+	dowhile  goto 67
+	read  goto 68
+	write  goto 69
+	astatement  goto 70
+
+
+state 93
+	lexpression : aexpression EQUAL . aexpression  (54)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 113
+
+
+state 94
+	lexpression : aexpression NEQUAL . aexpression  (59)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 114
+
+
+state 95
+	lexpression : aexpression LESS_THAN . aexpression  (55)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 115
+
+
+state 96
+	lexpression : aexpression LESS_EQUAL . aexpression  (58)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 116
+
+
+state 97
+	lexpression : aexpression GREATER_THAN . aexpression  (56)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 117
+
+
+state 98
+	lexpression : aexpression GREATER_EQ . aexpression  (57)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 118
+
+
+state 99
+	aexpression : aexpression PLUS . aexpression  (47)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 119
+
+
+state 100
+	aexpression : aexpression MINUS . aexpression  (48)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 120
+
+
+state 101
+	aexpression : aexpression MULT . aexpression  (49)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 121
+
+
+state 102
+	aexpression : aexpression DIVIDE . aexpression  (50)
+
+	ID  shift 75
+	NUMBER  shift 76
+	LPAREN  shift 88
+	.  error
+
+	aexpression  goto 122
+
+
+state 103
+	dowhile : WHILE lexpression DO . statements ENDWHILE SEMICOLON  (40)
+
+	ID  shift 59
+	READ  shift 60
+	WRITE  shift 61
+	IF  shift 62
+	WHILE  shift 63
+	.  error
+
+	statements  goto 123
+	ifelse  goto 65
+	statement  goto 66
+	dowhile  goto 67
+	read  goto 68
+	write  goto 69
+	astatement  goto 70
+
+
+state 104
+	return : RETURN expression . SEMICOLON  (41)
+
+	SEMICOLON  shift 124
+	.  error
+
+
+state 105
+	bbody : BEGINN statements return END .  (30)
+
+	.  reduce 30
+
+
+state 106
+	astatement : ID ASSIGN expression SEMICOLON .  (42)
+
+	.  reduce 42
+
+
+state 107
+	read : READ LPAREN ID RPAREN . SEMICOLON  (43)
+
+	SEMICOLON  shift 125
+	.  error
+
+
+state 108
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	aexpression : LPAREN aexpression . RPAREN  (51)
+
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	RPAREN  shift 111
+	.  error
+
+
+state 109
+	write : WRITE LPAREN aexpression RPAREN . SEMICOLON  (44)
+
+	SEMICOLON  shift 126
+	.  error
+
+
+state 110
+	lexpression : LPAREN lexpression RPAREN .  (60)
+
+	.  reduce 60
+
+
+state 111
+	aexpression : LPAREN aexpression RPAREN .  (51)
+
+	.  reduce 51
+
+
+state 112
+	ifelse : IF lexpression THEN statements . ENDIF SEMICOLON  (31)
+	ifelse : IF lexpression THEN statements . ELSE statements ENDIF SEMICOLON  (32)
+
+	ENDIF  shift 127
+	ELSE  shift 128
+	.  error
+
+
+state 113
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	lexpression : aexpression EQUAL aexpression .  (54)
+
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 54
+	THEN  reduce 54
+	RPAREN  reduce 54
+	DO  reduce 54
+
+
+state 114
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	lexpression : aexpression NEQUAL aexpression .  (59)
+
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 59
+	THEN  reduce 59
+	RPAREN  reduce 59
+	DO  reduce 59
+
+
+state 115
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	lexpression : aexpression LESS_THAN aexpression .  (55)
+
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 55
+	THEN  reduce 55
+	RPAREN  reduce 55
+	DO  reduce 55
+
+
+state 116
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	lexpression : aexpression LESS_EQUAL aexpression .  (58)
+
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 58
+	THEN  reduce 58
+	RPAREN  reduce 58
+	DO  reduce 58
+
+
+state 117
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	lexpression : aexpression GREATER_THAN aexpression .  (56)
+
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 56
+	THEN  reduce 56
+	RPAREN  reduce 56
+	DO  reduce 56
+
+
+state 118
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	lexpression : aexpression GREATER_EQ aexpression .  (57)
+
+	PLUS  shift 99
+	MINUS  shift 100
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 57
+	THEN  reduce 57
+	RPAREN  reduce 57
+	DO  reduce 57
+
+
+state 119
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression PLUS aexpression .  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 47
+	THEN  reduce 47
+	EQUAL  reduce 47
+	NEQUAL  reduce 47
+	LESS_THAN  reduce 47
+	LESS_EQUAL  reduce 47
+	GREATER_THAN  reduce 47
+	GREATER_EQ  reduce 47
+	PLUS  reduce 47
+	MINUS  reduce 47
+	RPAREN  reduce 47
+	DO  reduce 47
+
+
+state 120
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression MINUS aexpression .  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+
+	MULT  shift 101
+	DIVIDE  shift 102
+	SEMICOLON  reduce 48
+	THEN  reduce 48
+	EQUAL  reduce 48
+	NEQUAL  reduce 48
+	LESS_THAN  reduce 48
+	LESS_EQUAL  reduce 48
+	GREATER_THAN  reduce 48
+	GREATER_EQ  reduce 48
+	PLUS  reduce 48
+	MINUS  reduce 48
+	RPAREN  reduce 48
+	DO  reduce 48
+
+
+state 121
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression MULT aexpression .  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+
+	.  reduce 49
+
+
+state 122
+	aexpression : aexpression . PLUS aexpression  (47)
+	aexpression : aexpression . MINUS aexpression  (48)
+	aexpression : aexpression . MULT aexpression  (49)
+	aexpression : aexpression . DIVIDE aexpression  (50)
+	aexpression : aexpression DIVIDE aexpression .  (50)
+
+	.  reduce 50
+
+
+state 123
+	dowhile : WHILE lexpression DO statements . ENDWHILE SEMICOLON  (40)
+
+	ENDWHILE  shift 129
+	.  error
+
+
+state 124
+	return : RETURN expression SEMICOLON .  (41)
+
+	.  reduce 41
+
+
+state 125
+	read : READ LPAREN ID RPAREN SEMICOLON .  (43)
+
+	.  reduce 43
+
+
+state 126
+	write : WRITE LPAREN aexpression RPAREN SEMICOLON .  (44)
+
+	.  reduce 44
+
+
+state 127
+	ifelse : IF lexpression THEN statements ENDIF . SEMICOLON  (31)
+
+	SEMICOLON  shift 130
+	.  error
+
+
+state 128
+	ifelse : IF lexpression THEN statements ELSE . statements ENDIF SEMICOLON  (32)
+
+	ID  shift 59
+	READ  shift 60
+	WRITE  shift 61
+	IF  shift 62
+	WHILE  shift 63
+	.  error
+
+	statements  goto 131
+	ifelse  goto 65
+	statement  goto 66
+	dowhile  goto 67
+	read  goto 68
+	write  goto 69
+	astatement  goto 70
+
+
+state 129
+	dowhile : WHILE lexpression DO statements ENDWHILE . SEMICOLON  (40)
+
+	SEMICOLON  shift 132
+	.  error
+
+
+state 130
+	ifelse : IF lexpression THEN statements ENDIF SEMICOLON .  (31)
+
+	.  reduce 31
+
+
+state 131
+	ifelse : IF lexpression THEN statements ELSE statements . ENDIF SEMICOLON  (32)
+
+	ENDIF  shift 133
+	.  error
+
+
+state 132
+	dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON .  (40)
+
+	.  reduce 40
+
+
+state 133
+	ifelse : IF lexpression THEN statements ELSE statements ENDIF . SEMICOLON  (32)
+
+	SEMICOLON  shift 134
+	.  error
+
+
+state 134
+	ifelse : IF lexpression THEN statements ELSE statements ENDIF SEMICOLON .  (32)
+
+	.  reduce 32
+
+
+49 terminals, 27 nonterminals
+61 grammar rules, 135 states

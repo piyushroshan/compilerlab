@@ -1,4 +1,5 @@
 %{
+#include <stdio.h>
 #include "y.tab.h"
 %}
 ws	[ ]
@@ -50,6 +51,7 @@ NOT	{ return NOT;}
 read	{ return READ;}
 write	{ return WRITE;}
 if	{ return IF;}
+endif	{ return ENDIF;}
 then	{ return THEN;}
 else	{ return ELSE;}
 while   { return WHILE; }
@@ -60,7 +62,8 @@ enddecl	{ return ENDDECL; }
 print	{ return PRINT; }
 begin	{ return BEGINN; }
 end	{ return END; }
+main { return MAIN; }
 return  { return RETURN; }
 record  { return RECORD; }
-{id}	{ yylval = yytext; return ID; }
-{number}	{ yylval = atoi(yytext); return NUMBER; }
+{id}	{ yylval.str = yytext; return ID; }
+{number}	{ yylval.num = atoi(yytext); return NUMBER; }
