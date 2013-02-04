@@ -38,7 +38,7 @@ type : INTEGER
 	| BOOLEAN
 	;
 var : ID 
-	| ID LSQUARE NUMBER RSQUARE 
+	| ID LSQUARE aexpression RSQUARE 
 	| ID LPAREN parametr RPAREN
 	| ADDRESSOF ID
 	;
@@ -112,9 +112,11 @@ aexpression : aexpression PLUS aexpression
 	| aexpression MINUS aexpression
 	| aexpression MULT aexpression
 	| aexpression DIVIDE aexpression
+	| aexpression MODULUS aexpression
 	| LPAREN aexpression RPAREN
 	| ID
 	| NUMBER
+	| ID LSQUARE aexpression RSQUARE
 	;
 
 lexpression : aexpression EQUAL aexpression
@@ -123,7 +125,12 @@ lexpression : aexpression EQUAL aexpression
 	| aexpression GREATER_EQ aexpression
 	| aexpression LESS_EQUAL aexpression
 	| aexpression NEQUAL aexpression
+	| lexpression AND lexpression
+	| lexpression OR lexpression
+	| NOT lexpression
 	| LPAREN lexpression RPAREN
+	| TRUE
+	| FALSE
 	;
 
 %%

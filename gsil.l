@@ -1,6 +1,38 @@
 %{
 #include <stdio.h>
 #include "y.tab.h"
+
+
+struct node
+{
+	int TYPE;
+	int NODETYPE;
+	int VALUE;
+	struct node *left,*right;
+};
+
+struct node* treecreate(int nodetype1,int value1)
+{
+	struct node* temp=malloc(sizeof(struct node));
+	if(nodetype1==0)
+	{
+		temp->TYPE=1;
+		temp->NODETYPE=nodetype1;
+		temp->VALUE=value1;
+		temp->left=NULL;
+		temp->right=NULL;
+
+	}
+	else if(nodetype1==1)
+	{
+		temp->TYPE=1;
+		temp->NODETYPE=nodetype1;
+		temp->left=NULL;
+		temp->right=NULL;
+	}
+	return temp;
+}
+
 %}
 ws	[ ]
 tab	\t
@@ -31,7 +63,7 @@ integer	{ return INTEGER;}
 "<="    { return LESS_EQUAL; }
 ">"     { return GREATER_THAN; }
 ">="    { return GREATER_EQ; }
-"+"     { return PLUS; }
+"+"     { yylval.n =treecreate(1,0);  return PLUS; }
 "-"     { return MINUS; }
 "*"     { return MULT; }
 "/"     { return DIVIDE; }
@@ -65,4 +97,7 @@ main { return MAIN; }
 return  { return RETURN; }
 record  { return RECORD; }
 {id}	{ yylval.str = yytext; return ID; }
-{number}	{ yylval.num = atoi(yytext); return NUMBER; }
+{number}	{ yylval.n = treecreate(0,atoi(yytext)); return NUMBER; }
+
+%%
+

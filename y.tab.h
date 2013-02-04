@@ -1,60 +1,78 @@
-#define DECL 257
-#define ENDDECL 258
-#define SEMICOLON 259
-#define COMMA 260
-#define INTEGER 261
-#define BOOLEAN 262
-#define ID 263
-#define LSQUARE 264
-#define RSQUARE 265
-#define TRUE 266
-#define FALSE 267
-#define ADDRESSOF 268
-#define MODULUS 269
-#define AND 270
-#define OR 271
-#define NOT 272
-#define READ 273
-#define WRITE 274
-#define IF 275
-#define ENDIF 276
-#define THEN 277
-#define ELSE 278
-#define WHILE 279
-#define NUMBER 280
-#define EQUAL 281
-#define ASSIGN 282
-#define NEQUAL 283
-#define LESS_THAN 284
-#define LESS_EQUAL 285
-#define GREATER_THAN 286
-#define GREATER_EQ 287
-#define PLUS 288
-#define MINUS 289
-#define MULT 290
-#define DIVIDE 291
-#define LPAREN 292
-#define RPAREN 293
-#define RFLOWER 294
-#define LFLOWER 295
-#define DO 296
-#define ENDWHILE 297
-#define PRINT 298
-#define BEGINN 299
-#define END 300
-#define RETURN 301
-#define RECORD 302
-#define MAIN 303
-#ifdef YYSTYPE
-#undef  YYSTYPE_IS_DECLARED
-#define YYSTYPE_IS_DECLARED 1
+/* A Bison parser, made by GNU Bison 2.5.  */
+
+/* Bison interface for Yacc-like parsers in C
+   
+      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
+   
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+
+/* As a special exception, you may create a larger work that contains
+   part or all of the Bison parser skeleton and distribute that work
+   under terms of your choice, so long as that work isn't itself a
+   parser generator using the skeleton or a modified version thereof
+   as a parser skeleton.  Alternatively, if you modify or redistribute
+   the parser skeleton itself, you may (at your option) remove this
+   special exception, which will cause the skeleton and the resulting
+   Bison output files to be licensed under the GNU General Public
+   License without this special exception.
+   
+   This special exception was added by the Free Software Foundation in
+   version 2.2 of Bison.  */
+
+
+/* Tokens.  */
+#ifndef YYTOKENTYPE
+# define YYTOKENTYPE
+   /* Put the tokens into the symbol table, so that GDB and other debuggers
+      know about them.  */
+   enum yytokentype {
+     NUM = 258,
+     OP1 = 259,
+     OP2 = 260,
+     OP3 = 261,
+     OP4 = 262
+   };
 #endif
-#ifndef YYSTYPE_IS_DECLARED
-#define YYSTYPE_IS_DECLARED 1
-typedef union
+/* Tokens.  */
+#define NUM 258
+#define OP1 259
+#define OP2 260
+#define OP3 261
+#define OP4 262
+
+
+
+
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+typedef union YYSTYPE
 {
-	int num;
-	char* str;
+
+/* Line 2068 of yacc.c  */
+#line 20 "jas.y"
+
+	struct Tnode *n;
+
+
+
+/* Line 2068 of yacc.c  */
+#line 70 "y.tab.h"
 } YYSTYPE;
-#endif /* !YYSTYPE_IS_DECLARED */
+# define YYSTYPE_IS_TRIVIAL 1
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
+# define YYSTYPE_IS_DECLARED 1
+#endif
+
 extern YYSTYPE yylval;
+
+
