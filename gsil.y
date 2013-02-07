@@ -16,15 +16,15 @@ struct node
 
 
 %union
-{	
+{
 	int num;
 	char* str;
 	struct node* n;
 }
-%token DECL ENDDECL SEMICOLON COMMA INTEGER BOOLEAN ID LSQUARE RSQUARE TRUE FALSE ADDRESSOF 
+%token DECL ENDDECL SEMICOLON COMMA INTEGER BOOLEAN ID LSQUARE RSQUARE TRUE FALSE ADDRESSOF
 %token MODULUS AND OR NOT READ WRITE IF ENDIF THEN ELSE WHILE NUMBER
-%token EQUAL ASSIGN NEQUAL LESS_THAN LESS_EQUAL GREATER_THAN GREATER_EQ PLUS MINUS 
-%token MULT DIVIDE LPAREN RPAREN RFLOWER LFLOWER DO ENDWHILE PRINT BEGINN END RETURN RECORD MAIN 
+%token EQUAL ASSIGN NEQUAL LESS_THAN LESS_EQUAL GREATER_THAN GREATER_EQ PLUS MINUS
+%token MULT DIVIDE LPAREN RPAREN RFLOWER LFLOWER DO ENDWHILE PRINT BEGINN END RETURN RECORD MAIN
 %right  ASSIGN
 %left  PLUS  MINUS
 %left  MULT  DIVIDE  MODULUS
@@ -36,15 +36,14 @@ struct node
 %%
 
 
-program : expression {   printf ("\n PArsing SHSlkjHKfd \n"); 
+program : expression {   printf ("\n PArsing SHSlkjHKfd \n");
 								postfix($1);
 						}
-	; 
+	;
 expression : NUMBER { $$=$1;}
-	| expression PLUS expression {  $$->left=$1;
-										$$=$2;
+	| expression PLUS expression {  $$=$2; $$->left=$1;
 										$$->right=$3;
-													} 
+													}
 	;
 %%
 
@@ -62,10 +61,10 @@ void postfix(struct node* root)
 		postfix(root->right);
 		switch(root->NODETYPE ) {
 			case 0 :
-				printf("%d",root->VALUE);
+				printf("%d ",root->VALUE);
 				break;
 			case 1 :
-				printf("%c",'+');
+				printf("%c ",'+');
 				break;
 		}
 	}
