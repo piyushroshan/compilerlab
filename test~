@@ -23,7 +23,7 @@ i = 1;
 while ( i <= n) do
 
 write (factorial%arr[76*(a+0)+q[y+o]]+(i));
-if a==b then
+if a=b then
 i = i + 1;
 else
 i=i+2;
