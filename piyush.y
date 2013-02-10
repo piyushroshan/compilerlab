@@ -186,11 +186,13 @@ void printTree(struct node* root){
 				case 'S' :
 					printTree(root->center);
 					printTree(root->left);
+					printTree(root->right);
 					break;
 				case 'I' :
 					printf("( ");
 					printf("%s","IF");
 					printTree(root->center);
+					printf("\n");
 					printTree(root->left);
 					printTree(root->right);
 					printf(" )\n");
@@ -199,6 +201,7 @@ void printTree(struct node* root){
 					printf("( ");
 					printf("%s","WHILE");
 					printTree(root->center);
+					printf("\n");
 					printTree(root->left);
 					printf(" )\n");
 					break;

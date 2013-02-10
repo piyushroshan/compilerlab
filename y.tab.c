@@ -459,11 +459,13 @@ void printTree(struct node* root){
 				case 'S' :
 					printTree(root->center);
 					printTree(root->left);
+					printTree(root->right);
 					break;
 				case 'I' :
 					printf("( ");
 					printf("%s","IF");
 					printTree(root->center);
+					printf("\n");
 					printTree(root->left);
 					printTree(root->right);
 					printf(" )\n");
@@ -472,6 +474,7 @@ void printTree(struct node* root){
 					printf("( ");
 					printf("%s","WHILE");
 					printTree(root->center);
+					printf("\n");
 					printTree(root->left);
 					printf(" )\n");
 					break;
@@ -630,7 +633,7 @@ void printTree(struct node* root){
 			break;
 	}
 }
-#line 633 "y.tab.c"
+#line 636 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -1032,7 +1035,7 @@ case 67:
 #line 156 "piyush.y"
 	{ yystack.l_mark[0].n = CreateNode(0,'F', 0, NULL, NULL, NULL, NULL, NULL); yyval.n = yystack.l_mark[0].n; }
 break;
-#line 1035 "y.tab.c"
+#line 1038 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;
