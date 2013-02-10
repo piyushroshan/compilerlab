@@ -440,7 +440,137 @@ char *s;
 {
   fprintf(stderr, "%s\n",s);
 }
-#line 443 "y.tab.c"
+
+
+
+void printTree(struct node* root){
+	if(root==NULL) {
+		return;
+	}
+	switch(root->TYPE){
+		case 0 :
+			switch(root->NODETYPE ) {
+				case 'f' :
+					printf("( ");
+					printf("%s",root->NAME);
+					break;
+				case 'I' :
+					printf("( ");
+					printf("%s","IF");
+					break;
+				case 'W' :
+					printf("( ");
+					printf("%s","WHILE");
+					break;
+				case 'r' :
+					printf("( ");
+					printf("%s","READ");
+					break;
+				case 'w' :
+					printf("( ");
+					printf("%s","WRITE");
+					break;
+				case 'R' :
+					printf("( ");
+					printf("%s","RETURN");
+					break;
+				case '+' :
+					printf("( ");
+					printf("%c",'+');
+					break;
+				case '-' :
+					printf("( ");
+					printf("%c",'-');
+					break;
+				case '*' :
+					printf("( ");
+					printf("%c",'*');
+					break;
+				case '/' :
+					printf("( ");
+					printf("%c",'/');
+					break;
+				case '%' :
+					printf("( ");
+					printf("%c",'%');
+					break;
+				case 'T' :
+					printf("( ");
+					printf("%c",'T');
+					break;
+				case 'F' :
+					printf("( ");
+					printf("%c",'F');
+					break;
+				case '&' :
+					printf("( ");
+					printf("%c",'&');
+					break;
+				case '|' :
+					printf("( ");
+					printf("%c",'|');
+					break;
+				case '!' :
+					printf("( ");
+					printf("%c",'!');
+					break;
+				case 'G' :
+					printf("( ");
+					printf("%c%c",'>','=');
+					break;
+				case 'L' :
+					printf("( ");
+					printf("%c%c",'<','=');
+					break;
+				case '>' :
+					printf("( ");
+					printf("%c",'>');
+					break;
+				case '<' :
+					printf("( ");
+					printf("%c",'<');
+					break;
+				case 'E' :
+					printf("( ");
+					printf("%c%c",'=','=');
+					break;
+				case 'N' :
+					printf("( ");
+					printf("%c%c",'!','=');
+					break;
+				case '=' :
+					printf("( ");
+					printf("%c",'=');
+					break;
+				default:
+					break;
+
+			}
+			break;
+		case 1:
+			printf("( ");
+			printf("%d",root->VALUE);
+			break;
+		case 2:
+			printf("( ");
+			printf("%s",root->NAME);
+			break;
+	}
+		printTree(root->left);
+
+		printTree(root->center);
+
+		printTree(root->right);
+	if(root->next!=NULL){
+		printf(")");
+		printf("\n");
+		printTree(root->next);}
+	else{
+	printf(" ");
+	printf(")");}
+
+}
+#line 573 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -648,11 +778,11 @@ yyreduce:
     {
 case 1:
 #line 48 "piyush.y"
-	{ printf("PARSING SUCCESS\n"); yyval.n=yystack.l_mark[0].n;}
+	{ printf("PARSING SUCCESS\n"); yyval.n=yystack.l_mark[0].n; printTree(yystack.l_mark[0].n);}
 break;
 case 12:
 #line 68 "piyush.y"
-	{ yyval.n=CreateNode(0,'f', 0, "main", NULL, NULL, NULL, yystack.l_mark[-1].n);}
+	{ yyval.n=CreateNode(0,'f', 0, "MAIN", NULL, yystack.l_mark[-1].n, NULL, NULL);}
 break;
 case 13:
 #line 71 "piyush.y"
@@ -660,15 +790,15 @@ case 13:
 break;
 case 22:
 #line 89 "piyush.y"
-	{ yyval.n = yystack.l_mark[-2].n; yyval.n->center = yystack.l_mark[-1].n; }
+	{  yyval.n=CreateNode(0,0, 0, NULL, NULL, yystack.l_mark[-1].n, NULL, yystack.l_mark[-2].n);}
 break;
 case 23:
 #line 92 "piyush.y"
-	{ yyval.n = "NULL"; }
+	{ yyval.n = NULL; }
 break;
 case 24:
 #line 93 "piyush.y"
-	{ yyval.n=yystack.l_mark[0].n; yyval.n->next = yystack.l_mark[-1].n; }
+	{   yyval.n=yystack.l_mark[-1].n; yyval.n->next=yystack.l_mark[0].n; }
 break;
 case 25:
 #line 96 "piyush.y"
@@ -692,15 +822,15 @@ case 29:
 break;
 case 30:
 #line 103 "piyush.y"
-	{ yyval.n = CreateNode(0,24, 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL, NULL); }
+	{ yystack.l_mark[-5].n = CreateNode(0,24, 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL, NULL); yyval.n = yystack.l_mark[-5].n; }
 break;
 case 31:
 #line 104 "piyush.y"
-	{ yyval.n = CreateNode(0,'I', 0, NULL, yystack.l_mark[-4].n, yystack.l_mark[-6].n, yystack.l_mark[-2].n, NULL); }
+	{ yystack.l_mark[-7].n = CreateNode(0,'I', 0, NULL, yystack.l_mark[-4].n, yystack.l_mark[-6].n, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-7].n; }
 break;
 case 32:
 #line 107 "piyush.y"
-	{ yyval.n = CreateNode(0,'W', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL, NULL); }
+	{ yystack.l_mark[-5].n = CreateNode(0,'W', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL, NULL); yyval.n=yystack.l_mark[-5].n; }
 break;
 case 33:
 #line 110 "piyush.y"
@@ -708,7 +838,7 @@ case 33:
 break;
 case 34:
 #line 111 "piyush.y"
-	{ yystack.l_mark[-6].n->center = yystack.l_mark[-5].n; yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-6].n, NULL, yystack.l_mark[-4].n, NULL); yyval.n=yystack.l_mark[-5].n;  }
+	{ yystack.l_mark[-6].n->center = yystack.l_mark[-5].n; yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-6].n, NULL, yystack.l_mark[-4].n, NULL); yyval.n=yystack.l_mark[-2].n;  }
 break;
 case 35:
 #line 114 "piyush.y"
@@ -792,7 +922,7 @@ case 54:
 break;
 case 55:
 #line 142 "piyush.y"
-	{  yyval.n = yystack.l_mark[-3].n; yystack.l_mark[-3].n->center = yystack.l_mark[-1].n;}
+	{   yystack.l_mark[-3].n->center = yystack.l_mark[-1].n; yyval.n = yystack.l_mark[-3].n;}
 break;
 case 56:
 #line 145 "piyush.y"
@@ -816,7 +946,7 @@ case 60:
 break;
 case 61:
 #line 150 "piyush.y"
-	{ yystack.l_mark[-1].n = CreateNode(0,'!', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n, NULL); yyval.n = yystack.l_mark[-1].n; }
+	{ yystack.l_mark[-1].n = CreateNode(0,'N', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n, NULL); yyval.n = yystack.l_mark[-1].n; }
 break;
 case 62:
 #line 151 "piyush.y"
@@ -828,7 +958,7 @@ case 63:
 break;
 case 64:
 #line 153 "piyush.y"
-	{ yystack.l_mark[-1].n = CreateNode(0,'N', 0, NULL, NULL, yystack.l_mark[0].n, NULL, NULL); yyval.n = yystack.l_mark[-1].n; }
+	{ yystack.l_mark[-1].n = CreateNode(0,'!', 0, NULL, NULL, yystack.l_mark[0].n, NULL, NULL); yyval.n = yystack.l_mark[-1].n; }
 break;
 case 65:
 #line 154 "piyush.y"
@@ -842,7 +972,7 @@ case 67:
 #line 156 "piyush.y"
 	{ yystack.l_mark[0].n = CreateNode(0,'F', 0, NULL, NULL, NULL, NULL, NULL); yyval.n = yystack.l_mark[0].n; }
 break;
-#line 845 "y.tab.c"
+#line 975 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

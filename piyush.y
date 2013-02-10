@@ -45,7 +45,7 @@ struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struc
 
 
 %%
-program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2;}
+program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; printTree($2);}
 	;
 Gdeclaration : DECL GdeclStatements ENDDECL
 	;
@@ -65,7 +65,7 @@ Gvar : ID
 	| ID LSQUARE NUMBER RSQUARE
 	;
 
-main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER { $$=CreateNode(0,'f', 0, "main", NULL, NULL, NULL, $6);}
+main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER { $$=CreateNode(0,'f', 0, "MAIN", NULL, $6, NULL, NULL);}
 	;
 
 fbody : declaration beginbody  { $$=$2; }
@@ -86,11 +86,11 @@ var : ID
 	| ID LSQUARE aexpression RSQUARE
 	;
 
-beginbody : BEGINN statements return END { $$ = $2; $$->center = $3; }
+	beginbody : BEGINN statements return END {  $$=CreateNode(0,0, 0, NULL, NULL, $3, NULL, $2);}
 	;
 
-statements : { $$ = "NULL"; }
-	| statements statement { $$=$2; $$->next = $1; }
+statements : { $$ = NULL; }
+| statements statement {  $$=CreateNode(0,0, 0, NULL, $1, NULL, NULL, $2); }
 	;
 
 statement : ifelse { $$ = $1; }
@@ -100,15 +100,15 @@ statement : ifelse { $$ = $1; }
 	| astatement { $$ = $1; }
 	;
 
-ifelse : IF lexpression THEN statements ENDIF SEMICOLON { $$ = CreateNode(0,24, 0, NULL, $4, $2, NULL, NULL); }
-	| IF lexpression THEN statements ELSE statements ENDIF SEMICOLON { $$ = CreateNode(0,'I', 0, NULL, $4, $2, $6, NULL); }
+	ifelse : IF lexpression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,24, 0, NULL, $4, $2, NULL, NULL); $$ = $1; }
+	| IF lexpression THEN statements ELSE statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, $6, NULL); $$ = $1; }
 	;
 
-dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON { $$ = CreateNode(0,'W', 0, NULL, $4, $2, NULL, NULL); }
+dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $4, $2, NULL, NULL); $$=$1; }
 	;
 
 astatement : ID ASSIGN expression SEMICOLON { $2 = CreateNode(0,'=', 0, NULL, $1, NULL, $3, NULL); $$=$2; }
-	| ID LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON { $1->center = $2; $5 = CreateNode(0,'=', 0, NULL, $1, NULL, $3, NULL); $$=$2;  }
+	| ID LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON { $1->center = $2; $5 = CreateNode(0,'=', 0, NULL, $1, NULL, $3, NULL); $$=$5;  }
 	;
 
 read : READ LPAREN ID RPAREN SEMICOLON { $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL, NULL); $$ = $1; }
@@ -139,7 +139,7 @@ aexpression : aexpression PLUS aexpression { $2 = CreateNode(0,'+', 0, NULL, $1,
 	| LPAREN aexpression RPAREN { $$ = $2; }
 	| NUMBER { $$ = $1; }
 	| ID { $$ = $1; }
-	| ID LSQUARE aexpression RSQUARE {  $$ = $1; $1->center = $3;}
+	| ID LSQUARE aexpression RSQUARE {   $1->center = $3; $$ = $1;}
 	;
 
 lexpression : aexpression EQUAL aexpression { $2 = CreateNode(0,'E', 0, NULL, $1, NULL, $3, NULL); $$ = $2; }
@@ -147,10 +147,10 @@ lexpression : aexpression EQUAL aexpression { $2 = CreateNode(0,'E', 0, NULL, $1
 	| aexpression GREATER_THAN aexpression { $2 = CreateNode(0,'>', 0, NULL, $1, NULL, $3, NULL); $$ = $2; }
 	| aexpression GREATER_EQ aexpression { $2 = CreateNode(0,'G', 0, NULL, $1, NULL, $3, NULL); $$ = $2; }
 	| aexpression LESS_EQUAL aexpression { $2 = CreateNode(0,'L', 0, NULL, $1, NULL, $3, NULL); $$ = $2; }
-	| aexpression NEQUAL aexpression { $2 = CreateNode(0,'!', 0, NULL, $1, NULL, $3, NULL); $$ = $2; }
+	| aexpression NEQUAL aexpression { $2 = CreateNode(0,'N', 0, NULL, $1, NULL, $3, NULL); $$ = $2; }
 	| lexpression AND lexpression { $2 = CreateNode(0,'&', 0, NULL, $1, NULL, $3, NULL); $$ = $2; }
 	| lexpression OR lexpression { $2 = CreateNode(0,'|', 0, NULL, $1, NULL, $3, NULL); $$ = $2; }
-	| NOT lexpression { $1 = CreateNode(0,'N', 0, NULL, NULL, $2, NULL, NULL); $$ = $1; }
+	| NOT lexpression { $1 = CreateNode(0,'!', 0, NULL, NULL, $2, NULL, NULL); $$ = $1; }
 	| LPAREN lexpression RPAREN { $$ = $2; }
 	| TRUE { $1 = CreateNode(0,'T', 0, NULL,NULL,NULL,NULL, NULL); $$ = $1; }
 	| FALSE { $1 = CreateNode(0,'F', 0, NULL, NULL, NULL, NULL, NULL); $$ = $1; }
@@ -171,5 +171,129 @@ char *s;
 
 
 void printTree(struct node* root){
+	if(root==NULL) {
+		return;
+	}
+	switch(root->TYPE){
+		case 0 :
+			switch(root->NODETYPE ) {
+				case 'f' :
+					printf("( ");
+					printf("%s",root->NAME);
+					break;
+				case 'I' :
+					printf("( ");
+					printf("%s","IF");
+					break;
+				case 'W' :
+					printf("( ");
+					printf("%s","WHILE");
+					break;
+				case 'r' :
+					printf("( ");
+					printf("%s","READ");
+					break;
+				case 'w' :
+					printf("( ");
+					printf("%s","WRITE");
+					break;
+				case 'R' :
+					printf("( ");
+					printf("%s","RETURN");
+					break;
+				case '+' :
+					printf("( ");
+					printf("%c",'+');
+					break;
+				case '-' :
+					printf("( ");
+					printf("%c",'-');
+					break;
+				case '*' :
+					printf("( ");
+					printf("%c",'*');
+					break;
+				case '/' :
+					printf("( ");
+					printf("%c",'/');
+					break;
+				case '%' :
+					printf("( ");
+					printf("%c",'%');
+					break;
+				case 'T' :
+					printf("( ");
+					printf("%c",'T');
+					break;
+				case 'F' :
+					printf("( ");
+					printf("%c",'F');
+					break;
+				case '&' :
+					printf("( ");
+					printf("%c",'&');
+					break;
+				case '|' :
+					printf("( ");
+					printf("%c",'|');
+					break;
+				case '!' :
+					printf("( ");
+					printf("%c",'!');
+					break;
+				case 'G' :
+					printf("( ");
+					printf("%c%c",'>','=');
+					break;
+				case 'L' :
+					printf("( ");
+					printf("%c%c",'<','=');
+					break;
+				case '>' :
+					printf("( ");
+					printf("%c",'>');
+					break;
+				case '<' :
+					printf("( ");
+					printf("%c",'<');
+					break;
+				case 'E' :
+					printf("( ");
+					printf("%c%c",'=','=');
+					break;
+				case 'N' :
+					printf("( ");
+					printf("%c%c",'!','=');
+					break;
+				case '=' :
+					printf("( ");
+					printf("%c",'=');
+					break;
+				default:
+					break;
+
+			}
+			break;
+		case 1:
+			printf("( ");
+			printf("%d",root->VALUE);
+			break;
+		case 2:
+			printf("( ");
+			printf("%s",root->NAME);
+			break;
+	}
+		printTree(root->left);
+
+		printTree(root->center);
+
+		printTree(root->right);
+	if(root->next!=NULL){
+		printf(")");
+		printf("\n");
+		printTree(root->next);}
+	else{
+	printf(" ");
+	printf(")");}
 
 }

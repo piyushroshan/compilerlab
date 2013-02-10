@@ -1,35 +1,19 @@
 decl
 
-integer n,i,a[8];
-integer n,i,a[8];
-boolean u;
 enddecl
 
 
 
 integer main( ){
 decl
-
-integer n,i ;
-integer n,i ;
 enddecl
 
 begin
 
-read (n);
-
 i = 1;
 
-while ( i <= n) do
-
-write (factorial%arr[76*(a+0)+q[y+o]]+(i));
-if a==b then
-i = i + 1;
-else
-i=i+2;
-endif;
-endwhile;
-
+read ( n );
+read(dd);
 return 1;
 
 end

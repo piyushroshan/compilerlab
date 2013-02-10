@@ -1055,19 +1055,20 @@ YY_RULE_SETUP
 case 48:
 YY_RULE_SETUP
 #line 68 "piyush.l"
-{ yylval.n = CreateNode(2,0,0,yytext,NULL,NULL,NULL,NULL); return ID; }
+{ char *name =  (char *)malloc(sizeof(yytext)); strcpy(name,yytext);
+			yylval.n = CreateNode(2,0,0,name,NULL,NULL,NULL,NULL); return ID; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 69 "piyush.l"
+#line 70 "piyush.l"
 { yylval.n = CreateNode(1,0,atoi(yytext),NULL,NULL,NULL,NULL,NULL); return NUMBER; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 70 "piyush.l"
+#line 71 "piyush.l"
 ECHO;
 	YY_BREAK
-#line 1071 "lex.yy.c"
+#line 1072 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2065,4 +2066,4 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 70 "piyush.l"
+#line 71 "piyush.l"
