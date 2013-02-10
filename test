@@ -1,21 +1,34 @@
 decl
-
 enddecl
+integer main(){
 
-
-
-integer main( ){
 decl
+
+integer n,i ;
+
 enddecl
 
 begin
 
+read (n);
+
 i = 1;
 
-read ( n );
-read(dd);
-return 1;
+while ( i <= n) do
 
+write (i);
+if (i==7) then
+i = i + 10;
+endif;
+
+n=n+i*5;
+
+endwhile;
+i=i%n;
+while ( TRUE AND FALSE) do
+	i=TRUE;
+endwhile;
+return 1;
 end
 
 }

@@ -104,7 +104,7 @@ statement : ifelse { $$ = $1; }
 	| IF lexpression THEN statements ELSE statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, $6, NULL); $$ = $1; }
 	;
 
-dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $4, $2, NULL, NULL); $$=$1; }
+dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $2, $2, NULL, NULL); $$=$1; }
 	;
 
 astatement : ID ASSIGN expression SEMICOLON { $2 = CreateNode(0,'=', 0, NULL, $1, NULL, $3, NULL); $$=$2; }
