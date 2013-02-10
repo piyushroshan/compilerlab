@@ -289,11 +289,10 @@ void printTree(struct node* root){
 
 		printTree(root->right);
 	if(root->next!=NULL){
-		printf(")");
 		printf("\n");
 		printTree(root->next);}
 	else{
-	printf(" ");
-	printf(")");}
+	printf(" ");}
+	printf(")");
 
 }
