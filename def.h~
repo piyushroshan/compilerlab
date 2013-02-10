@@ -1,44 +1,25 @@
-/* Common header file */
-
-// Global Variable structure
-
-typedef struct Gsymbol {
-	char *NAME;				// Name of the Identifier
-	int TYPE;				// TYPE can be INTEGER or BOOLEAN
-	int SIZE;				// Size field for arrays
-	int* BINDING;			// Address of the Identifier in Memory
-	struct Gsymbol *NEXT;	// Pointer to next Symbol Table Entry
-} Gsymbol;
-
-typedef	struct	Lsymbol	{
-	char *NAME;				//	Name of the Identifier
-	int TYPE;				//	TYPE can be INTEGER	or BOOLEAN
-	int SIZE;				//	Size field for arrays
-	int* BINDING;			//	Address of the Identifier in Memory
-	struct Lsymbol *NEXT;	//	Pointer to next Symbol Table Entry
-}	Lsymbol;
-
-/** Sample Expression Tree Node Structure **/
-
-struct Tnode {
-	int TYPE;
-					/* Integer (1), Boolean (2) or Void (3) (for statements) */
+struct node {
+	int TYPE;			/* Integer (1), Boolean (2) or Void (3) (for statements) */
 					/* Must point to the type expression tree for user defined types */
-	int NODETYPE;
-					/* this field should carry following information:
+	int NODETYPE;			/* this field should carry following information:
 					* a) operator : (+,*,/ etc.) for expressions
-					* b) statement Type : (WHILE, READ etc.) for statements 
+					* b) statement Type : (WHILE, READ etc.) for statements
 					* c) else 0
 					*/
-	int VALUE;
-					/* for constants */
-	char* NAME;
-					/* For Identifiers/Functions */
-	struct Tnode *ArgList;
-					/* List of arguments for functions */
-	struct	Tnode	*Ptr1,	*Ptr2,	*Ptr3;
-
-	Gsymbol *Gentry; // For global identifiers/functions
+	int VALUE;			/* for constants */
+	char* NAME;			/* For Identifiers */
+	struct	node	*center, *next,	*left,	*right;
 };
 
-
+struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struct node *ptr1, struct node *ptr2, struct node *ptr3, struct node *ptr4) {
+	struct node* temp=(struct node *)malloc(sizeof(struct node));
+	temp->TYPE		=	TYPE1;
+	temp->NODETYPE	=	NODETYPE1;
+	temp->VALUE		=	VALUE1;
+	temp->NAME		=	NAME1;
+	temp->left		=	ptr1; // left node
+	temp->center	=	ptr2; // unknown nodes
+	temp->right		=	ptr3; // right node
+	temp->next		=	ptr4; // link node
+	return temp;
+}

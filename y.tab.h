@@ -39,12 +39,10 @@
 #define LFLOWER 295
 #define DO 296
 #define ENDWHILE 297
-#define PRINT 298
-#define BEGINN 299
-#define END 300
-#define RETURN 301
-#define RECORD 302
-#define MAIN 303
+#define BEGINN 298
+#define END 299
+#define RETURN 300
+#define MAIN 301
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
@@ -52,8 +50,7 @@
 #ifndef YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
 typedef union {
-	char* str;
-	int num;
+	struct node* n;
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
 extern YYSTYPE yylval;
