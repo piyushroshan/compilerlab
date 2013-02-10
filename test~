@@ -1,3 +1,5 @@
+decl
+enddecl
 integer main(){
 
 decl

@@ -453,94 +453,159 @@ void printTree(struct node* root){
 				case 'f' :
 					printf("( ");
 					printf("%s",root->NAME);
+					printTree(root->center);
+					printf(" )\n");
+					break;
+				case 'S' :
+					printTree(root->center);
+					printTree(root->left);
 					break;
 				case 'I' :
 					printf("( ");
 					printf("%s","IF");
+					printTree(root->center);
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )\n");
 					break;
 				case 'W' :
 					printf("( ");
 					printf("%s","WHILE");
+					printTree(root->center);
+					printTree(root->left);
+					printf(" )\n");
 					break;
 				case 'r' :
 					printf("( ");
 					printf("%s","READ");
+					printTree(root->center);
+					printf(" )\n");
 					break;
 				case 'w' :
 					printf("( ");
 					printf("%s","WRITE");
+					printTree(root->center);
+					printf(" )\n");
 					break;
 				case 'R' :
 					printf("( ");
 					printf("%s","RETURN");
-					break;
-				case '+' :
-					printf("( ");
-					printf("%c",'+');
-					break;
-				case '-' :
-					printf("( ");
-					printf("%c",'-');
-					break;
-				case '*' :
-					printf("( ");
-					printf("%c",'*');
-					break;
-				case '/' :
-					printf("( ");
-					printf("%c",'/');
-					break;
-				case '%' :
-					printf("( ");
-					printf("%c",'%');
-					break;
-				case 'T' :
-					printf("( ");
-					printf("%c",'T');
-					break;
-				case 'F' :
-					printf("( ");
-					printf("%c",'F');
-					break;
-				case '&' :
-					printf("( ");
-					printf("%c",'&');
-					break;
-				case '|' :
-					printf("( ");
-					printf("%c",'|');
-					break;
-				case '!' :
-					printf("( ");
-					printf("%c",'!');
-					break;
-				case 'G' :
-					printf("( ");
-					printf("%c%c",'>','=');
-					break;
-				case 'L' :
-					printf("( ");
-					printf("%c%c",'<','=');
-					break;
-				case '>' :
-					printf("( ");
-					printf("%c",'>');
-					break;
-				case '<' :
-					printf("( ");
-					printf("%c",'<');
-					break;
-				case 'E' :
-					printf("( ");
-					printf("%c%c",'=','=');
-					break;
-				case 'N' :
-					printf("( ");
-					printf("%c%c",'!','=');
+					printTree(root->center);
+					printf(" )\n");
 					break;
 				case '=' :
 					printf("( ");
 					printf("%c",'=');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )\n");
+					break;
+				case '+' :
+					printf("( ");
+					printf("%c",'+');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case '-' :
+					printf("( ");
+					printf("%c",'-');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case '*' :
+					printf("( ");
+					printf("%c",'*');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case '/' :
+					printf("( ");
+					printf("%c",'/');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case '%' :
+					printf("( ");
+					printf("%c",'%');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case 'T' :
+					printf("( ");
+					printf("%s","True");
+					printf(" )");
+					break;
+				case 'F' :
+					printf("( ");
+					printf("%s","False");
+					printf(" )");
+					break;
+				case '&' :
+					printf("( ");
+					printf("%c",'&');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case '|' :
+					printf("( ");
+					printf("%c",'|');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case '!' :
+					printf("( ");
+					printf("%c",'!');
+					printTree(root->center);
+					printf(" )");
+					break;
+				case 'G' :
+					printf("( ");
+					printf("%c%c",'>','=');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case 'L' :
+					printf("( ");
+					printf("%c%c",'<','=');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case '>' :
+					printf("( ");
+					printf("%c",'>');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case '<' :
+					printf("( ");
+					printf("%c",'<');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case 'E' :
+					printf("( ");
+					printf("%c%c",'=','=');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
+					break;
+				case 'N' :
+					printf("( ");
+					printf("%c%c",'!','=');
+					printTree(root->left);
+					printTree(root->right);
+					printf(" )");
 					break;
 				default:
 					break;
@@ -550,27 +615,22 @@ void printTree(struct node* root){
 		case 1:
 			printf("( ");
 			printf("%d",root->VALUE);
+			printf(" )");
 			break;
 		case 2:
 			printf("( ");
 			printf("%s",root->NAME);
+			if(root->center!=NULL){
+				printf("-->");
+				printTree(root->center);
+			}
+			printf(" )");
+			break;
+		default:
 			break;
 	}
-		printTree(root->left);
-
-		printTree(root->center);
-
-		printTree(root->right);
-	if(root->next!=NULL){
-		printf(")");
-		printf("\n");
-		printTree(root->next);}
-	else{
-	printf(" ");
-	printf(")");}
-
 }
-#line 573 "y.tab.c"
+#line 633 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -790,7 +850,7 @@ case 13:
 break;
 case 22:
 #line 89 "piyush.y"
-	{  yyval.n=CreateNode(0,0, 0, NULL, NULL, yystack.l_mark[-1].n, NULL, yystack.l_mark[-2].n);}
+	{  yyval.n=CreateNode(0,'S', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-1].n, NULL,NULL );}
 break;
 case 23:
 #line 92 "piyush.y"
@@ -798,7 +858,7 @@ case 23:
 break;
 case 24:
 #line 93 "piyush.y"
-	{  yyval.n=CreateNode(0,0, 0, NULL, yystack.l_mark[-1].n, NULL, NULL, yystack.l_mark[0].n); }
+	{  yyval.n=CreateNode(0,'S', 0, NULL, yystack.l_mark[0].n, yystack.l_mark[-1].n, NULL, NULL); }
 break;
 case 25:
 #line 96 "piyush.y"
@@ -830,7 +890,7 @@ case 31:
 break;
 case 32:
 #line 107 "piyush.y"
-	{ yystack.l_mark[-5].n = CreateNode(0,'W', 0, NULL, yystack.l_mark[-4].n, yystack.l_mark[-4].n, NULL, NULL); yyval.n=yystack.l_mark[-5].n; }
+	{ yystack.l_mark[-5].n = CreateNode(0,'W', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL, NULL); yyval.n=yystack.l_mark[-5].n; }
 break;
 case 33:
 #line 110 "piyush.y"
@@ -838,7 +898,7 @@ case 33:
 break;
 case 34:
 #line 111 "piyush.y"
-	{ yystack.l_mark[-6].n->center = yystack.l_mark[-5].n; yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-6].n, NULL, yystack.l_mark[-4].n, NULL); yyval.n=yystack.l_mark[-2].n;  }
+	{ yystack.l_mark[-6].n->center = yystack.l_mark[-4].n; yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-6].n, NULL, yystack.l_mark[-1].n, NULL); yyval.n=yystack.l_mark[-2].n;  }
 break;
 case 35:
 #line 114 "piyush.y"
@@ -972,7 +1032,7 @@ case 67:
 #line 156 "piyush.y"
 	{ yystack.l_mark[0].n = CreateNode(0,'F', 0, NULL, NULL, NULL, NULL, NULL); yyval.n = yystack.l_mark[0].n; }
 break;
-#line 975 "y.tab.c"
+#line 1035 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;
