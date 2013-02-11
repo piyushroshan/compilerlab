@@ -100,7 +100,7 @@ statement : ifelse { $$ = $1; }
 	| astatement { $$ = $1; }
 	;
 
-ifelse : IF lexpression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,24, 0, NULL, $4, $2, NULL, NULL); $$ = $1; }
+ifelse : IF lexpression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, NULL, NULL); $$ = $1; }
 	| IF lexpression THEN statements ELSE statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, $6, NULL); $$ = $1; }
 	;
 

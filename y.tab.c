@@ -885,7 +885,7 @@ case 29:
 break;
 case 30:
 #line 103 "piyush.y"
-	{ yystack.l_mark[-5].n = CreateNode(0,24, 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL, NULL); yyval.n = yystack.l_mark[-5].n; }
+	{ yystack.l_mark[-5].n = CreateNode(0,'I', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL, NULL); yyval.n = yystack.l_mark[-5].n; }
 break;
 case 31:
 #line 104 "piyush.y"

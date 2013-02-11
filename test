@@ -19,6 +19,9 @@ while ( i <= n) do
 write (i);
 if (i==7) then
 i = i + 10;
+while (a<b) do
+i=i+1;
+endwhile;
 endif;
 
 n=n+i*5;
