@@ -1056,12 +1056,12 @@ case 48:
 YY_RULE_SETUP
 #line 68 "piyush.l"
 { char *name =  (char *)malloc(sizeof(yytext)); strcpy(name,yytext);
-			yylval.n = CreateNode(2,0,0,name,NULL,NULL,NULL,NULL); return ID; }
+			yylval.n = CreateNode(2,0,0,name,NULL,NULL,NULL); return ID; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
 #line 70 "piyush.l"
-{ yylval.n = CreateNode(1,0,atoi(yytext),NULL,NULL,NULL,NULL,NULL); return NUMBER; }
+{ yylval.n = CreateNode(1,0,atoi(yytext),NULL,NULL,NULL,NULL); return NUMBER; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP

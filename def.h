@@ -8,10 +8,10 @@ struct node {
 					*/
 	int VALUE;			/* for constants */
 	char* NAME;			/* For Identifiers */
-	struct	node	*center, *next,	*left,	*right;
+	struct	node	*center, *left,	*right;
 };
 
-struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struct node *ptr1, struct node *ptr2, struct node *ptr3, struct node *ptr4) {
+struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struct node *ptr1, struct node *ptr2, struct node *ptr3) {
 	struct node* temp=(struct node *)malloc(sizeof(struct node));
 	temp->TYPE		=	TYPE1;
 	temp->NODETYPE	=	NODETYPE1;
@@ -20,6 +20,5 @@ struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struc
 	temp->left		=	ptr1; // left node
 	temp->center	=	ptr2; // unknown nodes
 	temp->right		=	ptr3; // right node
-	temp->next		=	ptr4; // link node
 	return temp;
 }

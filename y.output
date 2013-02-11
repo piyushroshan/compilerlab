@@ -1,1870 +1,2315 @@
-   0  $accept : program $end
+Terminals unused in grammar
 
-   1  program : Gdeclaration main_function
+   ADDRESSOF
 
-   2  Gdeclaration : DECL GdeclStatements ENDDECL
 
-   3  GdeclStatements :
-   4                  | GdeclStatements GdeclStatement
+Grammar
 
-   5  GdeclStatement : type Gvars SEMICOLON
+    0 $accept: program $end
 
-   6  Gvars : Gvar
-   7        | Gvars COMMA Gvar
+    1 program: Gdeclaration main_function
 
-   8  type : INTEGER
-   9       | BOOLEAN
+    2 Gdeclaration: DECL GdeclStatements ENDDECL
 
-  10  Gvar : ID
-  11       | ID LSQUARE NUMBER RSQUARE
+    3 GdeclStatements: /* empty */
+    4                | GdeclStatements GdeclStatement
 
-  12  main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER
+    5 GdeclStatement: type Gvars SEMICOLON
 
-  13  fbody : declaration beginbody
+    6 Gvars: Gvar
+    7      | Gvars COMMA Gvar
 
-  14  declaration : DECL declStatements ENDDECL
+    8 type: INTEGER
+    9     | BOOLEAN
 
-  15  declStatements :
-  16                 | declStatements declStatement
+   10 Gvar: ID
+   11     | ID LSQUARE NUMBER RSQUARE
 
-  17  declStatement : type vars SEMICOLON
+   12 main_function: INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER
 
-  18  vars : var
-  19       | vars COMMA var
+   13 fbody: declaration beginbody
 
-  20  var : ID
-  21      | ID LSQUARE aexpression RSQUARE
+   14 declaration: DECL declStatements ENDDECL
 
-  22  beginbody : BEGINN statements return END
+   15 declStatements: /* empty */
+   16               | declStatements declStatement
 
-  23  statements :
-  24             | statements statement
+   17 declStatement: type vars SEMICOLON
 
-  25  statement : ifelse
-  26            | dowhile
-  27            | read
-  28            | write
-  29            | astatement
+   18 vars: var
+   19     | vars COMMA var
 
-  30  ifelse : IF lexpression THEN statements ENDIF SEMICOLON
-  31         | IF lexpression THEN statements ELSE statements ENDIF SEMICOLON
+   20 var: ID
+   21    | ID LSQUARE aexpression RSQUARE
 
-  32  dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON
+   22 beginbody: BEGINN statements return END
 
-  33  astatement : ID ASSIGN expression SEMICOLON
-  34             | ID LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON
+   23 statements: /* empty */
+   24           | statements statement
 
-  35  read : READ LPAREN ID RPAREN SEMICOLON
-  36       | READ LPAREN ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON
+   25 statement: ifelse
+   26          | dowhile
+   27          | read
+   28          | write
+   29          | astatement
 
-  37  write : WRITE LPAREN aexpression RPAREN SEMICOLON
+   30 ifelse: IF lexpression THEN statements ENDIF SEMICOLON
+   31       | IF lexpression THEN statements ELSE statements ENDIF SEMICOLON
 
-  38  return : RETURN expression SEMICOLON
+   32 dowhile: WHILE lexpression DO statements ENDWHILE SEMICOLON
 
-  39  expression : aexpression PLUS aexpression
-  40             | aexpression MINUS aexpression
-  41             | aexpression MULT aexpression
-  42             | aexpression DIVIDE aexpression
-  43             | aexpression MODULUS aexpression
-  44             | LPAREN aexpression RPAREN
-  45             | NUMBER
-  46             | lexpression
+   33 astatement: ID ASSIGN expression SEMICOLON
+   34           | ID LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON
 
-  47  aexpression : aexpression PLUS aexpression
-  48              | aexpression MINUS aexpression
-  49              | aexpression MULT aexpression
-  50              | aexpression DIVIDE aexpression
-  51              | aexpression MODULUS aexpression
-  52              | LPAREN aexpression RPAREN
-  53              | NUMBER
-  54              | ID
-  55              | ID LSQUARE aexpression RSQUARE
+   35 read: READ LPAREN ID RPAREN SEMICOLON
+   36     | READ LPAREN ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON
 
-  56  lexpression : aexpression EQUAL aexpression
-  57              | aexpression LESS_THAN aexpression
-  58              | aexpression GREATER_THAN aexpression
-  59              | aexpression GREATER_EQ aexpression
-  60              | aexpression LESS_EQUAL aexpression
-  61              | aexpression NEQUAL aexpression
-  62              | lexpression AND lexpression
-  63              | lexpression OR lexpression
-  64              | NOT lexpression
-  65              | LPAREN lexpression RPAREN
-  66              | TRUE
-  67              | FALSE
-
+   37 write: WRITE LPAREN aexpression RPAREN SEMICOLON
+
+   38 return: RETURN expression SEMICOLON
+
+   39 expression: aexpression PLUS aexpression
+   40           | aexpression MINUS aexpression
+   41           | aexpression MULT aexpression
+   42           | aexpression DIVIDE aexpression
+   43           | aexpression MODULUS aexpression
+   44           | LPAREN aexpression RPAREN
+   45           | NUMBER
+   46           | aexpression EQUAL aexpression
+   47           | aexpression LESS_THAN aexpression
+   48           | aexpression GREATER_THAN aexpression
+   49           | aexpression GREATER_EQ aexpression
+   50           | aexpression LESS_EQUAL aexpression
+   51           | aexpression NEQUAL aexpression
+   52           | lexpression AND lexpression
+   53           | lexpression OR lexpression
+   54           | NOT lexpression
+   55           | LPAREN lexpression RPAREN
+   56           | TRUE
+   57           | FALSE
+   58           | ID
+   59           | ID LSQUARE aexpression RSQUARE
+
+   60 aexpression: aexpression PLUS aexpression
+   61            | aexpression MINUS aexpression
+   62            | aexpression MULT aexpression
+   63            | aexpression DIVIDE aexpression
+   64            | aexpression MODULUS aexpression
+   65            | LPAREN aexpression RPAREN
+   66            | NUMBER
+   67            | ID
+   68            | ID LSQUARE aexpression RSQUARE
+
+   69 lexpression: aexpression EQUAL aexpression
+   70            | aexpression LESS_THAN aexpression
+   71            | aexpression GREATER_THAN aexpression
+   72            | aexpression GREATER_EQ aexpression
+   73            | aexpression LESS_EQUAL aexpression
+   74            | aexpression NEQUAL aexpression
+   75            | lexpression AND lexpression
+   76            | lexpression OR lexpression
+   77            | NOT lexpression
+   78            | LPAREN lexpression RPAREN
+   79            | TRUE
+   80            | FALSE
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+DECL (258) 2 14
+ENDDECL (259) 2 14
+SEMICOLON (260) 5 17 30 31 32 33 34 35 36 37 38
+COMMA (261) 7 19
+INTEGER (262) 8 12
+BOOLEAN (263) 9
+ID (264) 10 11 20 21 33 34 35 36 58 59 67 68
+LSQUARE (265) 11 21 34 36 59 68
+RSQUARE (266) 11 21 34 36 59 68
+TRUE (267) 56 79
+FALSE (268) 57 80
+ADDRESSOF (269)
+MODULUS (270) 43 64
+AND (271) 52 75
+OR (272) 53 76
+NOT (273) 54 77
+READ (274) 35 36
+WRITE (275) 37
+IF (276) 30 31
+ENDIF (277) 30 31
+THEN (278) 30 31
+ELSE (279) 31
+WHILE (280) 32
+NUMBER (281) 11 45 66
+EQUAL (282) 46 69
+ASSIGN (283) 33 34
+NEQUAL (284) 51 74
+LESS_THAN (285) 47 70
+LESS_EQUAL (286) 50 73
+GREATER_THAN (287) 48 71
+GREATER_EQ (288) 49 72
+PLUS (289) 39 60
+MINUS (290) 40 61
+MULT (291) 41 62
+DIVIDE (292) 42 63
+LPAREN (293) 12 35 36 37 44 55 65 78
+RPAREN (294) 12 35 36 37 44 55 65 78
+RFLOWER (295) 12
+LFLOWER (296) 12
+DO (297) 32
+ENDWHILE (298) 32
+BEGINN (299) 22
+END (300) 22
+RETURN (301) 38
+MAIN (302) 12
+
+
+Nonterminals, with rules where they appear
+
+$accept (48)
+    on left: 0
+program (49)
+    on left: 1, on right: 0
+Gdeclaration (50)
+    on left: 2, on right: 1
+GdeclStatements (51)
+    on left: 3 4, on right: 2 4
+GdeclStatement (52)
+    on left: 5, on right: 4
+Gvars (53)
+    on left: 6 7, on right: 5 7
+type (54)
+    on left: 8 9, on right: 5 17
+Gvar (55)
+    on left: 10 11, on right: 6 7
+main_function (56)
+    on left: 12, on right: 1
+fbody (57)
+    on left: 13, on right: 12
+declaration (58)
+    on left: 14, on right: 13
+declStatements (59)
+    on left: 15 16, on right: 14 16
+declStatement (60)
+    on left: 17, on right: 16
+vars (61)
+    on left: 18 19, on right: 17 19
+var (62)
+    on left: 20 21, on right: 18 19
+beginbody (63)
+    on left: 22, on right: 13
+statements (64)
+    on left: 23 24, on right: 22 24 30 31 32
+statement (65)
+    on left: 25 26 27 28 29, on right: 24
+ifelse (66)
+    on left: 30 31, on right: 25
+dowhile (67)
+    on left: 32, on right: 26
+astatement (68)
+    on left: 33 34, on right: 29
+read (69)
+    on left: 35 36, on right: 27
+write (70)
+    on left: 37, on right: 28
+return (71)
+    on left: 38, on right: 22
+expression (72)
+    on left: 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56
+    57 58 59, on right: 33 34 38
+aexpression (73)
+    on left: 60 61 62 63 64 65 66 67 68, on right: 21 34 36 37 39 40
+    41 42 43 44 46 47 48 49 50 51 59 60 61 62 63 64 65 68 69 70 71
+    72 73 74
+lexpression (74)
+    on left: 69 70 71 72 73 74 75 76 77 78 79 80, on right: 30 31 32
+    52 53 54 55 75 76 77 78
+
+
 state 0
-	$accept : . program $end  (0)
 
-	DECL  shift 1
-	.  error
+    0 $accept: . program $end
 
-	program  goto 2
-	Gdeclaration  goto 3
+    DECL  shift, and go to state 1
+
+    program       go to state 2
+    Gdeclaration  go to state 3
 
 
 state 1
-	Gdeclaration : DECL . GdeclStatements ENDDECL  (2)
-	GdeclStatements : .  (3)
 
-	.  reduce 3
+    2 Gdeclaration: DECL . GdeclStatements ENDDECL
 
-	GdeclStatements  goto 4
+    $default  reduce using rule 3 (GdeclStatements)
+
+    GdeclStatements  go to state 4
 
 
 state 2
-	$accept : program . $end  (0)
 
-	$end  accept
+    0 $accept: program . $end
+
+    $end  shift, and go to state 5
 
 
 state 3
-	program : Gdeclaration . main_function  (1)
 
-	INTEGER  shift 5
-	.  error
+    1 program: Gdeclaration . main_function
 
-	main_function  goto 6
+    INTEGER  shift, and go to state 6
+
+    main_function  go to state 7
 
 
 state 4
-	Gdeclaration : DECL GdeclStatements . ENDDECL  (2)
-	GdeclStatements : GdeclStatements . GdeclStatement  (4)
 
-	ENDDECL  shift 7
-	INTEGER  shift 8
-	BOOLEAN  shift 9
-	.  error
+    2 Gdeclaration: DECL GdeclStatements . ENDDECL
+    4 GdeclStatements: GdeclStatements . GdeclStatement
 
-	GdeclStatement  goto 10
-	type  goto 11
+    ENDDECL  shift, and go to state 8
+    INTEGER  shift, and go to state 9
+    BOOLEAN  shift, and go to state 10
+
+    GdeclStatement  go to state 11
+    type            go to state 12
 
 
 state 5
-	main_function : INTEGER . MAIN LPAREN RPAREN LFLOWER fbody RFLOWER  (12)
 
-	MAIN  shift 12
-	.  error
+    0 $accept: program $end .
+
+    $default  accept
 
 
 state 6
-	program : Gdeclaration main_function .  (1)
 
-	.  reduce 1
+   12 main_function: INTEGER . MAIN LPAREN RPAREN LFLOWER fbody RFLOWER
+
+    MAIN  shift, and go to state 13
 
 
 state 7
-	Gdeclaration : DECL GdeclStatements ENDDECL .  (2)
 
-	.  reduce 2
+    1 program: Gdeclaration main_function .
+
+    $default  reduce using rule 1 (program)
 
 
 state 8
-	type : INTEGER .  (8)
 
-	.  reduce 8
+    2 Gdeclaration: DECL GdeclStatements ENDDECL .
+
+    $default  reduce using rule 2 (Gdeclaration)
 
 
 state 9
-	type : BOOLEAN .  (9)
 
-	.  reduce 9
+    8 type: INTEGER .
+
+    $default  reduce using rule 8 (type)
 
 
 state 10
-	GdeclStatements : GdeclStatements GdeclStatement .  (4)
 
-	.  reduce 4
+    9 type: BOOLEAN .
+
+    $default  reduce using rule 9 (type)
 
 
 state 11
-	GdeclStatement : type . Gvars SEMICOLON  (5)
 
-	ID  shift 13
-	.  error
+    4 GdeclStatements: GdeclStatements GdeclStatement .
 
-	Gvars  goto 14
-	Gvar  goto 15
+    $default  reduce using rule 4 (GdeclStatements)
 
 
 state 12
-	main_function : INTEGER MAIN . LPAREN RPAREN LFLOWER fbody RFLOWER  (12)
 
-	LPAREN  shift 16
-	.  error
+    5 GdeclStatement: type . Gvars SEMICOLON
+
+    ID  shift, and go to state 14
+
+    Gvars  go to state 15
+    Gvar   go to state 16
 
 
 state 13
-	Gvar : ID .  (10)
-	Gvar : ID . LSQUARE NUMBER RSQUARE  (11)
 
-	LSQUARE  shift 17
-	SEMICOLON  reduce 10
-	COMMA  reduce 10
+   12 main_function: INTEGER MAIN . LPAREN RPAREN LFLOWER fbody RFLOWER
+
+    LPAREN  shift, and go to state 17
 
 
 state 14
-	GdeclStatement : type Gvars . SEMICOLON  (5)
-	Gvars : Gvars . COMMA Gvar  (7)
 
-	SEMICOLON  shift 18
-	COMMA  shift 19
-	.  error
+   10 Gvar: ID .
+   11     | ID . LSQUARE NUMBER RSQUARE
+
+    LSQUARE  shift, and go to state 18
+
+    $default  reduce using rule 10 (Gvar)
 
 
 state 15
-	Gvars : Gvar .  (6)
 
-	.  reduce 6
+    5 GdeclStatement: type Gvars . SEMICOLON
+    7 Gvars: Gvars . COMMA Gvar
+
+    SEMICOLON  shift, and go to state 19
+    COMMA      shift, and go to state 20
 
 
 state 16
-	main_function : INTEGER MAIN LPAREN . RPAREN LFLOWER fbody RFLOWER  (12)
 
-	RPAREN  shift 20
-	.  error
+    6 Gvars: Gvar .
+
+    $default  reduce using rule 6 (Gvars)
 
 
 state 17
-	Gvar : ID LSQUARE . NUMBER RSQUARE  (11)
 
-	NUMBER  shift 21
-	.  error
+   12 main_function: INTEGER MAIN LPAREN . RPAREN LFLOWER fbody RFLOWER
+
+    RPAREN  shift, and go to state 21
 
 
 state 18
-	GdeclStatement : type Gvars SEMICOLON .  (5)
 
-	.  reduce 5
+   11 Gvar: ID LSQUARE . NUMBER RSQUARE
+
+    NUMBER  shift, and go to state 22
 
 
 state 19
-	Gvars : Gvars COMMA . Gvar  (7)
 
-	ID  shift 13
-	.  error
+    5 GdeclStatement: type Gvars SEMICOLON .
 
-	Gvar  goto 22
+    $default  reduce using rule 5 (GdeclStatement)
 
 
 state 20
-	main_function : INTEGER MAIN LPAREN RPAREN . LFLOWER fbody RFLOWER  (12)
 
-	LFLOWER  shift 23
-	.  error
+    7 Gvars: Gvars COMMA . Gvar
+
+    ID  shift, and go to state 14
+
+    Gvar  go to state 23
 
 
 state 21
-	Gvar : ID LSQUARE NUMBER . RSQUARE  (11)
 
-	RSQUARE  shift 24
-	.  error
+   12 main_function: INTEGER MAIN LPAREN RPAREN . LFLOWER fbody RFLOWER
+
+    LFLOWER  shift, and go to state 24
 
 
 state 22
-	Gvars : Gvars COMMA Gvar .  (7)
 
-	.  reduce 7
+   11 Gvar: ID LSQUARE NUMBER . RSQUARE
+
+    RSQUARE  shift, and go to state 25
 
 
 state 23
-	main_function : INTEGER MAIN LPAREN RPAREN LFLOWER . fbody RFLOWER  (12)
 
-	DECL  shift 25
-	.  error
+    7 Gvars: Gvars COMMA Gvar .
 
-	fbody  goto 26
-	declaration  goto 27
+    $default  reduce using rule 7 (Gvars)
 
 
 state 24
-	Gvar : ID LSQUARE NUMBER RSQUARE .  (11)
 
-	.  reduce 11
+   12 main_function: INTEGER MAIN LPAREN RPAREN LFLOWER . fbody RFLOWER
+
+    DECL  shift, and go to state 26
+
+    fbody        go to state 27
+    declaration  go to state 28
 
 
 state 25
-	declaration : DECL . declStatements ENDDECL  (14)
-	declStatements : .  (15)
 
-	.  reduce 15
+   11 Gvar: ID LSQUARE NUMBER RSQUARE .
 
-	declStatements  goto 28
+    $default  reduce using rule 11 (Gvar)
 
 
 state 26
-	main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody . RFLOWER  (12)
 
-	RFLOWER  shift 29
-	.  error
+   14 declaration: DECL . declStatements ENDDECL
+
+    $default  reduce using rule 15 (declStatements)
+
+    declStatements  go to state 29
 
 
 state 27
-	fbody : declaration . beginbody  (13)
 
-	BEGINN  shift 30
-	.  error
+   12 main_function: INTEGER MAIN LPAREN RPAREN LFLOWER fbody . RFLOWER
 
-	beginbody  goto 31
+    RFLOWER  shift, and go to state 30
 
 
 state 28
-	declaration : DECL declStatements . ENDDECL  (14)
-	declStatements : declStatements . declStatement  (16)
 
-	ENDDECL  shift 32
-	INTEGER  shift 8
-	BOOLEAN  shift 9
-	.  error
+   13 fbody: declaration . beginbody
 
-	type  goto 33
-	declStatement  goto 34
+    BEGINN  shift, and go to state 31
+
+    beginbody  go to state 32
 
 
 state 29
-	main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER .  (12)
 
-	.  reduce 12
+   14 declaration: DECL declStatements . ENDDECL
+   16 declStatements: declStatements . declStatement
+
+    ENDDECL  shift, and go to state 33
+    INTEGER  shift, and go to state 9
+    BOOLEAN  shift, and go to state 10
+
+    type           go to state 34
+    declStatement  go to state 35
 
 
 state 30
-	beginbody : BEGINN . statements return END  (22)
-	statements : .  (23)
 
-	.  reduce 23
+   12 main_function: INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER .
 
-	statements  goto 35
+    $default  reduce using rule 12 (main_function)
 
 
 state 31
-	fbody : declaration beginbody .  (13)
 
-	.  reduce 13
+   22 beginbody: BEGINN . statements return END
+
+    $default  reduce using rule 23 (statements)
+
+    statements  go to state 36
 
 
 state 32
-	declaration : DECL declStatements ENDDECL .  (14)
 
-	.  reduce 14
+   13 fbody: declaration beginbody .
+
+    $default  reduce using rule 13 (fbody)
 
 
 state 33
-	declStatement : type . vars SEMICOLON  (17)
 
-	ID  shift 36
-	.  error
+   14 declaration: DECL declStatements ENDDECL .
 
-	vars  goto 37
-	var  goto 38
+    $default  reduce using rule 14 (declaration)
 
 
 state 34
-	declStatements : declStatements declStatement .  (16)
 
-	.  reduce 16
+   17 declStatement: type . vars SEMICOLON
+
+    ID  shift, and go to state 37
+
+    vars  go to state 38
+    var   go to state 39
 
 
 state 35
-	beginbody : BEGINN statements . return END  (22)
-	statements : statements . statement  (24)
 
-	ID  shift 39
-	READ  shift 40
-	WRITE  shift 41
-	IF  shift 42
-	WHILE  shift 43
-	RETURN  shift 44
-	.  error
+   16 declStatements: declStatements declStatement .
 
-	statement  goto 45
-	ifelse  goto 46
-	dowhile  goto 47
-	read  goto 48
-	write  goto 49
-	return  goto 50
-	astatement  goto 51
+    $default  reduce using rule 16 (declStatements)
 
 
 state 36
-	var : ID .  (20)
-	var : ID . LSQUARE aexpression RSQUARE  (21)
 
-	LSQUARE  shift 52
-	SEMICOLON  reduce 20
-	COMMA  reduce 20
+   22 beginbody: BEGINN statements . return END
+   24 statements: statements . statement
+
+    ID      shift, and go to state 40
+    READ    shift, and go to state 41
+    WRITE   shift, and go to state 42
+    IF      shift, and go to state 43
+    WHILE   shift, and go to state 44
+    RETURN  shift, and go to state 45
+
+    statement   go to state 46
+    ifelse      go to state 47
+    dowhile     go to state 48
+    astatement  go to state 49
+    read        go to state 50
+    write       go to state 51
+    return      go to state 52
 
 
 state 37
-	declStatement : type vars . SEMICOLON  (17)
-	vars : vars . COMMA var  (19)
 
-	SEMICOLON  shift 53
-	COMMA  shift 54
-	.  error
+   20 var: ID .
+   21    | ID . LSQUARE aexpression RSQUARE
+
+    LSQUARE  shift, and go to state 53
+
+    $default  reduce using rule 20 (var)
 
 
 state 38
-	vars : var .  (18)
 
-	.  reduce 18
+   17 declStatement: type vars . SEMICOLON
+   19 vars: vars . COMMA var
+
+    SEMICOLON  shift, and go to state 54
+    COMMA      shift, and go to state 55
 
 
 state 39
-	astatement : ID . ASSIGN expression SEMICOLON  (33)
-	astatement : ID . LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON  (34)
 
-	LSQUARE  shift 55
-	ASSIGN  shift 56
-	.  error
+   18 vars: var .
+
+    $default  reduce using rule 18 (vars)
 
 
 state 40
-	read : READ . LPAREN ID RPAREN SEMICOLON  (35)
-	read : READ . LPAREN ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON  (36)
 
-	LPAREN  shift 57
-	.  error
+   33 astatement: ID . ASSIGN expression SEMICOLON
+   34           | ID . LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON
+
+    LSQUARE  shift, and go to state 56
+    ASSIGN   shift, and go to state 57
 
 
 state 41
-	write : WRITE . LPAREN aexpression RPAREN SEMICOLON  (37)
 
-	LPAREN  shift 58
-	.  error
+   35 read: READ . LPAREN ID RPAREN SEMICOLON
+   36     | READ . LPAREN ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON
+
+    LPAREN  shift, and go to state 58
 
 
 state 42
-	ifelse : IF . lexpression THEN statements ENDIF SEMICOLON  (30)
-	ifelse : IF . lexpression THEN statements ELSE statements ENDIF SEMICOLON  (31)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 63
-	LPAREN  shift 64
-	.  error
+   37 write: WRITE . LPAREN aexpression RPAREN SEMICOLON
 
-	aexpression  goto 65
-	lexpression  goto 66
+    LPAREN  shift, and go to state 59
 
 
 state 43
-	dowhile : WHILE . lexpression DO statements ENDWHILE SEMICOLON  (32)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 63
-	LPAREN  shift 64
-	.  error
+   30 ifelse: IF . lexpression THEN statements ENDIF SEMICOLON
+   31       | IF . lexpression THEN statements ELSE statements ENDIF SEMICOLON
 
-	aexpression  goto 65
-	lexpression  goto 67
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 66
+    lexpression  go to state 67
 
 
 state 44
-	return : RETURN . expression SEMICOLON  (38)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 68
-	LPAREN  shift 69
-	.  error
+   32 dowhile: WHILE . lexpression DO statements ENDWHILE SEMICOLON
 
-	expression  goto 70
-	aexpression  goto 71
-	lexpression  goto 72
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 66
+    lexpression  go to state 68
 
 
 state 45
-	statements : statements statement .  (24)
 
-	.  reduce 24
+   38 return: RETURN . expression SEMICOLON
+
+    ID      shift, and go to state 69
+    TRUE    shift, and go to state 70
+    FALSE   shift, and go to state 71
+    NOT     shift, and go to state 72
+    NUMBER  shift, and go to state 73
+    LPAREN  shift, and go to state 74
+
+    expression   go to state 75
+    aexpression  go to state 76
+    lexpression  go to state 77
 
 
 state 46
-	statement : ifelse .  (25)
 
-	.  reduce 25
+   24 statements: statements statement .
+
+    $default  reduce using rule 24 (statements)
 
 
 state 47
-	statement : dowhile .  (26)
 
-	.  reduce 26
+   25 statement: ifelse .
+
+    $default  reduce using rule 25 (statement)
 
 
 state 48
-	statement : read .  (27)
 
-	.  reduce 27
+   26 statement: dowhile .
+
+    $default  reduce using rule 26 (statement)
 
 
 state 49
-	statement : write .  (28)
 
-	.  reduce 28
+   29 statement: astatement .
+
+    $default  reduce using rule 29 (statement)
 
 
 state 50
-	beginbody : BEGINN statements return . END  (22)
 
-	END  shift 73
-	.  error
+   27 statement: read .
+
+    $default  reduce using rule 27 (statement)
 
 
 state 51
-	statement : astatement .  (29)
 
-	.  reduce 29
+   28 statement: write .
+
+    $default  reduce using rule 28 (statement)
 
 
 state 52
-	var : ID LSQUARE . aexpression RSQUARE  (21)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   22 beginbody: BEGINN statements return . END
 
-	aexpression  goto 75
+    END  shift, and go to state 78
 
 
 state 53
-	declStatement : type vars SEMICOLON .  (17)
 
-	.  reduce 17
+   21 var: ID LSQUARE . aexpression RSQUARE
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 80
 
 
 state 54
-	vars : vars COMMA . var  (19)
 
-	ID  shift 36
-	.  error
+   17 declStatement: type vars SEMICOLON .
 
-	var  goto 76
+    $default  reduce using rule 17 (declStatement)
 
 
 state 55
-	astatement : ID LSQUARE . aexpression RSQUARE ASSIGN expression SEMICOLON  (34)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   19 vars: vars COMMA . var
 
-	aexpression  goto 77
+    ID  shift, and go to state 37
+
+    var  go to state 81
 
 
 state 56
-	astatement : ID ASSIGN . expression SEMICOLON  (33)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 68
-	LPAREN  shift 69
-	.  error
+   34 astatement: ID LSQUARE . aexpression RSQUARE ASSIGN expression SEMICOLON
 
-	expression  goto 78
-	aexpression  goto 71
-	lexpression  goto 72
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 82
 
 
 state 57
-	read : READ LPAREN . ID RPAREN SEMICOLON  (35)
-	read : READ LPAREN . ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON  (36)
 
-	ID  shift 79
-	.  error
+   33 astatement: ID ASSIGN . expression SEMICOLON
+
+    ID      shift, and go to state 69
+    TRUE    shift, and go to state 70
+    FALSE   shift, and go to state 71
+    NOT     shift, and go to state 72
+    NUMBER  shift, and go to state 73
+    LPAREN  shift, and go to state 74
+
+    expression   go to state 83
+    aexpression  go to state 76
+    lexpression  go to state 77
 
 
 state 58
-	write : WRITE LPAREN . aexpression RPAREN SEMICOLON  (37)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   35 read: READ LPAREN . ID RPAREN SEMICOLON
+   36     | READ LPAREN . ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON
 
-	aexpression  goto 80
+    ID  shift, and go to state 84
 
 
 state 59
-	aexpression : ID .  (54)
-	aexpression : ID . LSQUARE aexpression RSQUARE  (55)
 
-	LSQUARE  shift 81
-	SEMICOLON  reduce 54
-	RSQUARE  reduce 54
-	MODULUS  reduce 54
-	AND  reduce 54
-	OR  reduce 54
-	THEN  reduce 54
-	EQUAL  reduce 54
-	NEQUAL  reduce 54
-	LESS_THAN  reduce 54
-	LESS_EQUAL  reduce 54
-	GREATER_THAN  reduce 54
-	GREATER_EQ  reduce 54
-	PLUS  reduce 54
-	MINUS  reduce 54
-	MULT  reduce 54
-	DIVIDE  reduce 54
-	RPAREN  reduce 54
-	DO  reduce 54
+   37 write: WRITE LPAREN . aexpression RPAREN SEMICOLON
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 85
 
 
 state 60
-	lexpression : TRUE .  (66)
 
-	.  reduce 66
+   67 aexpression: ID .
+   68            | ID . LSQUARE aexpression RSQUARE
+
+    LSQUARE  shift, and go to state 86
+
+    $default  reduce using rule 67 (aexpression)
 
 
 state 61
-	lexpression : FALSE .  (67)
 
-	.  reduce 67
+   79 lexpression: TRUE .
+
+    $default  reduce using rule 79 (lexpression)
 
 
 state 62
-	lexpression : NOT . lexpression  (64)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 63
-	LPAREN  shift 64
-	.  error
+   80 lexpression: FALSE .
 
-	aexpression  goto 65
-	lexpression  goto 82
+    $default  reduce using rule 80 (lexpression)
 
 
 state 63
-	aexpression : NUMBER .  (53)
 
-	.  reduce 53
+   77 lexpression: NOT . lexpression
+
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 66
+    lexpression  go to state 87
 
 
 state 64
-	aexpression : LPAREN . aexpression RPAREN  (52)
-	lexpression : LPAREN . lexpression RPAREN  (65)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 63
-	LPAREN  shift 64
-	.  error
+   66 aexpression: NUMBER .
 
-	aexpression  goto 83
-	lexpression  goto 84
+    $default  reduce using rule 66 (aexpression)
 
 
 state 65
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	lexpression : aexpression . EQUAL aexpression  (56)
-	lexpression : aexpression . LESS_THAN aexpression  (57)
-	lexpression : aexpression . GREATER_THAN aexpression  (58)
-	lexpression : aexpression . GREATER_EQ aexpression  (59)
-	lexpression : aexpression . LESS_EQUAL aexpression  (60)
-	lexpression : aexpression . NEQUAL aexpression  (61)
 
-	MODULUS  shift 85
-	EQUAL  shift 86
-	NEQUAL  shift 87
-	LESS_THAN  shift 88
-	LESS_EQUAL  shift 89
-	GREATER_THAN  shift 90
-	GREATER_EQ  shift 91
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	.  error
+   65 aexpression: LPAREN . aexpression RPAREN
+   78 lexpression: LPAREN . lexpression RPAREN
+
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 88
+    lexpression  go to state 89
 
 
 state 66
-	ifelse : IF lexpression . THEN statements ENDIF SEMICOLON  (30)
-	ifelse : IF lexpression . THEN statements ELSE statements ENDIF SEMICOLON  (31)
-	lexpression : lexpression . AND lexpression  (62)
-	lexpression : lexpression . OR lexpression  (63)
 
-	AND  shift 96
-	OR  shift 97
-	THEN  shift 98
-	.  error
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   69 lexpression: aexpression . EQUAL aexpression
+   70            | aexpression . LESS_THAN aexpression
+   71            | aexpression . GREATER_THAN aexpression
+   72            | aexpression . GREATER_EQ aexpression
+   73            | aexpression . LESS_EQUAL aexpression
+   74            | aexpression . NEQUAL aexpression
+
+    MODULUS       shift, and go to state 90
+    EQUAL         shift, and go to state 91
+    NEQUAL        shift, and go to state 92
+    LESS_THAN     shift, and go to state 93
+    LESS_EQUAL    shift, and go to state 94
+    GREATER_THAN  shift, and go to state 95
+    GREATER_EQ    shift, and go to state 96
+    PLUS          shift, and go to state 97
+    MINUS         shift, and go to state 98
+    MULT          shift, and go to state 99
+    DIVIDE        shift, and go to state 100
 
 
 state 67
-	dowhile : WHILE lexpression . DO statements ENDWHILE SEMICOLON  (32)
-	lexpression : lexpression . AND lexpression  (62)
-	lexpression : lexpression . OR lexpression  (63)
 
-	AND  shift 96
-	OR  shift 97
-	DO  shift 99
-	.  error
+   30 ifelse: IF lexpression . THEN statements ENDIF SEMICOLON
+   31       | IF lexpression . THEN statements ELSE statements ENDIF SEMICOLON
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+
+    AND   shift, and go to state 101
+    OR    shift, and go to state 102
+    THEN  shift, and go to state 103
 
 
 state 68
-	expression : NUMBER .  (45)
-	aexpression : NUMBER .  (53)
 
-	SEMICOLON  reduce 45
-	MODULUS  reduce 53
-	EQUAL  reduce 53
-	NEQUAL  reduce 53
-	LESS_THAN  reduce 53
-	LESS_EQUAL  reduce 53
-	GREATER_THAN  reduce 53
-	GREATER_EQ  reduce 53
-	PLUS  reduce 53
-	MINUS  reduce 53
-	MULT  reduce 53
-	DIVIDE  reduce 53
+   32 dowhile: WHILE lexpression . DO statements ENDWHILE SEMICOLON
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+
+    AND  shift, and go to state 101
+    OR   shift, and go to state 102
+    DO   shift, and go to state 104
 
 
 state 69
-	expression : LPAREN . aexpression RPAREN  (44)
-	aexpression : LPAREN . aexpression RPAREN  (52)
-	lexpression : LPAREN . lexpression RPAREN  (65)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 63
-	LPAREN  shift 64
-	.  error
+   58 expression: ID .
+   59           | ID . LSQUARE aexpression RSQUARE
+   67 aexpression: ID .
+   68            | ID . LSQUARE aexpression RSQUARE
 
-	aexpression  goto 100
-	lexpression  goto 84
+    LSQUARE  shift, and go to state 105
+
+    SEMICOLON  reduce using rule 58 (expression)
+    $default   reduce using rule 67 (aexpression)
 
 
 state 70
-	return : RETURN expression . SEMICOLON  (38)
 
-	SEMICOLON  shift 101
-	.  error
+   56 expression: TRUE .
+   79 lexpression: TRUE .
+
+    SEMICOLON  reduce using rule 56 (expression)
+    $default   reduce using rule 79 (lexpression)
 
 
 state 71
-	expression : aexpression . PLUS aexpression  (39)
-	expression : aexpression . MINUS aexpression  (40)
-	expression : aexpression . MULT aexpression  (41)
-	expression : aexpression . DIVIDE aexpression  (42)
-	expression : aexpression . MODULUS aexpression  (43)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	lexpression : aexpression . EQUAL aexpression  (56)
-	lexpression : aexpression . LESS_THAN aexpression  (57)
-	lexpression : aexpression . GREATER_THAN aexpression  (58)
-	lexpression : aexpression . GREATER_EQ aexpression  (59)
-	lexpression : aexpression . LESS_EQUAL aexpression  (60)
-	lexpression : aexpression . NEQUAL aexpression  (61)
 
-	MODULUS  shift 102
-	EQUAL  shift 86
-	NEQUAL  shift 87
-	LESS_THAN  shift 88
-	LESS_EQUAL  shift 89
-	GREATER_THAN  shift 90
-	GREATER_EQ  shift 91
-	PLUS  shift 103
-	MINUS  shift 104
-	MULT  shift 105
-	DIVIDE  shift 106
-	.  error
+   57 expression: FALSE .
+   80 lexpression: FALSE .
+
+    SEMICOLON  reduce using rule 57 (expression)
+    $default   reduce using rule 80 (lexpression)
 
 
 state 72
-	expression : lexpression .  (46)
-	lexpression : lexpression . AND lexpression  (62)
-	lexpression : lexpression . OR lexpression  (63)
 
-	AND  shift 96
-	OR  shift 97
-	SEMICOLON  reduce 46
+   54 expression: NOT . lexpression
+   77 lexpression: NOT . lexpression
+
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 66
+    lexpression  go to state 106
 
 
 state 73
-	beginbody : BEGINN statements return END .  (22)
 
-	.  reduce 22
+   45 expression: NUMBER .
+   66 aexpression: NUMBER .
+
+    SEMICOLON  reduce using rule 45 (expression)
+    $default   reduce using rule 66 (aexpression)
 
 
 state 74
-	aexpression : LPAREN . aexpression RPAREN  (52)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   44 expression: LPAREN . aexpression RPAREN
+   55           | LPAREN . lexpression RPAREN
+   65 aexpression: LPAREN . aexpression RPAREN
+   78 lexpression: LPAREN . lexpression RPAREN
 
-	aexpression  goto 107
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 107
+    lexpression  go to state 108
 
 
 state 75
-	var : ID LSQUARE aexpression . RSQUARE  (21)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	RSQUARE  shift 108
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	.  error
+   38 return: RETURN expression . SEMICOLON
+
+    SEMICOLON  shift, and go to state 109
 
 
 state 76
-	vars : vars COMMA var .  (19)
 
-	.  reduce 19
+   39 expression: aexpression . PLUS aexpression
+   40           | aexpression . MINUS aexpression
+   41           | aexpression . MULT aexpression
+   42           | aexpression . DIVIDE aexpression
+   43           | aexpression . MODULUS aexpression
+   46           | aexpression . EQUAL aexpression
+   47           | aexpression . LESS_THAN aexpression
+   48           | aexpression . GREATER_THAN aexpression
+   49           | aexpression . GREATER_EQ aexpression
+   50           | aexpression . LESS_EQUAL aexpression
+   51           | aexpression . NEQUAL aexpression
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   69 lexpression: aexpression . EQUAL aexpression
+   70            | aexpression . LESS_THAN aexpression
+   71            | aexpression . GREATER_THAN aexpression
+   72            | aexpression . GREATER_EQ aexpression
+   73            | aexpression . LESS_EQUAL aexpression
+   74            | aexpression . NEQUAL aexpression
+
+    MODULUS       shift, and go to state 110
+    EQUAL         shift, and go to state 111
+    NEQUAL        shift, and go to state 112
+    LESS_THAN     shift, and go to state 113
+    LESS_EQUAL    shift, and go to state 114
+    GREATER_THAN  shift, and go to state 115
+    GREATER_EQ    shift, and go to state 116
+    PLUS          shift, and go to state 117
+    MINUS         shift, and go to state 118
+    MULT          shift, and go to state 119
+    DIVIDE        shift, and go to state 120
 
 
 state 77
-	astatement : ID LSQUARE aexpression . RSQUARE ASSIGN expression SEMICOLON  (34)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	RSQUARE  shift 109
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	.  error
+   52 expression: lexpression . AND lexpression
+   53           | lexpression . OR lexpression
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+
+    AND  shift, and go to state 121
+    OR   shift, and go to state 122
 
 
 state 78
-	astatement : ID ASSIGN expression . SEMICOLON  (33)
 
-	SEMICOLON  shift 110
-	.  error
+   22 beginbody: BEGINN statements return END .
+
+    $default  reduce using rule 22 (beginbody)
 
 
 state 79
-	read : READ LPAREN ID . RPAREN SEMICOLON  (35)
-	read : READ LPAREN ID . LSQUARE aexpression RSQUARE RPAREN SEMICOLON  (36)
 
-	LSQUARE  shift 111
-	RPAREN  shift 112
-	.  error
+   65 aexpression: LPAREN . aexpression RPAREN
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 123
 
 
 state 80
-	write : WRITE LPAREN aexpression . RPAREN SEMICOLON  (37)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	RPAREN  shift 113
-	.  error
+   21 var: ID LSQUARE aexpression . RSQUARE
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    RSQUARE  shift, and go to state 124
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
 
 
 state 81
-	aexpression : ID LSQUARE . aexpression RSQUARE  (55)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   19 vars: vars COMMA var .
 
-	aexpression  goto 114
+    $default  reduce using rule 19 (vars)
 
 
 state 82
-	lexpression : lexpression . AND lexpression  (62)
-	lexpression : lexpression . OR lexpression  (63)
-	lexpression : NOT lexpression .  (64)
 
-	.  reduce 64
+   34 astatement: ID LSQUARE aexpression . RSQUARE ASSIGN expression SEMICOLON
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    RSQUARE  shift, and go to state 125
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
 
 
 state 83
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	aexpression : LPAREN aexpression . RPAREN  (52)
-	lexpression : aexpression . EQUAL aexpression  (56)
-	lexpression : aexpression . LESS_THAN aexpression  (57)
-	lexpression : aexpression . GREATER_THAN aexpression  (58)
-	lexpression : aexpression . GREATER_EQ aexpression  (59)
-	lexpression : aexpression . LESS_EQUAL aexpression  (60)
-	lexpression : aexpression . NEQUAL aexpression  (61)
 
-	MODULUS  shift 85
-	EQUAL  shift 86
-	NEQUAL  shift 87
-	LESS_THAN  shift 88
-	LESS_EQUAL  shift 89
-	GREATER_THAN  shift 90
-	GREATER_EQ  shift 91
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	RPAREN  shift 115
-	.  error
+   33 astatement: ID ASSIGN expression . SEMICOLON
+
+    SEMICOLON  shift, and go to state 126
 
 
 state 84
-	lexpression : lexpression . AND lexpression  (62)
-	lexpression : lexpression . OR lexpression  (63)
-	lexpression : LPAREN lexpression . RPAREN  (65)
 
-	AND  shift 96
-	OR  shift 97
-	RPAREN  shift 116
-	.  error
+   35 read: READ LPAREN ID . RPAREN SEMICOLON
+   36     | READ LPAREN ID . LSQUARE aexpression RSQUARE RPAREN SEMICOLON
+
+    LSQUARE  shift, and go to state 127
+    RPAREN   shift, and go to state 128
 
 
 state 85
-	aexpression : aexpression MODULUS . aexpression  (51)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   37 write: WRITE LPAREN aexpression . RPAREN SEMICOLON
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
 
-	aexpression  goto 117
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+    RPAREN   shift, and go to state 129
 
 
 state 86
-	lexpression : aexpression EQUAL . aexpression  (56)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   68 aexpression: ID LSQUARE . aexpression RSQUARE
 
-	aexpression  goto 118
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 130
 
 
 state 87
-	lexpression : aexpression NEQUAL . aexpression  (61)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+   77            | NOT lexpression .
 
-	aexpression  goto 119
+    $default  reduce using rule 77 (lexpression)
 
 
 state 88
-	lexpression : aexpression LESS_THAN . aexpression  (57)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   65            | LPAREN aexpression . RPAREN
+   69 lexpression: aexpression . EQUAL aexpression
+   70            | aexpression . LESS_THAN aexpression
+   71            | aexpression . GREATER_THAN aexpression
+   72            | aexpression . GREATER_EQ aexpression
+   73            | aexpression . LESS_EQUAL aexpression
+   74            | aexpression . NEQUAL aexpression
 
-	aexpression  goto 120
+    MODULUS       shift, and go to state 90
+    EQUAL         shift, and go to state 91
+    NEQUAL        shift, and go to state 92
+    LESS_THAN     shift, and go to state 93
+    LESS_EQUAL    shift, and go to state 94
+    GREATER_THAN  shift, and go to state 95
+    GREATER_EQ    shift, and go to state 96
+    PLUS          shift, and go to state 97
+    MINUS         shift, and go to state 98
+    MULT          shift, and go to state 99
+    DIVIDE        shift, and go to state 100
+    RPAREN        shift, and go to state 131
 
 
 state 89
-	lexpression : aexpression LESS_EQUAL . aexpression  (60)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+   78            | LPAREN lexpression . RPAREN
 
-	aexpression  goto 121
+    AND     shift, and go to state 101
+    OR      shift, and go to state 102
+    RPAREN  shift, and go to state 132
 
 
 state 90
-	lexpression : aexpression GREATER_THAN . aexpression  (58)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   64 aexpression: aexpression MODULUS . aexpression
 
-	aexpression  goto 122
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 133
 
 
 state 91
-	lexpression : aexpression GREATER_EQ . aexpression  (59)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   69 lexpression: aexpression EQUAL . aexpression
 
-	aexpression  goto 123
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 134
 
 
 state 92
-	aexpression : aexpression PLUS . aexpression  (47)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   74 lexpression: aexpression NEQUAL . aexpression
 
-	aexpression  goto 124
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 135
 
 
 state 93
-	aexpression : aexpression MINUS . aexpression  (48)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   70 lexpression: aexpression LESS_THAN . aexpression
 
-	aexpression  goto 125
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 136
 
 
 state 94
-	aexpression : aexpression MULT . aexpression  (49)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   73 lexpression: aexpression LESS_EQUAL . aexpression
 
-	aexpression  goto 126
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 137
 
 
 state 95
-	aexpression : aexpression DIVIDE . aexpression  (50)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   71 lexpression: aexpression GREATER_THAN . aexpression
 
-	aexpression  goto 127
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 138
 
 
 state 96
-	lexpression : lexpression AND . lexpression  (62)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 63
-	LPAREN  shift 64
-	.  error
+   72 lexpression: aexpression GREATER_EQ . aexpression
 
-	aexpression  goto 65
-	lexpression  goto 128
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 139
 
 
 state 97
-	lexpression : lexpression OR . lexpression  (63)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 63
-	LPAREN  shift 64
-	.  error
+   60 aexpression: aexpression PLUS . aexpression
 
-	aexpression  goto 65
-	lexpression  goto 129
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 140
 
 
 state 98
-	ifelse : IF lexpression THEN . statements ENDIF SEMICOLON  (30)
-	ifelse : IF lexpression THEN . statements ELSE statements ENDIF SEMICOLON  (31)
-	statements : .  (23)
 
-	.  reduce 23
+   61 aexpression: aexpression MINUS . aexpression
 
-	statements  goto 130
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 141
 
 
 state 99
-	dowhile : WHILE lexpression DO . statements ENDWHILE SEMICOLON  (32)
-	statements : .  (23)
 
-	.  reduce 23
+   62 aexpression: aexpression MULT . aexpression
 
-	statements  goto 131
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 142
 
 
 state 100
-	expression : LPAREN aexpression . RPAREN  (44)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	aexpression : LPAREN aexpression . RPAREN  (52)
-	lexpression : aexpression . EQUAL aexpression  (56)
-	lexpression : aexpression . LESS_THAN aexpression  (57)
-	lexpression : aexpression . GREATER_THAN aexpression  (58)
-	lexpression : aexpression . GREATER_EQ aexpression  (59)
-	lexpression : aexpression . LESS_EQUAL aexpression  (60)
-	lexpression : aexpression . NEQUAL aexpression  (61)
 
-	MODULUS  shift 85
-	EQUAL  shift 86
-	NEQUAL  shift 87
-	LESS_THAN  shift 88
-	LESS_EQUAL  shift 89
-	GREATER_THAN  shift 90
-	GREATER_EQ  shift 91
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	RPAREN  shift 132
-	.  error
+   63 aexpression: aexpression DIVIDE . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 143
 
 
 state 101
-	return : RETURN expression SEMICOLON .  (38)
 
-	.  reduce 38
+   75 lexpression: lexpression AND . lexpression
+
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 66
+    lexpression  go to state 144
 
 
 state 102
-	expression : aexpression MODULUS . aexpression  (43)
-	aexpression : aexpression MODULUS . aexpression  (51)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   76 lexpression: lexpression OR . lexpression
 
-	aexpression  goto 133
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 66
+    lexpression  go to state 145
 
 
 state 103
-	expression : aexpression PLUS . aexpression  (39)
-	aexpression : aexpression PLUS . aexpression  (47)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   30 ifelse: IF lexpression THEN . statements ENDIF SEMICOLON
+   31       | IF lexpression THEN . statements ELSE statements ENDIF SEMICOLON
 
-	aexpression  goto 134
+    $default  reduce using rule 23 (statements)
+
+    statements  go to state 146
 
 
 state 104
-	expression : aexpression MINUS . aexpression  (40)
-	aexpression : aexpression MINUS . aexpression  (48)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   32 dowhile: WHILE lexpression DO . statements ENDWHILE SEMICOLON
 
-	aexpression  goto 135
+    $default  reduce using rule 23 (statements)
+
+    statements  go to state 147
 
 
 state 105
-	expression : aexpression MULT . aexpression  (41)
-	aexpression : aexpression MULT . aexpression  (49)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   59 expression: ID LSQUARE . aexpression RSQUARE
+   68 aexpression: ID LSQUARE . aexpression RSQUARE
 
-	aexpression  goto 136
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 148
 
 
 state 106
-	expression : aexpression DIVIDE . aexpression  (42)
-	aexpression : aexpression DIVIDE . aexpression  (50)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   54 expression: NOT lexpression .
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+   77            | NOT lexpression .
 
-	aexpression  goto 137
+    SEMICOLON  reduce using rule 54 (expression)
+    $default   reduce using rule 77 (lexpression)
 
 
 state 107
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	aexpression : LPAREN aexpression . RPAREN  (52)
 
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	RPAREN  shift 115
-	.  error
+   44 expression: LPAREN aexpression . RPAREN
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   65            | LPAREN aexpression . RPAREN
+   69 lexpression: aexpression . EQUAL aexpression
+   70            | aexpression . LESS_THAN aexpression
+   71            | aexpression . GREATER_THAN aexpression
+   72            | aexpression . GREATER_EQ aexpression
+   73            | aexpression . LESS_EQUAL aexpression
+   74            | aexpression . NEQUAL aexpression
+
+    MODULUS       shift, and go to state 90
+    EQUAL         shift, and go to state 91
+    NEQUAL        shift, and go to state 92
+    LESS_THAN     shift, and go to state 93
+    LESS_EQUAL    shift, and go to state 94
+    GREATER_THAN  shift, and go to state 95
+    GREATER_EQ    shift, and go to state 96
+    PLUS          shift, and go to state 97
+    MINUS         shift, and go to state 98
+    MULT          shift, and go to state 99
+    DIVIDE        shift, and go to state 100
+    RPAREN        shift, and go to state 149
 
 
 state 108
-	var : ID LSQUARE aexpression RSQUARE .  (21)
 
-	.  reduce 21
+   55 expression: LPAREN lexpression . RPAREN
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+   78            | LPAREN lexpression . RPAREN
+
+    AND     shift, and go to state 101
+    OR      shift, and go to state 102
+    RPAREN  shift, and go to state 150
 
 
 state 109
-	astatement : ID LSQUARE aexpression RSQUARE . ASSIGN expression SEMICOLON  (34)
 
-	ASSIGN  shift 138
-	.  error
+   38 return: RETURN expression SEMICOLON .
+
+    $default  reduce using rule 38 (return)
 
 
 state 110
-	astatement : ID ASSIGN expression SEMICOLON .  (33)
 
-	.  reduce 33
+   43 expression: aexpression MODULUS . aexpression
+   64 aexpression: aexpression MODULUS . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 151
 
 
 state 111
-	read : READ LPAREN ID LSQUARE . aexpression RSQUARE RPAREN SEMICOLON  (36)
 
-	ID  shift 59
-	NUMBER  shift 63
-	LPAREN  shift 74
-	.  error
+   46 expression: aexpression EQUAL . aexpression
+   69 lexpression: aexpression EQUAL . aexpression
 
-	aexpression  goto 139
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 152
 
 
 state 112
-	read : READ LPAREN ID RPAREN . SEMICOLON  (35)
 
-	SEMICOLON  shift 140
-	.  error
+   51 expression: aexpression NEQUAL . aexpression
+   74 lexpression: aexpression NEQUAL . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 153
 
 
 state 113
-	write : WRITE LPAREN aexpression RPAREN . SEMICOLON  (37)
 
-	SEMICOLON  shift 141
-	.  error
+   47 expression: aexpression LESS_THAN . aexpression
+   70 lexpression: aexpression LESS_THAN . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 154
 
 
 state 114
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	aexpression : ID LSQUARE aexpression . RSQUARE  (55)
 
-	RSQUARE  shift 142
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	.  error
+   50 expression: aexpression LESS_EQUAL . aexpression
+   73 lexpression: aexpression LESS_EQUAL . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 155
 
 
 state 115
-	aexpression : LPAREN aexpression RPAREN .  (52)
 
-	.  reduce 52
+   48 expression: aexpression GREATER_THAN . aexpression
+   71 lexpression: aexpression GREATER_THAN . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 156
 
 
 state 116
-	lexpression : LPAREN lexpression RPAREN .  (65)
 
-	.  reduce 65
+   49 expression: aexpression GREATER_EQ . aexpression
+   72 lexpression: aexpression GREATER_EQ . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 157
 
 
 state 117
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	aexpression : aexpression MODULUS aexpression .  (51)
 
-	.  reduce 51
+   39 expression: aexpression PLUS . aexpression
+   60 aexpression: aexpression PLUS . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 158
 
 
 state 118
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	lexpression : aexpression EQUAL aexpression .  (56)
 
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 56
-	AND  reduce 56
-	OR  reduce 56
-	THEN  reduce 56
-	RPAREN  reduce 56
-	DO  reduce 56
+   40 expression: aexpression MINUS . aexpression
+   61 aexpression: aexpression MINUS . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 159
 
 
 state 119
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	lexpression : aexpression NEQUAL aexpression .  (61)
 
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 61
-	AND  reduce 61
-	OR  reduce 61
-	THEN  reduce 61
-	RPAREN  reduce 61
-	DO  reduce 61
+   41 expression: aexpression MULT . aexpression
+   62 aexpression: aexpression MULT . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 160
 
 
 state 120
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	lexpression : aexpression LESS_THAN aexpression .  (57)
 
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 57
-	AND  reduce 57
-	OR  reduce 57
-	THEN  reduce 57
-	RPAREN  reduce 57
-	DO  reduce 57
+   42 expression: aexpression DIVIDE . aexpression
+   63 aexpression: aexpression DIVIDE . aexpression
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 161
 
 
 state 121
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	lexpression : aexpression LESS_EQUAL aexpression .  (60)
 
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 60
-	AND  reduce 60
-	OR  reduce 60
-	THEN  reduce 60
-	RPAREN  reduce 60
-	DO  reduce 60
+   52 expression: lexpression AND . lexpression
+   75 lexpression: lexpression AND . lexpression
+
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 66
+    lexpression  go to state 162
 
 
 state 122
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	lexpression : aexpression GREATER_THAN aexpression .  (58)
 
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 58
-	AND  reduce 58
-	OR  reduce 58
-	THEN  reduce 58
-	RPAREN  reduce 58
-	DO  reduce 58
+   53 expression: lexpression OR . lexpression
+   76 lexpression: lexpression OR . lexpression
+
+    ID      shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    NOT     shift, and go to state 63
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 65
+
+    aexpression  go to state 66
+    lexpression  go to state 163
 
 
 state 123
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	lexpression : aexpression GREATER_EQ aexpression .  (59)
 
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 59
-	AND  reduce 59
-	OR  reduce 59
-	THEN  reduce 59
-	RPAREN  reduce 59
-	DO  reduce 59
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   65            | LPAREN aexpression . RPAREN
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+    RPAREN   shift, and go to state 131
 
 
 state 124
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression PLUS aexpression .  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	MODULUS  shift 85
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 47
-	RSQUARE  reduce 47
-	AND  reduce 47
-	OR  reduce 47
-	THEN  reduce 47
-	EQUAL  reduce 47
-	NEQUAL  reduce 47
-	LESS_THAN  reduce 47
-	LESS_EQUAL  reduce 47
-	GREATER_THAN  reduce 47
-	GREATER_EQ  reduce 47
-	PLUS  reduce 47
-	MINUS  reduce 47
-	RPAREN  reduce 47
-	DO  reduce 47
+   21 var: ID LSQUARE aexpression RSQUARE .
+
+    $default  reduce using rule 21 (var)
 
 
 state 125
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression MINUS aexpression .  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	MODULUS  shift 85
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 48
-	RSQUARE  reduce 48
-	AND  reduce 48
-	OR  reduce 48
-	THEN  reduce 48
-	EQUAL  reduce 48
-	NEQUAL  reduce 48
-	LESS_THAN  reduce 48
-	LESS_EQUAL  reduce 48
-	GREATER_THAN  reduce 48
-	GREATER_EQ  reduce 48
-	PLUS  reduce 48
-	MINUS  reduce 48
-	RPAREN  reduce 48
-	DO  reduce 48
+   34 astatement: ID LSQUARE aexpression RSQUARE . ASSIGN expression SEMICOLON
+
+    ASSIGN  shift, and go to state 164
 
 
 state 126
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression MULT aexpression .  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	.  reduce 49
+   33 astatement: ID ASSIGN expression SEMICOLON .
+
+    $default  reduce using rule 33 (astatement)
 
 
 state 127
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression DIVIDE aexpression .  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	.  reduce 50
+   36 read: READ LPAREN ID LSQUARE . aexpression RSQUARE RPAREN SEMICOLON
+
+    ID      shift, and go to state 60
+    NUMBER  shift, and go to state 64
+    LPAREN  shift, and go to state 79
+
+    aexpression  go to state 165
 
 
 state 128
-	lexpression : lexpression . AND lexpression  (62)
-	lexpression : lexpression AND lexpression .  (62)
-	lexpression : lexpression . OR lexpression  (63)
 
-	.  reduce 62
+   35 read: READ LPAREN ID RPAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 166
 
 
 state 129
-	lexpression : lexpression . AND lexpression  (62)
-	lexpression : lexpression . OR lexpression  (63)
-	lexpression : lexpression OR lexpression .  (63)
 
-	.  reduce 63
+   37 write: WRITE LPAREN aexpression RPAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 167
 
 
 state 130
-	statements : statements . statement  (24)
-	ifelse : IF lexpression THEN statements . ENDIF SEMICOLON  (30)
-	ifelse : IF lexpression THEN statements . ELSE statements ENDIF SEMICOLON  (31)
 
-	ID  shift 39
-	READ  shift 40
-	WRITE  shift 41
-	IF  shift 42
-	ENDIF  shift 143
-	ELSE  shift 144
-	WHILE  shift 43
-	.  error
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   68            | ID LSQUARE aexpression . RSQUARE
 
-	statement  goto 45
-	ifelse  goto 46
-	dowhile  goto 47
-	read  goto 48
-	write  goto 49
-	astatement  goto 51
+    RSQUARE  shift, and go to state 168
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
 
 
 state 131
-	statements : statements . statement  (24)
-	dowhile : WHILE lexpression DO statements . ENDWHILE SEMICOLON  (32)
 
-	ID  shift 39
-	READ  shift 40
-	WRITE  shift 41
-	IF  shift 42
-	WHILE  shift 43
-	ENDWHILE  shift 145
-	.  error
+   65 aexpression: LPAREN aexpression RPAREN .
 
-	statement  goto 45
-	ifelse  goto 46
-	dowhile  goto 47
-	read  goto 48
-	write  goto 49
-	astatement  goto 51
+    $default  reduce using rule 65 (aexpression)
 
 
 state 132
-	expression : LPAREN aexpression RPAREN .  (44)
-	aexpression : LPAREN aexpression RPAREN .  (52)
 
-	SEMICOLON  reduce 44
-	MODULUS  reduce 52
-	EQUAL  reduce 52
-	NEQUAL  reduce 52
-	LESS_THAN  reduce 52
-	LESS_EQUAL  reduce 52
-	GREATER_THAN  reduce 52
-	GREATER_EQ  reduce 52
-	PLUS  reduce 52
-	MINUS  reduce 52
-	MULT  reduce 52
-	DIVIDE  reduce 52
+   78 lexpression: LPAREN lexpression RPAREN .
+
+    $default  reduce using rule 78 (lexpression)
 
 
 state 133
-	expression : aexpression MODULUS aexpression .  (43)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
-	aexpression : aexpression MODULUS aexpression .  (51)
 
-	SEMICOLON  reduce 43
-	MODULUS  reduce 51
-	EQUAL  reduce 51
-	NEQUAL  reduce 51
-	LESS_THAN  reduce 51
-	LESS_EQUAL  reduce 51
-	GREATER_THAN  reduce 51
-	GREATER_EQ  reduce 51
-	PLUS  reduce 51
-	MINUS  reduce 51
-	MULT  reduce 51
-	DIVIDE  reduce 51
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   64            | aexpression MODULUS aexpression .
+
+    $default  reduce using rule 64 (aexpression)
 
 
 state 134
-	expression : aexpression PLUS aexpression .  (39)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression PLUS aexpression .  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	MODULUS  shift 85
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 39
-	EQUAL  reduce 47
-	NEQUAL  reduce 47
-	LESS_THAN  reduce 47
-	LESS_EQUAL  reduce 47
-	GREATER_THAN  reduce 47
-	GREATER_EQ  reduce 47
-	PLUS  reduce 47
-	MINUS  reduce 47
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   69 lexpression: aexpression EQUAL aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    $default  reduce using rule 69 (lexpression)
 
 
 state 135
-	expression : aexpression MINUS aexpression .  (40)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression MINUS aexpression .  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	MODULUS  shift 85
-	MULT  shift 94
-	DIVIDE  shift 95
-	SEMICOLON  reduce 40
-	EQUAL  reduce 48
-	NEQUAL  reduce 48
-	LESS_THAN  reduce 48
-	LESS_EQUAL  reduce 48
-	GREATER_THAN  reduce 48
-	GREATER_EQ  reduce 48
-	PLUS  reduce 48
-	MINUS  reduce 48
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   74 lexpression: aexpression NEQUAL aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    $default  reduce using rule 74 (lexpression)
 
 
 state 136
-	expression : aexpression MULT aexpression .  (41)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression MULT aexpression .  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	SEMICOLON  reduce 41
-	MODULUS  reduce 49
-	EQUAL  reduce 49
-	NEQUAL  reduce 49
-	LESS_THAN  reduce 49
-	LESS_EQUAL  reduce 49
-	GREATER_THAN  reduce 49
-	GREATER_EQ  reduce 49
-	PLUS  reduce 49
-	MINUS  reduce 49
-	MULT  reduce 49
-	DIVIDE  reduce 49
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   70 lexpression: aexpression LESS_THAN aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    $default  reduce using rule 70 (lexpression)
 
 
 state 137
-	expression : aexpression DIVIDE aexpression .  (42)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression DIVIDE aexpression .  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	SEMICOLON  reduce 42
-	MODULUS  reduce 50
-	EQUAL  reduce 50
-	NEQUAL  reduce 50
-	LESS_THAN  reduce 50
-	LESS_EQUAL  reduce 50
-	GREATER_THAN  reduce 50
-	GREATER_EQ  reduce 50
-	PLUS  reduce 50
-	MINUS  reduce 50
-	MULT  reduce 50
-	DIVIDE  reduce 50
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   73 lexpression: aexpression LESS_EQUAL aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    $default  reduce using rule 73 (lexpression)
 
 
 state 138
-	astatement : ID LSQUARE aexpression RSQUARE ASSIGN . expression SEMICOLON  (34)
 
-	ID  shift 59
-	TRUE  shift 60
-	FALSE  shift 61
-	NOT  shift 62
-	NUMBER  shift 68
-	LPAREN  shift 69
-	.  error
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   71 lexpression: aexpression GREATER_THAN aexpression .
 
-	expression  goto 146
-	aexpression  goto 71
-	lexpression  goto 72
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    $default  reduce using rule 71 (lexpression)
 
 
 state 139
-	read : READ LPAREN ID LSQUARE aexpression . RSQUARE RPAREN SEMICOLON  (36)
-	aexpression : aexpression . PLUS aexpression  (47)
-	aexpression : aexpression . MINUS aexpression  (48)
-	aexpression : aexpression . MULT aexpression  (49)
-	aexpression : aexpression . DIVIDE aexpression  (50)
-	aexpression : aexpression . MODULUS aexpression  (51)
 
-	RSQUARE  shift 147
-	MODULUS  shift 85
-	PLUS  shift 92
-	MINUS  shift 93
-	MULT  shift 94
-	DIVIDE  shift 95
-	.  error
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   72 lexpression: aexpression GREATER_EQ aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    $default  reduce using rule 72 (lexpression)
 
 
 state 140
-	read : READ LPAREN ID RPAREN SEMICOLON .  (35)
 
-	.  reduce 35
+   60 aexpression: aexpression . PLUS aexpression
+   60            | aexpression PLUS aexpression .
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    MODULUS  shift, and go to state 90
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    $default  reduce using rule 60 (aexpression)
 
 
 state 141
-	write : WRITE LPAREN aexpression RPAREN SEMICOLON .  (37)
 
-	.  reduce 37
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   61            | aexpression MINUS aexpression .
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    MODULUS  shift, and go to state 90
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    $default  reduce using rule 61 (aexpression)
 
 
 state 142
-	aexpression : ID LSQUARE aexpression RSQUARE .  (55)
 
-	.  reduce 55
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   62            | aexpression MULT aexpression .
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    $default  reduce using rule 62 (aexpression)
 
 
 state 143
-	ifelse : IF lexpression THEN statements ENDIF . SEMICOLON  (30)
 
-	SEMICOLON  shift 148
-	.  error
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   63            | aexpression DIVIDE aexpression .
+   64            | aexpression . MODULUS aexpression
+
+    $default  reduce using rule 63 (aexpression)
 
 
 state 144
-	ifelse : IF lexpression THEN statements ELSE . statements ENDIF SEMICOLON  (31)
-	statements : .  (23)
 
-	.  reduce 23
+   75 lexpression: lexpression . AND lexpression
+   75            | lexpression AND lexpression .
+   76            | lexpression . OR lexpression
 
-	statements  goto 149
+    $default  reduce using rule 75 (lexpression)
 
 
 state 145
-	dowhile : WHILE lexpression DO statements ENDWHILE . SEMICOLON  (32)
 
-	SEMICOLON  shift 150
-	.  error
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+   76            | lexpression OR lexpression .
+
+    $default  reduce using rule 76 (lexpression)
 
 
 state 146
-	astatement : ID LSQUARE aexpression RSQUARE ASSIGN expression . SEMICOLON  (34)
 
-	SEMICOLON  shift 151
-	.  error
+   24 statements: statements . statement
+   30 ifelse: IF lexpression THEN statements . ENDIF SEMICOLON
+   31       | IF lexpression THEN statements . ELSE statements ENDIF SEMICOLON
+
+    ID     shift, and go to state 40
+    READ   shift, and go to state 41
+    WRITE  shift, and go to state 42
+    IF     shift, and go to state 43
+    ENDIF  shift, and go to state 169
+    ELSE   shift, and go to state 170
+    WHILE  shift, and go to state 44
+
+    statement   go to state 46
+    ifelse      go to state 47
+    dowhile     go to state 48
+    astatement  go to state 49
+    read        go to state 50
+    write       go to state 51
 
 
 state 147
-	read : READ LPAREN ID LSQUARE aexpression RSQUARE . RPAREN SEMICOLON  (36)
 
-	RPAREN  shift 152
-	.  error
+   24 statements: statements . statement
+   32 dowhile: WHILE lexpression DO statements . ENDWHILE SEMICOLON
+
+    ID        shift, and go to state 40
+    READ      shift, and go to state 41
+    WRITE     shift, and go to state 42
+    IF        shift, and go to state 43
+    WHILE     shift, and go to state 44
+    ENDWHILE  shift, and go to state 171
+
+    statement   go to state 46
+    ifelse      go to state 47
+    dowhile     go to state 48
+    astatement  go to state 49
+    read        go to state 50
+    write       go to state 51
 
 
 state 148
-	ifelse : IF lexpression THEN statements ENDIF SEMICOLON .  (30)
 
-	.  reduce 30
+   59 expression: ID LSQUARE aexpression . RSQUARE
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   68            | ID LSQUARE aexpression . RSQUARE
+
+    RSQUARE  shift, and go to state 172
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
 
 
 state 149
-	statements : statements . statement  (24)
-	ifelse : IF lexpression THEN statements ELSE statements . ENDIF SEMICOLON  (31)
 
-	ID  shift 39
-	READ  shift 40
-	WRITE  shift 41
-	IF  shift 42
-	ENDIF  shift 153
-	WHILE  shift 43
-	.  error
+   44 expression: LPAREN aexpression RPAREN .
+   65 aexpression: LPAREN aexpression RPAREN .
 
-	statement  goto 45
-	ifelse  goto 46
-	dowhile  goto 47
-	read  goto 48
-	write  goto 49
-	astatement  goto 51
+    SEMICOLON  reduce using rule 44 (expression)
+    $default   reduce using rule 65 (aexpression)
 
 
 state 150
-	dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON .  (32)
 
-	.  reduce 32
+   55 expression: LPAREN lexpression RPAREN .
+   78 lexpression: LPAREN lexpression RPAREN .
+
+    SEMICOLON  reduce using rule 55 (expression)
+    $default   reduce using rule 78 (lexpression)
 
 
 state 151
-	astatement : ID LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON .  (34)
 
-	.  reduce 34
+   43 expression: aexpression MODULUS aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   64            | aexpression MODULUS aexpression .
+
+    SEMICOLON  reduce using rule 43 (expression)
+    $default   reduce using rule 64 (aexpression)
 
 
 state 152
-	read : READ LPAREN ID LSQUARE aexpression RSQUARE RPAREN . SEMICOLON  (36)
 
-	SEMICOLON  shift 154
-	.  error
+   46 expression: aexpression EQUAL aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   69 lexpression: aexpression EQUAL aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    SEMICOLON  reduce using rule 46 (expression)
+    $default   reduce using rule 69 (lexpression)
 
 
 state 153
-	ifelse : IF lexpression THEN statements ELSE statements ENDIF . SEMICOLON  (31)
 
-	SEMICOLON  shift 155
-	.  error
+   51 expression: aexpression NEQUAL aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   74 lexpression: aexpression NEQUAL aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    SEMICOLON  reduce using rule 51 (expression)
+    $default   reduce using rule 74 (lexpression)
 
 
 state 154
-	read : READ LPAREN ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON .  (36)
 
-	.  reduce 36
+   47 expression: aexpression LESS_THAN aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   70 lexpression: aexpression LESS_THAN aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    SEMICOLON  reduce using rule 47 (expression)
+    $default   reduce using rule 70 (lexpression)
 
 
 state 155
-	ifelse : IF lexpression THEN statements ELSE statements ENDIF SEMICOLON .  (31)
 
-	.  reduce 31
+   50 expression: aexpression LESS_EQUAL aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   73 lexpression: aexpression LESS_EQUAL aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    SEMICOLON  reduce using rule 50 (expression)
+    $default   reduce using rule 73 (lexpression)
 
 
-47 terminals, 27 nonterminals
-68 grammar rules, 156 states
+state 156
+
+   48 expression: aexpression GREATER_THAN aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   71 lexpression: aexpression GREATER_THAN aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    SEMICOLON  reduce using rule 48 (expression)
+    $default   reduce using rule 71 (lexpression)
+
+
+state 157
+
+   49 expression: aexpression GREATER_EQ aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+   72 lexpression: aexpression GREATER_EQ aexpression .
+
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    SEMICOLON  reduce using rule 49 (expression)
+    $default   reduce using rule 72 (lexpression)
+
+
+state 158
+
+   39 expression: aexpression PLUS aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   60            | aexpression PLUS aexpression .
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    MODULUS  shift, and go to state 90
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    SEMICOLON  reduce using rule 39 (expression)
+    $default   reduce using rule 60 (aexpression)
+
+
+state 159
+
+   40 expression: aexpression MINUS aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   61            | aexpression MINUS aexpression .
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    MODULUS  shift, and go to state 90
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+    SEMICOLON  reduce using rule 40 (expression)
+    $default   reduce using rule 61 (aexpression)
+
+
+state 160
+
+   41 expression: aexpression MULT aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   62            | aexpression MULT aexpression .
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    SEMICOLON  reduce using rule 41 (expression)
+    $default   reduce using rule 62 (aexpression)
+
+
+state 161
+
+   42 expression: aexpression DIVIDE aexpression .
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   63            | aexpression DIVIDE aexpression .
+   64            | aexpression . MODULUS aexpression
+
+    SEMICOLON  reduce using rule 42 (expression)
+    $default   reduce using rule 63 (aexpression)
+
+
+state 162
+
+   52 expression: lexpression AND lexpression .
+   75 lexpression: lexpression . AND lexpression
+   75            | lexpression AND lexpression .
+   76            | lexpression . OR lexpression
+
+    SEMICOLON  reduce using rule 52 (expression)
+    $default   reduce using rule 75 (lexpression)
+
+
+state 163
+
+   53 expression: lexpression OR lexpression .
+   75 lexpression: lexpression . AND lexpression
+   76            | lexpression . OR lexpression
+   76            | lexpression OR lexpression .
+
+    SEMICOLON  reduce using rule 53 (expression)
+    $default   reduce using rule 76 (lexpression)
+
+
+state 164
+
+   34 astatement: ID LSQUARE aexpression RSQUARE ASSIGN . expression SEMICOLON
+
+    ID      shift, and go to state 69
+    TRUE    shift, and go to state 70
+    FALSE   shift, and go to state 71
+    NOT     shift, and go to state 72
+    NUMBER  shift, and go to state 73
+    LPAREN  shift, and go to state 74
+
+    expression   go to state 173
+    aexpression  go to state 76
+    lexpression  go to state 77
+
+
+state 165
+
+   36 read: READ LPAREN ID LSQUARE aexpression . RSQUARE RPAREN SEMICOLON
+   60 aexpression: aexpression . PLUS aexpression
+   61            | aexpression . MINUS aexpression
+   62            | aexpression . MULT aexpression
+   63            | aexpression . DIVIDE aexpression
+   64            | aexpression . MODULUS aexpression
+
+    RSQUARE  shift, and go to state 174
+    MODULUS  shift, and go to state 90
+    PLUS     shift, and go to state 97
+    MINUS    shift, and go to state 98
+    MULT     shift, and go to state 99
+    DIVIDE   shift, and go to state 100
+
+
+state 166
+
+   35 read: READ LPAREN ID RPAREN SEMICOLON .
+
+    $default  reduce using rule 35 (read)
+
+
+state 167
+
+   37 write: WRITE LPAREN aexpression RPAREN SEMICOLON .
+
+    $default  reduce using rule 37 (write)
+
+
+state 168
+
+   68 aexpression: ID LSQUARE aexpression RSQUARE .
+
+    $default  reduce using rule 68 (aexpression)
+
+
+state 169
+
+   30 ifelse: IF lexpression THEN statements ENDIF . SEMICOLON
+
+    SEMICOLON  shift, and go to state 175
+
+
+state 170
+
+   31 ifelse: IF lexpression THEN statements ELSE . statements ENDIF SEMICOLON
+
+    $default  reduce using rule 23 (statements)
+
+    statements  go to state 176
+
+
+state 171
+
+   32 dowhile: WHILE lexpression DO statements ENDWHILE . SEMICOLON
+
+    SEMICOLON  shift, and go to state 177
+
+
+state 172
+
+   59 expression: ID LSQUARE aexpression RSQUARE .
+   68 aexpression: ID LSQUARE aexpression RSQUARE .
+
+    SEMICOLON  reduce using rule 59 (expression)
+    $default   reduce using rule 68 (aexpression)
+
+
+state 173
+
+   34 astatement: ID LSQUARE aexpression RSQUARE ASSIGN expression . SEMICOLON
+
+    SEMICOLON  shift, and go to state 178
+
+
+state 174
+
+   36 read: READ LPAREN ID LSQUARE aexpression RSQUARE . RPAREN SEMICOLON
+
+    RPAREN  shift, and go to state 179
+
+
+state 175
+
+   30 ifelse: IF lexpression THEN statements ENDIF SEMICOLON .
+
+    $default  reduce using rule 30 (ifelse)
+
+
+state 176
+
+   24 statements: statements . statement
+   31 ifelse: IF lexpression THEN statements ELSE statements . ENDIF SEMICOLON
+
+    ID     shift, and go to state 40
+    READ   shift, and go to state 41
+    WRITE  shift, and go to state 42
+    IF     shift, and go to state 43
+    ENDIF  shift, and go to state 180
+    WHILE  shift, and go to state 44
+
+    statement   go to state 46
+    ifelse      go to state 47
+    dowhile     go to state 48
+    astatement  go to state 49
+    read        go to state 50
+    write       go to state 51
+
+
+state 177
+
+   32 dowhile: WHILE lexpression DO statements ENDWHILE SEMICOLON .
+
+    $default  reduce using rule 32 (dowhile)
+
+
+state 178
+
+   34 astatement: ID LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON .
+
+    $default  reduce using rule 34 (astatement)
+
+
+state 179
+
+   36 read: READ LPAREN ID LSQUARE aexpression RSQUARE RPAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 181
+
+
+state 180
+
+   31 ifelse: IF lexpression THEN statements ELSE statements ENDIF . SEMICOLON
+
+    SEMICOLON  shift, and go to state 182
+
+
+state 181
+
+   36 read: READ LPAREN ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON .
+
+    $default  reduce using rule 36 (read)
+
+
+state 182
+
+   31 ifelse: IF lexpression THEN statements ELSE statements ENDIF SEMICOLON .
+
+    $default  reduce using rule 31 (ifelse)
