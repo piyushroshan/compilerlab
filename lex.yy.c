@@ -537,13 +537,12 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "piyush.l"
-#line 2 "piyush.l"
-#include <stdio.h>
+#line 1 "symbol.l"
+#line 2 "symbol.l"
 #include "y.tab.h"
 #include "def.h"
 
-#line 547 "lex.yy.c"
+#line 546 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -730,10 +729,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 19 "piyush.l"
+#line 18 "symbol.l"
 
 
-#line 737 "lex.yy.c"
+#line 736 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -818,257 +817,257 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 21 "piyush.l"
+#line 20 "symbol.l"
 { return TRUE;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 22 "piyush.l"
+#line 21 "symbol.l"
 { return FALSE;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 23 "piyush.l"
+#line 22 "symbol.l"
 { return BOOLEAN;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 24 "piyush.l"
+#line 23 "symbol.l"
 { return INTEGER;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 25 "piyush.l"
+#line 24 "symbol.l"
 { }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 26 "piyush.l"
+#line 25 "symbol.l"
 { }
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 27 "piyush.l"
+#line 26 "symbol.l"
 { }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 28 "piyush.l"
+#line 27 "symbol.l"
 { }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 29 "piyush.l"
+#line 28 "symbol.l"
 { return EQUAL; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 30 "piyush.l"
+#line 29 "symbol.l"
 { return ASSIGN; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 31 "piyush.l"
+#line 30 "symbol.l"
 { return NEQUAL; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 32 "piyush.l"
+#line 31 "symbol.l"
 { return LESS_THAN; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 33 "piyush.l"
+#line 32 "symbol.l"
 { return LESS_EQUAL; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 34 "piyush.l"
+#line 33 "symbol.l"
 { return GREATER_THAN; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 35 "piyush.l"
+#line 34 "symbol.l"
 { return GREATER_EQ; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 36 "piyush.l"
+#line 35 "symbol.l"
 { return PLUS; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 37 "piyush.l"
+#line 36 "symbol.l"
 { return MINUS; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 38 "piyush.l"
+#line 37 "symbol.l"
 { return MULT; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 39 "piyush.l"
+#line 38 "symbol.l"
 { return DIVIDE; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 40 "piyush.l"
+#line 39 "symbol.l"
 { return RPAREN; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 41 "piyush.l"
+#line 40 "symbol.l"
 { return LPAREN; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 42 "piyush.l"
+#line 41 "symbol.l"
 { return RSQUARE; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 43 "piyush.l"
+#line 42 "symbol.l"
 { return LSQUARE; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 44 "piyush.l"
+#line 43 "symbol.l"
 { return RFLOWER; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 45 "piyush.l"
+#line 44 "symbol.l"
 { return LFLOWER; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 46 "piyush.l"
+#line 45 "symbol.l"
 { return COMMA;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 47 "piyush.l"
+#line 46 "symbol.l"
 { return SEMICOLON;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 48 "piyush.l"
+#line 47 "symbol.l"
 { return ADDRESSOF;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 49 "piyush.l"
+#line 48 "symbol.l"
 { return MODULUS;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 50 "piyush.l"
+#line 49 "symbol.l"
 { return AND;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 51 "piyush.l"
+#line 50 "symbol.l"
 { return OR;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 52 "piyush.l"
+#line 51 "symbol.l"
 { return NOT;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 53 "piyush.l"
+#line 52 "symbol.l"
 { return READ;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 54 "piyush.l"
+#line 53 "symbol.l"
 { return WRITE;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 55 "piyush.l"
+#line 54 "symbol.l"
 { return IF;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 56 "piyush.l"
+#line 55 "symbol.l"
 { return ENDIF;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 57 "piyush.l"
+#line 56 "symbol.l"
 { return THEN;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 58 "piyush.l"
+#line 57 "symbol.l"
 { return ELSE;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 59 "piyush.l"
+#line 58 "symbol.l"
 { return WHILE; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 60 "piyush.l"
+#line 59 "symbol.l"
 { return DO; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 61 "piyush.l"
+#line 60 "symbol.l"
 { return ENDWHILE; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 62 "piyush.l"
+#line 61 "symbol.l"
 { return DECL; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 63 "piyush.l"
+#line 62 "symbol.l"
 { return ENDDECL; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 64 "piyush.l"
+#line 63 "symbol.l"
 { return BEGINN; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 65 "piyush.l"
+#line 64 "symbol.l"
 { return END; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 66 "piyush.l"
+#line 65 "symbol.l"
 { return MAIN; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 67 "piyush.l"
+#line 66 "symbol.l"
 { return RETURN; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 68 "piyush.l"
+#line 67 "symbol.l"
 { char *name =  (char *)malloc(sizeof(yytext)); strcpy(name,yytext);
 			yylval.n = CreateNode(2,0,0,name,NULL,NULL,NULL); return ID; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 70 "piyush.l"
+#line 69 "symbol.l"
 { yylval.n = CreateNode(1,0,atoi(yytext),NULL,NULL,NULL,NULL); return NUMBER; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 71 "piyush.l"
+#line 70 "symbol.l"
 ECHO;
 	YY_BREAK
-#line 1072 "lex.yy.c"
+#line 1071 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2066,4 +2065,4 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 71 "piyush.l"
+#line 70 "symbol.l"
