@@ -96,7 +96,7 @@ Gdeclaration : DECL GdeclStatements ENDDECL
 GdeclStatements : {/*empty*/}
 	| GdeclStatements GdeclStatement
 	;
-GdeclStatement : type Gvars SEMICOLON// { $2->TYPE = $1->TYPE; }
+GdeclStatement : type Gvars SEMICOLON
 	;
 Gvars : Gvar 
 	| Gvars COMMA Gvar 
@@ -120,10 +120,10 @@ declaration : DECL declStatements ENDDECL
 declStatements : {/*empty*/}
 	| declStatements declStatement
 	;
-declStatement : type vars SEMICOLON //{ $2->TYPE = $1->TYPE; }
+declStatement : type vars SEMICOLON 
 	;
-vars : var //{ $1->TYPE = $$->TYPE; }
-	| vars COMMA var// { $1->TYPE = $$->TYPE; $3->TYPE = $$->TYPE; }
+vars : var
+	| vars COMMA var
 	;
 
 var : ID { Linstall($1->NAME, TYPE); } 
