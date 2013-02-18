@@ -13,14 +13,52 @@ struct node {
 	char* NAME;			/* For Identifiers */
 	struct	node	*center, *left,	*right;
 };
+
+struct Gsymbol {
+	char *NAME; // Name of the Identifier
+	int TYPE; // TYPE can be INTEGER or BOOLEAN
+	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
+	int SIZE; // Size field for arrays
+	int BINDING; // Address of the Identifier in Memory
+	//ArgStruct *ARGLIST; // Argument List for functions
+
+	/***Argstruct must store the name and type of each argument ***/
+	struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
+} *Gnode;
+
+struct Lsymbol {
+	/* Here only name, type, binding and pointer to next entry needed */
+	char *NAME; // Name of the Identifier
+	int TYPE; // TYPE can be INTEGER or BOOLEAN
+	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
+	int BINDING; // Address of the Identifier in Memory
+	struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
+} *Lnode;
+
+
+
 void printTree(struct node* root);
 struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struct node *ptr1, struct node *ptr2, struct node *ptr3);
 void Ginstall(char* NAME, int TYPE, int SIZE);
 struct Gsymbol *Glookup(char* NAME);
 struct Lsymbol *Llookup(char* NAME);
 void Linstall(char* NAME, int TYPE);
+int TYPE;
 
-
+void PrintSymbol(){
+	struct Gsymbol *Gtemp = Gnode;
+	while(Gtemp != NULL){
+		printf("%s --> %d ",Gtemp->NAME,Gtemp->TYPE) ;
+		Gtemp =Gtemp->NEXT;
+	}
+	printf("\n");
+	struct Lsymbol *Ltemp = Lnode;
+	while(Ltemp != NULL){
+		printf("%s --> %d ",Ltemp->NAME,Ltemp->TYPE) ;
+		Ltemp = Ltemp->NEXT;
+	}
+	printf("\n");
+}
 %}
 
 %union {
@@ -51,24 +89,24 @@ void Linstall(char* NAME, int TYPE);
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar
 
 %%
-program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; printTree($2);}
+program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol();}
 	;
 Gdeclaration : DECL GdeclStatements ENDDECL
 	;
 GdeclStatements : {/*empty*/}
 	| GdeclStatements GdeclStatement
 	;
-GdeclStatement : type Gvars SEMICOLON { $2->TYPE = $1->TYPE; }
+GdeclStatement : type Gvars SEMICOLON// { $2->TYPE = $1->TYPE; }
 	;
-Gvars : Gvar { $1->TYPE = $$->TYPE; }
-	| Gvars COMMA Gvar { $1->TYPE = $$->TYPE; $3->TYPE = $$->TYPE; }
+Gvars : Gvar 
+	| Gvars COMMA Gvar 
 	;
-type : INTEGER { $1->TYPE=1; $$ = $1; }
-	| BOOLEAN { $1->TYPE=2; $$ = $1; }
+type : INTEGER { TYPE = 1; }
+	| BOOLEAN {TYPE=2; }
 	;
 
-Gvar : ID { Ginstall($1->NAME, $$->TYPE, 0); }
-	| ID LSQUARE NUMBER RSQUARE { Ginstall($1->NAME, $$->TYPE, $3->VALUE); }
+Gvar : ID { Ginstall($1->NAME, TYPE, 0); }
+	| ID LSQUARE NUMBER RSQUARE { Ginstall($1->NAME, TYPE, $3->VALUE); }
 	;
 
 main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER { $$=CreateNode(0,'f', 0, "MAIN", NULL, $6, NULL);}
@@ -82,16 +120,16 @@ declaration : DECL declStatements ENDDECL
 declStatements : {/*empty*/}
 	| declStatements declStatement
 	;
-declStatement : type vars SEMICOLON { $2->TYPE = $1->TYPE; }
+declStatement : type vars SEMICOLON //{ $2->TYPE = $1->TYPE; }
 	;
-vars : var { $1->TYPE = $$->TYPE; }
-	| vars COMMA var { $1->TYPE = $$->TYPE; $3->TYPE = $$->TYPE; }
-	;
-
-var : ID { Linstall($1->NAME, $$->TYPE); } 
+vars : var //{ $1->TYPE = $$->TYPE; }
+	| vars COMMA var// { $1->TYPE = $$->TYPE; $3->TYPE = $$->TYPE; }
 	;
 
-	beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL);}
+var : ID { Linstall($1->NAME, TYPE); } 
+	;
+
+beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL);}
 	;
 
 statements : { $$ = NULL; }

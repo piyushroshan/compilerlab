@@ -39,6 +39,19 @@ struct Gsymbol {
 	/***Argstruct must store the name and type of each argument ***/
 	struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Gnode;
+
+struct Lsymbol {
+	/* Here only name, type, binding and pointer to next entry needed */
+	char *NAME; // Name of the Identifier
+	int TYPE; // TYPE can be INTEGER or BOOLEAN
+	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
+	int BINDING; // Address of the Identifier in Memory
+	struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
+} *Lnode;
+
+
+
+
 struct Gsymbol *Glookup(char* NAME){
 	struct Gsymbol *Gtemp = Gnode;
 	while(Gtemp != NULL){
@@ -50,26 +63,16 @@ struct Gsymbol *Glookup(char* NAME){
 }
 
 void Ginstall(char* NAME, int TYPE, int SIZE){ // Installation
-	struct Gsymbol *Gtemp = Gnode;
 	if(Glookup(NAME) == NULL){
 	    struct Gsymbol* temp=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));	
-	    while(Gtemp != NULL)
-		    Gtemp = Gtemp->NEXT;
 	    temp->NAME = NAME;
 	    temp->TYPE = TYPE;
 	    temp->SIZE = SIZE;
- 	    Gtemp = temp;
+ 	    temp->NEXT = Gnode;
+ 	    Gnode = temp;
     }
 }
 
-struct Lsymbol {
-	/* Here only name, type, binding and pointer to next entry needed */
-	char *NAME; // Name of the Identifier
-	int TYPE; // TYPE can be INTEGER or BOOLEAN
-	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
-	int BINDING; // Address of the Identifier in Memory
-	struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
-} *Lnode;
 
 struct Lsymbol *Llookup(char* NAME){
 	struct Lsymbol *Ltemp = Lnode;
@@ -82,13 +85,11 @@ struct Lsymbol *Llookup(char* NAME){
 }
 
 void Linstall(char* NAME, int TYPE){
-	struct Lsymbol *Ltemp = Lnode;
 	struct Lsymbol* temp=(struct Lsymbol *)malloc(sizeof(struct Lsymbol));	
-	while(Ltemp != NULL)
-		Ltemp = Ltemp->NEXT;
 	temp->NAME = NAME;
 	temp->TYPE = TYPE;
- 	Ltemp = temp;
+ 	temp->NEXT = Lnode;
+ 	Lnode = temp;
 }
 
 
