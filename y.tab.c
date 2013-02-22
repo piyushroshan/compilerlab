@@ -835,7 +835,7 @@ case 37:
 break;
 case 38:
 #line 167 "symbol.y"
-	{ yystack.l_mark[-1].n = CreateNode(0,'+', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; }
+	{ yystack.l_mark[-1].n = CreateNode(0,'+', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n;  }
 break;
 case 39:
 #line 168 "symbol.y"
@@ -955,7 +955,7 @@ case 67:
 break;
 case 68:
 #line 201 "symbol.y"
-	{ yystack.l_mark[-1].n = CreateNode(0,'E', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; }
+	{ yystack.l_mark[-1].n = CreateNode(0,'E', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n;  }
 break;
 case 69:
 #line 202 "symbol.y"
