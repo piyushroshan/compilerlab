@@ -33,7 +33,7 @@ struct Gsymbol {
 	int TYPE; // TYPE can be INTEGER or BOOLEAN
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
 	int SIZE; // Size field for arrays
-	int BINDING; // Address of the Identifier in Memory
+	//int BINDING; // Address of the Identifier in Memory
 	//ArgStruct *ARGLIST; // Argument List for functions
 
 	/***Argstruct must store the name and type of each argument ***/
@@ -45,7 +45,7 @@ struct Lsymbol {
 	char *NAME; // Name of the Identifier
 	int TYPE; // TYPE can be INTEGER or BOOLEAN
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
-	int BINDING; // Address of the Identifier in Memory
+	//int BINDING; // Address of the Identifier in Memory
 	struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Lnode;
 

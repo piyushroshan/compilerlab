@@ -1,0 +1,17 @@
+decl
+integer n,i ;
+boolean a,b;
+enddecl
+integer main(){
+
+decl
+
+integer n,i ;
+boolean a,b;
+enddecl
+
+begin
+return y;
+end
+
+}

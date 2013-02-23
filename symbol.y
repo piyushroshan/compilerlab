@@ -19,7 +19,7 @@ struct Gsymbol {
 	int TYPE; // TYPE can be INTEGER or BOOLEAN
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
 	int SIZE; // Size field for arrays
-	int BINDING; // Address of the Identifier in Memory
+	//int BINDING; // Address of the Identifier in Memory
 	//ArgStruct *ARGLIST; // Argument List for functions
 
 	/***Argstruct must store the name and type of each argument ***/
@@ -31,7 +31,7 @@ struct Lsymbol {
 	char *NAME; // Name of the Identifier
 	int TYPE; // TYPE can be INTEGER or BOOLEAN
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
-	int BINDING; // Address of the Identifier in Memory
+	//int BINDING; // Address of the Identifier in Memory
 	struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Lnode;
 
@@ -59,6 +59,8 @@ void PrintSymbol(){
 	}
 	printf("\n");
 }
+
+int	eval(struct node* root) ;
 %}
 
 %union {
@@ -85,7 +87,7 @@ void PrintSymbol(){
 %left  MULT  DIVIDE  MODULUS
 
 %type <n> program main_function fbody beginbody statements statement ifelse dowhile read write
-%type <n> return expression aexpression lexpression astatement
+%type <n> return expression aexpression lexpression astatement expression1
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar
 
 %%
@@ -129,8 +131,7 @@ vars : var
 var : ID { Linstall($1->NAME, TYPE); }
 	;
 
-beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); if ($2->TYPE==0 && $3->TYPE==0)
-												$$->TYPE=0; else $$->TYPE=-1;}
+beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); }
 	;
 
 statements : { $$ = NULL; }
@@ -162,16 +163,16 @@ read : READ LPAREN ID RPAREN SEMICOLON { $1 = CreateNode(0,'r', 0, NULL, NULL, $
 write : WRITE LPAREN aexpression RPAREN SEMICOLON { $1 = CreateNode(0,'w', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE==1) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
-return : RETURN expression SEMICOLON { $1 = CreateNode(0,'R', 0, NULL, NULL, $2, NULL); $$ = $1; if($2->TYPE==1 || $2->TYPE ==2) $$->TYPE=0; else $$->TYPE=-1; }
+return : RETURN expression1 SEMICOLON { $1 = CreateNode(0,'R', 0, NULL, NULL, $2, NULL); eval($2); $$ = $1; }
 	;
-
+expression1 : ID { $$=$1; if(eval($1)!=1){printf("WROng");}}
+	;
 expression : aexpression PLUS aexpression { $2 = CreateNode(0,'+', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; }
 	| aexpression MINUS aexpression { $2 = CreateNode(0,'-', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
 	| aexpression MULT aexpression { $2 = CreateNode(0,'*', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
 	| aexpression DIVIDE aexpression { $2 = CreateNode(0,'/', 0, NULL, $1, NULL, $3); $$ = $2;  if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; }
 	| aexpression MODULUS aexpression { $2 = CreateNode(0,'%', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
 	| LPAREN aexpression RPAREN { $$=$2; $$->TYPE = $1->TYPE; }
-	| NUMBER { $$=$1; $$->TYPE = 1; }
 	| aexpression EQUAL aexpression { $2 = CreateNode(0,'E', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
 	| aexpression LESS_THAN aexpression { $2 = CreateNode(0,'<', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
 	| aexpression GREATER_THAN aexpression { $2 = CreateNode(0,'>', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
@@ -184,7 +185,7 @@ expression : aexpression PLUS aexpression { $2 = CreateNode(0,'+', 0, NULL, $1, 
 	| LPAREN lexpression RPAREN { $$ = $2; }
 	| TRUE { $1 = CreateNode(0,'T', 0, NULL,NULL,NULL,NULL); $$ = $1; }
 	| FALSE { $1 = CreateNode(0,'F', 0, NULL, NULL, NULL, NULL); $$ = $1; }
-	| ID { $$=$1; }
+	| NUMBER { $$=$1; }
 	| ID LSQUARE aexpression RSQUARE {   $1->center = $3; $$ = $1;}
 	;
 
@@ -225,5 +226,40 @@ char *s;
   fprintf(stderr, "%s\n",s);
 }
 
+int	eval(struct node* root) {
+	if (root == NULL ) {
+		printf("\nTree root is NULL");
+		return;
+	} else {
+		if(root->TYPE==0 &&	root->NODETYPE==2)	/* if INTEGER/variable */ {
+			if(root->NAME)	{
+				struct Lsymbol *lt = Llookup(root->NAME);
+				struct Gsymbol *gt = Glookup(root->NAME);
+				if(lt)	{
+					return 1;
+				}
+				if(gt)	{
+					if(root->center)	{//if there is an array index
+						return	1;
+					}
+					else {
+						return	1;
+					}
+				} else	{
+					printf("Wrong identifier '%s' used\n", root->NAME);
+					exit(0);
+				}
+			} else
+				return	root->VALUE;
+		}
 
+		switch(root->NODETYPE)	{
+			case 10 :	return(root->VALUE); break;
+			case 11 :	return (eval(root->left) + eval(root->right)); break;
+			case 21 :	return (eval(root->left) - eval(root->right)); break;
+			case 31 :	return (eval(root->left) * eval(root->right)); break;
+			case 41 :	return (eval(root->left) / eval(root->right)); break;
+		}
+	}
+}
 
