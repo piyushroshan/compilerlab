@@ -66,4 +66,4 @@ main 	{ return MAIN; }
 return  { return RETURN; }
 {id}	{ char *name =  (char *)malloc(sizeof(yytext)); strcpy(name,yytext);
 			yylval.n = CreateNode(0,2,0,name,NULL,NULL,NULL); return ID; }
-{number}	{ yylval.n = CreateNode(0,1,atoi(yytext),NULL,NULL,NULL,NULL); return NUMBER; }
+{number}	{ yylval.n = CreateNode(1,1,atoi(yytext),NULL,NULL,NULL,NULL); return NUMBER; }

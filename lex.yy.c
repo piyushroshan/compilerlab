@@ -1060,7 +1060,7 @@ YY_RULE_SETUP
 case 49:
 YY_RULE_SETUP
 #line 69 "symbol.l"
-{ yylval.n = CreateNode(0,1,atoi(yytext),NULL,NULL,NULL,NULL); return NUMBER; }
+{ yylval.n = CreateNode(1,1,atoi(yytext),NULL,NULL,NULL,NULL); return NUMBER; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP

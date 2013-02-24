@@ -59,8 +59,6 @@ void PrintSymbol(){
 	}
 	printf("\n");
 }
-
-int	eval(struct node* root) ;
 %}
 
 %union {
@@ -87,7 +85,7 @@ int	eval(struct node* root) ;
 %left  MULT  DIVIDE  MODULUS
 
 %type <n> program main_function fbody beginbody statements statement ifelse dowhile read write
-%type <n> return expression aexpression lexpression astatement expression1
+%type <n> return expression expression expression astatement
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar
 
 %%
@@ -135,7 +133,7 @@ beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3
 	;
 
 statements : { $$ = NULL; }
-    | statements statement {  $$=CreateNode(0,'S', 0, NULL, $2, $1, NULL); if ($1->TYPE==0 && $2->TYPE==0) $$->TYPE=0; else $$->TYPE=-1;}
+    | statements statement {  $$=CreateNode(0,'S', 0, NULL, $2, $1, NULL); if (($1==NULL || $1->TYPE==0) && $2->TYPE==0) $$->TYPE=0; else $$->TYPE=-1;}
 	;
 
 statement : ifelse { $$ = $1; $$->TYPE = $1->TYPE; }
@@ -145,74 +143,51 @@ statement : ifelse { $$ = $1; $$->TYPE = $1->TYPE; }
 	| astatement { $$ = $1; $$->TYPE = $1->TYPE; }
 	;
 
-ifelse : IF lexpression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, NULL); $$ = $1; if ($2->TYPE==2 && $4->TYPE==0) $$->TYPE=0; else $$->TYPE=-1;  }
-	| IF lexpression THEN statements ELSE statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, $6); $$ = $1; if ($2->TYPE==2 && $4->TYPE==0 && $6->TYPE==0) $$->TYPE=0; else $$->TYPE=-1; }
+ifelse : IF expression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, NULL); $$ = $1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1;  }
+	| IF expression THEN statements ELSE statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, $6); $$ = $1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0) && ($6==NULL || $6->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
-dowhile : WHILE lexpression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $4, $2, NULL); $$=$1; if ($2->TYPE==2 && $4->TYPE==0) $$->TYPE=0; else $$->TYPE=-1; }
+dowhile : WHILE expression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $4, $2, NULL); $$=$1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
 astatement : ID ASSIGN expression SEMICOLON { $2 = CreateNode(0,'=', 0, NULL, $1, NULL, $3); $$=$2; if ($3->TYPE==1 || $3->TYPE==2) $$->TYPE=0; else $$->TYPE=-1; }
-	| ID LSQUARE aexpression RSQUARE ASSIGN expression SEMICOLON { $1->center = $3; $5 = CreateNode(0,'=', 0, NULL, $1, NULL, $6); $$=$5; if ($3->TYPE==1 && ($6->TYPE==1 || $6->TYPE==2)) $$->TYPE=0; else $$->TYPE=-1; }
+	| ID LSQUARE expression RSQUARE ASSIGN expression SEMICOLON { $1->center = $3; $5 = CreateNode(0,'=', 0, NULL, $1, NULL, $6); $$=$5; if ($3->TYPE==1 && ($6->TYPE==1 || $6->TYPE==2)) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
 read : READ LPAREN ID RPAREN SEMICOLON { $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE!=-1) $$->TYPE=0; else $$->TYPE=-1;}
-	| READ LPAREN ID LSQUARE aexpression RSQUARE RPAREN SEMICOLON { $3->center = $5;  $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE!=-1 && $5->TYPE==1) $$->TYPE=0; else $$->TYPE=-1; }
+	| READ LPAREN ID LSQUARE expression RSQUARE RPAREN SEMICOLON { $3->center = $5;  $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE!=-1 && $5->TYPE==1) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
-write : WRITE LPAREN aexpression RPAREN SEMICOLON { $1 = CreateNode(0,'w', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE==1) $$->TYPE=0; else $$->TYPE=-1; }
+write : WRITE LPAREN expression RPAREN SEMICOLON { $1 = CreateNode(0,'w', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE==1) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
-return : RETURN expression1 SEMICOLON { $1 = CreateNode(0,'R', 0, NULL, NULL, $2, NULL); eval($2); $$ = $1; }
+return : RETURN expression SEMICOLON { $1 = CreateNode(0,'R', 0, NULL, NULL, $2, NULL);  $$ = $1; if($2->TYPE==1 || $2->TYPE ==2) $$->TYPE=0; else $$->TYPE=-1; }
 	;
-expression1 : ID { $$=$1; if(eval($1)!=1){printf("WROng");}}
-	;
-expression : aexpression PLUS aexpression { $2 = CreateNode(0,'+', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; }
-	| aexpression MINUS aexpression { $2 = CreateNode(0,'-', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
-	| aexpression MULT aexpression { $2 = CreateNode(0,'*', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
-	| aexpression DIVIDE aexpression { $2 = CreateNode(0,'/', 0, NULL, $1, NULL, $3); $$ = $2;  if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; }
-	| aexpression MODULUS aexpression { $2 = CreateNode(0,'%', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
-	| LPAREN aexpression RPAREN { $$=$2; $$->TYPE = $1->TYPE; }
-	| aexpression EQUAL aexpression { $2 = CreateNode(0,'E', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
-	| aexpression LESS_THAN aexpression { $2 = CreateNode(0,'<', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
-	| aexpression GREATER_THAN aexpression { $2 = CreateNode(0,'>', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
-	| aexpression GREATER_EQ aexpression { $2 = CreateNode(0,'G', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
-	| aexpression LESS_EQUAL aexpression { $2 = CreateNode(0,'L', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
-	| aexpression NEQUAL aexpression { $2 = CreateNode(0,'N', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
-	| lexpression AND lexpression { $2 = CreateNode(0,'&', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
-	| lexpression OR lexpression { $2 = CreateNode(0,'|', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
-	| NOT lexpression { $1 = CreateNode(0,'!', 0, NULL, NULL, $2, NULL); $$ = $1;  }
-	| LPAREN lexpression RPAREN { $$ = $2; }
-	| TRUE { $1 = CreateNode(0,'T', 0, NULL,NULL,NULL,NULL); $$ = $1; }
-	| FALSE { $1 = CreateNode(0,'F', 0, NULL, NULL, NULL, NULL); $$ = $1; }
+
+expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; }
+	| expression MINUS expression { $2 = CreateNode(0,'-', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
+	| expression MULT expression { $2 = CreateNode(0,'*', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
+	| expression DIVIDE expression { $2 = CreateNode(0,'/', 0, NULL, $1, NULL, $3); $$ = $2;  if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; }
+	| expression MODULUS expression { $2 = CreateNode(0,'%', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1;  }
+	| expression EQUAL expression { $2 = CreateNode(0,'E', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
+	| expression LESS_THAN expression { $2 = CreateNode(0,'<', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
+	| expression GREATER_THAN expression { $2 = CreateNode(0,'>', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
+	| expression GREATER_EQ expression { $2 = CreateNode(0,'G', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
+	| expression LESS_EQUAL expression { $2 = CreateNode(0,'L', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
+	| expression NEQUAL expression { $2 = CreateNode(0,'N', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1;  }
+	| expression AND expression { $2 = CreateNode(0,'&', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==2 && $3->TYPE ==2) $$->TYPE=2; else $$->TYPE=-1;  }
+	| expression OR expression { $2 = CreateNode(0,'|', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==2 && $3->TYPE ==2) $$->TYPE=2; else $$->TYPE=-1;  }
+	| NOT expression { $1 = CreateNode(0,'!', 0, NULL, NULL, $2, NULL); $$ = $1;  if($2->TYPE==2) $$->TYPE=2; else $$->TYPE=-1; }
+	| LPAREN expression RPAREN { $$ = $2; }
+	| TRUE { $1 = CreateNode(2,'T', 0, NULL,NULL,NULL,NULL); $$ = $1;  }
+	| FALSE { $1 = CreateNode(2,'F', 0, NULL, NULL, NULL, NULL); $$ = $1; }
 	| NUMBER { $$=$1; }
-	| ID LSQUARE aexpression RSQUARE {   $1->center = $3; $$ = $1;}
+	| ID { $$ = $1; struct Lsymbol* lt = Llookup($1->NAME); if(lt != NULL) $$->TYPE=lt->TYPE; else {
+															struct Gsymbol* gt = Glookup($1->NAME); if(gt && gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1;
+																	}}
+	| ID LSQUARE expression RSQUARE {   $1->center = $3; $$ = $1;  struct Gsymbol* gt = Glookup($1->NAME); if(gt && gt->SIZE!=0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }
 	;
 
-aexpression : aexpression PLUS aexpression { $2 = CreateNode(0,'+', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| aexpression MINUS aexpression { $2 = CreateNode(0,'-', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| aexpression MULT aexpression { $2 = CreateNode(0,'*', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| aexpression DIVIDE aexpression { $2 = CreateNode(0,'/', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| aexpression MODULUS aexpression { $2 = CreateNode(0,'%', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| LPAREN aexpression RPAREN { $$ = $2; }
-	| NUMBER { $$ = $1; }
-	| ID { $$ = $1; }
-	| ID LSQUARE aexpression RSQUARE {   $1->center = $3; $$ = $1;}
-	;
-
-lexpression : aexpression EQUAL aexpression { $2 = CreateNode(0,'E', 0, NULL, $1, NULL, $3); $$ = $2;  }
-	| aexpression LESS_THAN aexpression { $2 = CreateNode(0,'<', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| aexpression GREATER_THAN aexpression { $2 = CreateNode(0,'>', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| aexpression GREATER_EQ aexpression { $2 = CreateNode(0,'G', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| aexpression LESS_EQUAL aexpression { $2 = CreateNode(0,'L', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| aexpression NEQUAL aexpression { $2 = CreateNode(0,'N', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| lexpression AND lexpression { $2 = CreateNode(0,'&', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| lexpression OR lexpression { $2 = CreateNode(0,'|', 0, NULL, $1, NULL, $3); $$ = $2; }
-	| NOT lexpression { $1 = CreateNode(0,'!', 0, NULL, NULL, $2, NULL); $$ = $1; }
-	| LPAREN lexpression RPAREN { $$ = $2; }
-	| TRUE { $1 = CreateNode(0,'T', 0, NULL,NULL,NULL,NULL); $$ = $1; }
-	| FALSE { $1 = CreateNode(0,'F', 0, NULL, NULL, NULL, NULL); $$ = $1; }
-	;
 
 %%
 
@@ -226,40 +201,4 @@ char *s;
   fprintf(stderr, "%s\n",s);
 }
 
-int	eval(struct node* root) {
-	if (root == NULL ) {
-		printf("\nTree root is NULL");
-		return;
-	} else {
-		if(root->TYPE==0 &&	root->NODETYPE==2)	/* if INTEGER/variable */ {
-			if(root->NAME)	{
-				struct Lsymbol *lt = Llookup(root->NAME);
-				struct Gsymbol *gt = Glookup(root->NAME);
-				if(lt)	{
-					return 1;
-				}
-				if(gt)	{
-					if(root->center)	{//if there is an array index
-						return	1;
-					}
-					else {
-						return	1;
-					}
-				} else	{
-					printf("Wrong identifier '%s' used\n", root->NAME);
-					exit(0);
-				}
-			} else
-				return	root->VALUE;
-		}
-
-		switch(root->NODETYPE)	{
-			case 10 :	return(root->VALUE); break;
-			case 11 :	return (eval(root->left) + eval(root->right)); break;
-			case 21 :	return (eval(root->left) - eval(root->right)); break;
-			case 31 :	return (eval(root->left) * eval(root->right)); break;
-			case 41 :	return (eval(root->left) / eval(root->right)); break;
-		}
-	}
-}
 
