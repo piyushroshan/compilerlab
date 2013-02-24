@@ -1,5 +1,5 @@
 decl
-integer n,i ;
+integer n,i,x[22] ;
 boolean a,b;
 enddecl
 integer main(){
@@ -12,6 +12,8 @@ enddecl
 
 begin
 if(1) then endif;
+a = TRUE;
+x[1]=n+i;
 if(a) then else endif;
 return s;
 end

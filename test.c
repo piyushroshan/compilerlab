@@ -1,9 +1,9 @@
 decl
 integer n,i,a[2] ;
-
+boolean x,y,z;
 enddecl
 
-integer main(){ 
+integer main(){
 
 decl
 
@@ -16,9 +16,7 @@ begin
 read (n);
 
 i = 1;
-
 n = 21;
-
 while ( i <= n) do
 
 write (i);
@@ -38,23 +36,22 @@ n=n+i*5;
 endwhile;
 i=i%n;
 while ( TRUE AND FALSE) do
-	i=TRUE;
+	y=TRUE;
 endwhile;
 if ( i==n ) then
 i = 89;
 while ( TRUE AND FALSE) do
-	i=TRUE;
+	x=TRUE;
 if (i==j) then
-i = i[2] + 3;
+i = a[2] + 3;
 endif;
 while ( TRUE AND FALSE) do
-	i=TRUE;
+	z=TRUE;
 endwhile;
 endwhile;
 else
 i = 90;
 endif;
-return 1;	
+return 1;
 end
-
 }

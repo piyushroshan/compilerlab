@@ -77,9 +77,7 @@ void PrintSymbol(){
 	}
 	printf("\n");
 }
-
-int	eval(struct node* root) ;
-#line 66 "symbol.y"
+#line 64 "symbol.y"
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
@@ -90,7 +88,7 @@ typedef union {
 	struct node* n;
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
-#line 93 "y.tab.c"
+#line 91 "y.tab.c"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -489,7 +487,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 195 "symbol.y"
+#line 224 "symbol.y"
 
 int main(){
 	return(yyparse());
@@ -501,44 +499,8 @@ char *s;
   fprintf(stderr, "%s\n",s);
 }
 
-int	eval(struct node* root) {
-	if (root == NULL ) {
-		printf("\nTree root is NULL");
-		return;
-	} else {
-		if(root->TYPE==0 &&	root->NODETYPE==2)	/* if INTEGER/variable */ {
-			if(root->NAME)	{
-				struct Lsymbol *lt = Llookup(root->NAME);
-				struct Gsymbol *gt = Glookup(root->NAME);
-				if(lt)	{
-					return 1;
-				}
-				if(gt)	{
-					if(root->center)	{//if there is an array index
-						return	1;
-					}
-					else {
-						return	1;
-					}
-				} else	{
-					printf("Wrong identifier '%s' used\n", root->NAME);
-					exit(0);
-				}
-			} else
-				return	root->VALUE;
-		}
 
-		switch(root->NODETYPE)	{
-			case 10 :	return(root->VALUE); break;
-			case 11 :	return (eval(root->left) + eval(root->right)); break;
-			case 21 :	return (eval(root->left) - eval(root->right)); break;
-			case 31 :	return (eval(root->left) * eval(root->right)); break;
-			case 41 :	return (eval(root->left) / eval(root->right)); break;
-		}
-	}
-}
-
-#line 541 "y.tab.c"
+#line 503 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -745,196 +707,227 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 94 "symbol.y"
+#line 92 "symbol.y"
 	{ printf("PARSING SUCCESS\n"); yyval.n=yystack.l_mark[0].n; PrintSymbol();}
 break;
 case 3:
-#line 98 "symbol.y"
+#line 96 "symbol.y"
 	{/*empty*/}
 break;
 case 8:
-#line 106 "symbol.y"
+#line 104 "symbol.y"
 	{ TYPE = 1; }
 break;
 case 9:
-#line 107 "symbol.y"
+#line 105 "symbol.y"
 	{TYPE=2; }
 break;
 case 10:
-#line 110 "symbol.y"
+#line 108 "symbol.y"
 	{ Ginstall(yystack.l_mark[0].n->NAME, TYPE, 0); }
 break;
 case 11:
-#line 111 "symbol.y"
+#line 109 "symbol.y"
 	{ Ginstall(yystack.l_mark[-3].n->NAME, TYPE, yystack.l_mark[-1].n->VALUE); }
 break;
 case 12:
-#line 114 "symbol.y"
+#line 112 "symbol.y"
 	{ yyval.n=CreateNode(0,'f', 0, "MAIN", NULL, yystack.l_mark[-1].n, NULL);}
 break;
 case 13:
-#line 117 "symbol.y"
+#line 115 "symbol.y"
 	{ yyval.n=yystack.l_mark[0].n; }
 break;
 case 15:
-#line 122 "symbol.y"
+#line 120 "symbol.y"
 	{/*empty*/}
 break;
 case 20:
-#line 131 "symbol.y"
+#line 129 "symbol.y"
 	{ Linstall(yystack.l_mark[0].n->NAME, TYPE); }
 break;
 case 21:
-#line 134 "symbol.y"
+#line 132 "symbol.y"
 	{  yyval.n=CreateNode(0,'S', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-1].n, NULL); }
 break;
 case 22:
-#line 137 "symbol.y"
+#line 135 "symbol.y"
 	{ yyval.n = NULL; }
 break;
 case 23:
-#line 138 "symbol.y"
+#line 136 "symbol.y"
 	{  yyval.n=CreateNode(0,'S', 0, NULL, yystack.l_mark[0].n, yystack.l_mark[-1].n, NULL); if ((yystack.l_mark[-1].n==NULL || yystack.l_mark[-1].n->TYPE==0) && yystack.l_mark[0].n->TYPE==0) yyval.n->TYPE=0; else yyval.n->TYPE=-1;}
 break;
 case 24:
-#line 141 "symbol.y"
+#line 139 "symbol.y"
 	{ yyval.n = yystack.l_mark[0].n; yyval.n->TYPE = yystack.l_mark[0].n->TYPE; }
 break;
 case 25:
-#line 142 "symbol.y"
+#line 140 "symbol.y"
 	{ yyval.n = yystack.l_mark[0].n; yyval.n->TYPE = yystack.l_mark[0].n->TYPE;}
 break;
 case 26:
-#line 143 "symbol.y"
+#line 141 "symbol.y"
 	{ yyval.n = yystack.l_mark[0].n; yyval.n->TYPE = yystack.l_mark[0].n->TYPE; }
 break;
 case 27:
-#line 144 "symbol.y"
+#line 142 "symbol.y"
 	{ yyval.n = yystack.l_mark[0].n;  yyval.n->TYPE = yystack.l_mark[0].n->TYPE; }
 break;
 case 28:
-#line 145 "symbol.y"
+#line 143 "symbol.y"
 	{ yyval.n = yystack.l_mark[0].n; yyval.n->TYPE = yystack.l_mark[0].n->TYPE; }
 break;
 case 29:
-#line 148 "symbol.y"
+#line 146 "symbol.y"
 	{ yystack.l_mark[-5].n = CreateNode(0,'I', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL); yyval.n = yystack.l_mark[-5].n; if (yystack.l_mark[-4].n->TYPE==2 && (yystack.l_mark[-2].n==NULL || yystack.l_mark[-2].n->TYPE==0)) yyval.n->TYPE=0; else yyval.n->TYPE=-1;  }
 break;
 case 30:
-#line 149 "symbol.y"
+#line 147 "symbol.y"
 	{ yystack.l_mark[-7].n = CreateNode(0,'I', 0, NULL, yystack.l_mark[-4].n, yystack.l_mark[-6].n, yystack.l_mark[-2].n); yyval.n = yystack.l_mark[-7].n; if (yystack.l_mark[-6].n->TYPE==2 && (yystack.l_mark[-4].n==NULL || yystack.l_mark[-4].n->TYPE==0) && (yystack.l_mark[-2].n==NULL || yystack.l_mark[-2].n->TYPE==0)) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
 break;
 case 31:
-#line 152 "symbol.y"
+#line 150 "symbol.y"
 	{ yystack.l_mark[-5].n = CreateNode(0,'W', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL); yyval.n=yystack.l_mark[-5].n; if (yystack.l_mark[-4].n->TYPE==2 && (yystack.l_mark[-2].n==NULL || yystack.l_mark[-2].n->TYPE==0)) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
 break;
 case 32:
-#line 155 "symbol.y"
-	{ yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-3].n, NULL, yystack.l_mark[-1].n); yyval.n=yystack.l_mark[-2].n; if (yystack.l_mark[-1].n->TYPE==1 || yystack.l_mark[-1].n->TYPE==2) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
+#line 153 "symbol.y"
+	{ yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-3].n, NULL, yystack.l_mark[-1].n); yyval.n=yystack.l_mark[-2].n;
+											struct Lsymbol* lt = Llookup(yystack.l_mark[-3].n->NAME);
+											if(lt && (lt->TYPE == yystack.l_mark[-1].n->TYPE )) yyval.n->TYPE=0;
+											else {
+												struct Gsymbol* gt = Glookup(yystack.l_mark[-3].n->NAME);
+												if(gt && gt->SIZE==0 && (gt->TYPE == yystack.l_mark[-1].n->TYPE )) yyval.n->TYPE=0;
+												else { yyval.n->TYPE=-1;	yyerror("Wrong assignment");}
+											}}
 break;
 case 33:
-#line 156 "symbol.y"
-	{ yystack.l_mark[-6].n->center = yystack.l_mark[-4].n; yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-6].n, NULL, yystack.l_mark[-1].n); yyval.n=yystack.l_mark[-2].n; if (yystack.l_mark[-4].n->TYPE==1 && (yystack.l_mark[-1].n->TYPE==1 || yystack.l_mark[-1].n->TYPE==2)) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
+#line 161 "symbol.y"
+	{ yystack.l_mark[-6].n->center = yystack.l_mark[-4].n; yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-6].n, NULL, yystack.l_mark[-1].n); yyval.n=yystack.l_mark[-2].n;
+																struct Gsymbol* gt = Glookup(yystack.l_mark[-6].n->NAME);
+																if(gt && gt->SIZE!=0 && yystack.l_mark[-4].n->TYPE==1 && (gt->TYPE == yystack.l_mark[-1].n->TYPE)) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
+																yyerror("Wrong assignment");
+															}}
 break;
 case 34:
-#line 159 "symbol.y"
-	{ yystack.l_mark[-4].n = CreateNode(0,'r', 0, NULL, NULL, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-4].n; if(yystack.l_mark[-2].n->TYPE!=-1) yyval.n->TYPE=0; else yyval.n->TYPE=-1;}
+#line 168 "symbol.y"
+	{ yystack.l_mark[-4].n = CreateNode(0,'r', 0, NULL, NULL, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-4].n;
+											struct Lsymbol* lt = Llookup(yystack.l_mark[-2].n->NAME);
+											if(lt != NULL && (lt->TYPE == 1))
+												yyval.n->TYPE=0;
+											else {
+												struct Gsymbol* gt = Glookup(yystack.l_mark[-4].n->NAME);
+												if(gt && gt->SIZE==0 && gt->TYPE == 1 ) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
+												yyerror("Read type error");}
+											}}
 break;
 case 35:
-#line 160 "symbol.y"
-	{ yystack.l_mark[-5].n->center = yystack.l_mark[-3].n;  yystack.l_mark[-7].n = CreateNode(0,'r', 0, NULL, NULL, yystack.l_mark[-5].n, NULL); yyval.n = yystack.l_mark[-7].n; if(yystack.l_mark[-5].n->TYPE!=-1 && yystack.l_mark[-3].n->TYPE==1) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
+#line 177 "symbol.y"
+	{ yystack.l_mark[-5].n->center = yystack.l_mark[-3].n;  yystack.l_mark[-7].n = CreateNode(0,'r', 0, NULL, NULL, yystack.l_mark[-5].n, NULL); yyval.n = yystack.l_mark[-7].n;
+											struct Lsymbol* lt = Llookup(yystack.l_mark[-5].n->NAME);
+											if(lt != NULL && lt->TYPE == 1 && lt->TYPE == yystack.l_mark[-3].n->TYPE)
+												yyval.n->TYPE=0;
+											else {
+												struct Gsymbol* gt = Glookup(yystack.l_mark[-7].n->NAME);
+												if(gt && gt->SIZE==0 && gt->TYPE==1 && yystack.l_mark[-3].n->TYPE==gt->TYPE) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
+												yyerror("Read type error");}
+											} }
 break;
 case 36:
-#line 163 "symbol.y"
-	{ yystack.l_mark[-4].n = CreateNode(0,'w', 0, NULL, NULL, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-4].n; if(yystack.l_mark[-2].n->TYPE==1) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
+#line 188 "symbol.y"
+	{ yystack.l_mark[-4].n = CreateNode(0,'w', 0, NULL, NULL, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-4].n;
+																			if(yystack.l_mark[-2].n->TYPE==1) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
 break;
 case 37:
-#line 166 "symbol.y"
-	{ yystack.l_mark[-2].n = CreateNode(0,'R', 0, NULL, NULL, yystack.l_mark[-1].n, NULL);  yyval.n = yystack.l_mark[-2].n; if(yystack.l_mark[-1].n->TYPE==1 || yystack.l_mark[-1].n->TYPE ==2) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
+#line 192 "symbol.y"
+	{ yystack.l_mark[-2].n = CreateNode(0,'R', 0, NULL, NULL, yystack.l_mark[-1].n, NULL);  yyval.n = yystack.l_mark[-2].n;
+																			if(yystack.l_mark[-1].n->TYPE==1 || yystack.l_mark[-1].n->TYPE ==2) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
 break;
 case 38:
-#line 169 "symbol.y"
+#line 196 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'+', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1; }
 break;
 case 39:
-#line 170 "symbol.y"
+#line 197 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'-', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1;  }
 break;
 case 40:
-#line 171 "symbol.y"
+#line 198 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'*', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1;  }
 break;
 case 41:
-#line 172 "symbol.y"
+#line 199 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'/', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n;  if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1; }
 break;
 case 42:
-#line 173 "symbol.y"
+#line 200 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'%', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1;  }
 break;
 case 43:
-#line 174 "symbol.y"
+#line 201 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'E', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 44:
-#line 175 "symbol.y"
+#line 202 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'<', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 45:
-#line 176 "symbol.y"
+#line 203 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'>', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 46:
-#line 177 "symbol.y"
+#line 204 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'G', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 47:
-#line 178 "symbol.y"
+#line 205 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'L', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 48:
-#line 179 "symbol.y"
+#line 206 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'N', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 49:
-#line 180 "symbol.y"
+#line 207 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'&', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==2 && yystack.l_mark[0].n->TYPE ==2) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 50:
-#line 181 "symbol.y"
+#line 208 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'|', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==2 && yystack.l_mark[0].n->TYPE ==2) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 51:
-#line 182 "symbol.y"
+#line 209 "symbol.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'!', 0, NULL, NULL, yystack.l_mark[0].n, NULL); yyval.n = yystack.l_mark[-1].n;  if(yystack.l_mark[0].n->TYPE==2) yyval.n->TYPE=2; else yyval.n->TYPE=-1; }
 break;
 case 52:
-#line 183 "symbol.y"
+#line 210 "symbol.y"
 	{ yyval.n = yystack.l_mark[-1].n; }
 break;
 case 53:
-#line 184 "symbol.y"
+#line 211 "symbol.y"
 	{ yystack.l_mark[0].n = CreateNode(2,'T', 0, NULL,NULL,NULL,NULL); yyval.n = yystack.l_mark[0].n;  }
 break;
 case 54:
-#line 185 "symbol.y"
+#line 212 "symbol.y"
 	{ yystack.l_mark[0].n = CreateNode(2,'F', 0, NULL, NULL, NULL, NULL); yyval.n = yystack.l_mark[0].n; }
 break;
 case 55:
-#line 186 "symbol.y"
+#line 213 "symbol.y"
 	{ yyval.n=yystack.l_mark[0].n; }
 break;
 case 56:
-#line 187 "symbol.y"
+#line 214 "symbol.y"
 	{ yyval.n = yystack.l_mark[0].n; struct Lsymbol* lt = Llookup(yystack.l_mark[0].n->NAME); if(lt != NULL) yyval.n->TYPE=lt->TYPE; else {
-															struct Gsymbol* gt = Glookup(yystack.l_mark[0].n->NAME); if(gt && gt->SIZE==0) yyval.n->TYPE=gt->TYPE; else { yyval.n->TYPE=-1; yyerror("Undefined variable"); }
-																	}}
+															struct Gsymbol* gt = Glookup(yystack.l_mark[0].n->NAME);
+															if(gt && gt->SIZE==0) yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }}
 break;
 case 57:
-#line 190 "symbol.y"
-	{   yystack.l_mark[-3].n->center = yystack.l_mark[-1].n; yyval.n = yystack.l_mark[-3].n;  struct Gsymbol* gt = Glookup(yystack.l_mark[-3].n->NAME); if(gt && gt->SIZE!=0) yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1;}
+#line 217 "symbol.y"
+	{   yystack.l_mark[-3].n->center = yystack.l_mark[-1].n; yyval.n = yystack.l_mark[-3].n;  struct Gsymbol* gt = Glookup(yystack.l_mark[-3].n->NAME);
+																										if(gt && gt->SIZE!=0 && yystack.l_mark[-1].n->TYPE==1)
+																											yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }
 break;
-#line 937 "y.tab.c"
+#line 930 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

@@ -150,18 +150,47 @@ ifelse : IF expression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 
 dowhile : WHILE expression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $4, $2, NULL); $$=$1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
-astatement : ID ASSIGN expression SEMICOLON { $2 = CreateNode(0,'=', 0, NULL, $1, NULL, $3); $$=$2; if ($3->TYPE==1 || $3->TYPE==2) $$->TYPE=0; else $$->TYPE=-1; }
-	| ID LSQUARE expression RSQUARE ASSIGN expression SEMICOLON { $1->center = $3; $5 = CreateNode(0,'=', 0, NULL, $1, NULL, $6); $$=$5; if ($3->TYPE==1 && ($6->TYPE==1 || $6->TYPE==2)) $$->TYPE=0; else $$->TYPE=-1; }
+astatement : ID ASSIGN expression SEMICOLON { $2 = CreateNode(0,'=', 0, NULL, $1, NULL, $3); $$=$2;
+											struct Lsymbol* lt = Llookup($1->NAME);
+											if(lt && (lt->TYPE == $3->TYPE )) $$->TYPE=0;
+											else {
+												struct Gsymbol* gt = Glookup($1->NAME);
+												if(gt && gt->SIZE==0 && (gt->TYPE == $3->TYPE )) $$->TYPE=0;
+												else { $$->TYPE=-1;	yyerror("Wrong assignment");}
+											}}
+	| ID LSQUARE expression RSQUARE ASSIGN expression SEMICOLON { $1->center = $3; $5 = CreateNode(0,'=', 0, NULL, $1, NULL, $6); $$=$5;
+																struct Gsymbol* gt = Glookup($1->NAME);
+																if(gt && gt->SIZE!=0 && $3->TYPE==1 && (gt->TYPE == $6->TYPE)) $$->TYPE=0; else { $$->TYPE=-1;
+																yyerror("Wrong assignment");
+															}}
 	;
 
-read : READ LPAREN ID RPAREN SEMICOLON { $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE!=-1) $$->TYPE=0; else $$->TYPE=-1;}
-	| READ LPAREN ID LSQUARE expression RSQUARE RPAREN SEMICOLON { $3->center = $5;  $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE!=-1 && $5->TYPE==1) $$->TYPE=0; else $$->TYPE=-1; }
+read : READ LPAREN ID RPAREN SEMICOLON { $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1;
+											struct Lsymbol* lt = Llookup($3->NAME);
+											if(lt != NULL && (lt->TYPE == 1))
+												$$->TYPE=0;
+											else {
+												struct Gsymbol* gt = Glookup($1->NAME);
+												if(gt && gt->SIZE==0 && gt->TYPE == 1 ) $$->TYPE=0; else { $$->TYPE=-1;
+												yyerror("Read type error");}
+											}}
+	| READ LPAREN ID LSQUARE expression RSQUARE RPAREN SEMICOLON { $3->center = $5;  $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1;
+											struct Lsymbol* lt = Llookup($3->NAME);
+											if(lt != NULL && lt->TYPE == 1 && lt->TYPE == $5->TYPE)
+												$$->TYPE=0;
+											else {
+												struct Gsymbol* gt = Glookup($1->NAME);
+												if(gt && gt->SIZE==0 && gt->TYPE==1 && $5->TYPE==gt->TYPE) $$->TYPE=0; else { $$->TYPE=-1;
+												yyerror("Read type error");}
+											} }
 	;
 
-write : WRITE LPAREN expression RPAREN SEMICOLON { $1 = CreateNode(0,'w', 0, NULL, NULL, $3, NULL); $$ = $1; if($3->TYPE==1) $$->TYPE=0; else $$->TYPE=-1; }
+write : WRITE LPAREN expression RPAREN SEMICOLON { $1 = CreateNode(0,'w', 0, NULL, NULL, $3, NULL); $$ = $1;
+																			if($3->TYPE==1) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
-return : RETURN expression SEMICOLON { $1 = CreateNode(0,'R', 0, NULL, NULL, $2, NULL);  $$ = $1; if($2->TYPE==1 || $2->TYPE ==2) $$->TYPE=0; else $$->TYPE=-1; }
+return : RETURN expression SEMICOLON { $1 = CreateNode(0,'R', 0, NULL, NULL, $2, NULL);  $$ = $1;
+																			if($2->TYPE==1 || $2->TYPE ==2) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
 expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; }
@@ -183,9 +212,11 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
 	| FALSE { $1 = CreateNode(2,'F', 0, NULL, NULL, NULL, NULL); $$ = $1; }
 	| NUMBER { $$=$1; }
 	| ID { $$ = $1; struct Lsymbol* lt = Llookup($1->NAME); if(lt != NULL) $$->TYPE=lt->TYPE; else {
-															struct Gsymbol* gt = Glookup($1->NAME); if(gt && gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1;
-																	}}
-	| ID LSQUARE expression RSQUARE {   $1->center = $3; $$ = $1;  struct Gsymbol* gt = Glookup($1->NAME); if(gt && gt->SIZE!=0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }
+															struct Gsymbol* gt = Glookup($1->NAME);
+															if(gt && gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }}
+	| ID LSQUARE expression RSQUARE {   $1->center = $3; $$ = $1;  struct Gsymbol* gt = Glookup($1->NAME);
+																										if(gt && gt->SIZE!=0 && $3->TYPE==1)
+																											$$->TYPE=gt->TYPE; else $$->TYPE=-1; }
 	;
 
 
