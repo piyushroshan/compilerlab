@@ -44,7 +44,7 @@ struct Gsymbol *Glookup(char* NAME);
 struct Lsymbol *Llookup(char* NAME);
 void Linstall(char* NAME, int TYPE);
 int TYPE;
-
+int RTYPE;
 void PrintSymbol(){
 	struct Gsymbol *Gtemp = Gnode;
 	while(Gtemp != NULL){
@@ -129,7 +129,7 @@ vars : var
 var : ID { Linstall($1->NAME, TYPE); }
 	;
 
-beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); }
+beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); if (($2==NULL || $2->TYPE==0) && $3->TYPE==0) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
 statements : { $$ = NULL; }
@@ -143,8 +143,10 @@ statement : ifelse { $$ = $1; $$->TYPE = $1->TYPE; }
 	| astatement { $$ = $1; $$->TYPE = $1->TYPE; }
 	;
 
-ifelse : IF expression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, NULL); $$ = $1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1;  }
-	| IF expression THEN statements ELSE statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, $6); $$ = $1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0) && ($6==NULL || $6->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; }
+ifelse : IF expression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, NULL); $$ = $1;
+												if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1;  }
+	| IF expression THEN statements ELSE statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, $6); $$ = $1;
+												if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0) && ($6==NULL || $6->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; }
 	;
 
 dowhile : WHILE expression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $4, $2, NULL); $$=$1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; }
