@@ -172,19 +172,15 @@ read : READ LPAREN ID RPAREN SEMICOLON { $1 = CreateNode(0,'r', 0, NULL, NULL, $
 											if(lt != NULL && (lt->TYPE == 1))
 												$$->TYPE=0;
 											else {
-												struct Gsymbol* gt = Glookup($1->NAME);
+												struct Gsymbol* gt = Glookup($3->NAME);
 												if(gt && gt->SIZE==0 && gt->TYPE == 1 ) $$->TYPE=0; else { $$->TYPE=-1;
 												yyerror("Read type error");}
 											}}
 	| READ LPAREN ID LSQUARE expression RSQUARE RPAREN SEMICOLON { $3->center = $5;  $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1;
-											struct Lsymbol* lt = Llookup($3->NAME);
-											if(lt != NULL && lt->TYPE == 1 && lt->TYPE == $5->TYPE)
-												$$->TYPE=0;
-											else {
-												struct Gsymbol* gt = Glookup($1->NAME);
-												if(gt && gt->SIZE==0 && gt->TYPE==1 && $5->TYPE==gt->TYPE) $$->TYPE=0; else { $$->TYPE=-1;
+												struct Gsymbol* gt = Glookup($3->NAME);
+												if(gt && gt->SIZE!=0 && gt->TYPE==1 && $5->TYPE==1) $$->TYPE=0; else { $$->TYPE=-1;
 												yyerror("Read type error");}
-											} }
+											}
 	;
 
 write : WRITE LPAREN expression RPAREN SEMICOLON { $1 = CreateNode(0,'w', 0, NULL, NULL, $3, NULL); $$ = $1;

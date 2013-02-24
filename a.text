@@ -1,0 +1,33 @@
+decl
+	integer x,i[10] ;
+	boolean y;
+enddecl
+
+integer main()
+{
+decl
+integer a, b,c ,d,y;
+boolean z;
+enddecl
+begin
+
+i[2]= b*2;
+c = d;
+x=y;
+while(x<y/2)
+do
+if (x==y) then
+	x=y-2;
+	x=x*2;
+	read(x);
+else
+	x=x-3;
+	x=x*3;
+	write(a);
+endif;
+endwhile;
+return x;
+end
+
+}
+
