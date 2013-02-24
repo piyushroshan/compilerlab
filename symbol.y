@@ -215,8 +215,8 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
 															struct Gsymbol* gt = Glookup($1->NAME);
 															if(gt && gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }}
 	| ID LSQUARE expression RSQUARE {   $1->center = $3; $$ = $1;  struct Gsymbol* gt = Glookup($1->NAME);
-																										if(gt && gt->SIZE!=0 && $3->TYPE==1)
-																											$$->TYPE=gt->TYPE; else $$->TYPE=-1; }
+																	if(gt && gt->SIZE!=0 && $3->TYPE==1)
+																	$$->TYPE=gt->TYPE; else $$->TYPE=-1; }
 	;
 
 
