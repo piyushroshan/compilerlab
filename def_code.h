@@ -24,7 +24,7 @@ struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struc
 	return temp;
 }
 
-/* Sample Global and Local Symbol Table Structure */
+/** Sample Global and Local Symbol Table Structure **/
 
 /** Symbol Table Entry is required for variables, arrays and functions**/
 
@@ -35,25 +35,27 @@ struct ArgStruct{
 	struct ArgStruct *ARGNEXT;
 };
 
-struct Gsymbol {
-	char *NAME; // Name of the Identifier
-	int TYPE; // TYPE can be INTEGER or BOOLEAN
-	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
-	int SIZE; // Size field for arrays
-	int BINDING; // Address of the Identifier in Memory
-	ArgStruct *ARGLIST; // Argument List for functions
+sstruct Gsymbol {
+    char *NAME; // Name of the Identifier
+    int TYPE; // TYPE can be INTEGER or BOOLEAN
+    /***The TYPE field must be a TypeStruct if user defined types are allowed***/
+    int VALUE; // for constants
+    int SIZE; // Size field for arrays
+    int BINDING; // Address of the Identifier in Memory
+    ArgStruct *ARGLIST; // Argument List for functions
 
-	/***Argstruct must store the name and type of each argument ***/
-	struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
+    /***Argstruct must store the name and type of each argument ***/
+    struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Gnode;
 
 struct Lsymbol {
-	/* Here only name, type, binding and pointer to next entry needed */
-	char *NAME; // Name of the Identifier
-	int TYPE; // TYPE can be INTEGER or BOOLEAN
-	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
-	int BINDING; // Address of the Identifier in Memory
-	struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
+    /* Here only name, type, binding and pointer to next entry needed */
+    char *NAME; // Name of the Identifier
+    int TYPE; // TYPE can be INTEGER or BOOLEAN
+    /***The TYPE field must be a TypeStruct if user defined types are allowed***/
+    int VALUE; // for constants
+    int BINDING; // Address of the Identifier in Memory
+    struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Lnode;
 
 
@@ -69,12 +71,15 @@ struct Gsymbol *Glookup(char* NAME){
 	return Gtemp;
 }
 
-void Ginstall(char* NAME, int TYPE, int SIZE){ // Installation
+void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, ArgStruct* ARGLIST){ // Installation
 	if(Glookup(NAME) == NULL){
 	    struct Gsymbol* temp=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));
 	    temp->NAME = NAME;
 	    temp->TYPE = TYPE;
 	    temp->SIZE = SIZE;
+        temp->BINDING = BINDING;
+        temp->VALUE = VALUE;
+        temp->ARGLIST = ARGLIST;
  	    temp->NEXT = Gnode;
  	    Gnode = temp;
     }else
@@ -92,11 +97,13 @@ struct Lsymbol *Llookup(char* NAME){
 	return Ltemp;
 }
 
-void Linstall(char* NAME, int TYPE){
+void Linstall(char* NAME, int TYPE,int BINDING,int VALUE){
 	if(Llookup(NAME) == NULL){
 		struct Lsymbol* temp=(struct Lsymbol *)malloc(sizeof(struct Lsymbol));
 		temp->NAME = NAME;
 		temp->TYPE = TYPE;
+        temp->BINDING = BINDING;
+        temp->VALUE = VALUE;
 		temp->NEXT = Lnode;
 		Lnode = temp;
 	}else
