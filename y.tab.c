@@ -487,7 +487,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 222 "symbol.y"
+#line 224 "symbol.y"
 
 int main(){
 	return(yyparse());
@@ -708,7 +708,7 @@ yyreduce:
     {
 case 1:
 #line 92 "symbol.y"
-	{ printf("PARSING SUCCESS\n"); yyval.n=yystack.l_mark[0].n; PrintSymbol();}
+	{ printf("PARSING SUCCESS\n"); yyval.n=yystack.l_mark[0].n; PrintSymbol(); printTree(yystack.l_mark[0].n);}
 break;
 case 3:
 #line 96 "symbol.y"
@@ -760,23 +760,23 @@ case 23:
 break;
 case 24:
 #line 139 "symbol.y"
-	{ yyval.n = yystack.l_mark[0].n; yyval.n->TYPE = yystack.l_mark[0].n->TYPE; }
+	{ yyval.n = yystack.l_mark[0].n; }
 break;
 case 25:
 #line 140 "symbol.y"
-	{ yyval.n = yystack.l_mark[0].n; yyval.n->TYPE = yystack.l_mark[0].n->TYPE;}
+	{ yyval.n = yystack.l_mark[0].n;}
 break;
 case 26:
 #line 141 "symbol.y"
-	{ yyval.n = yystack.l_mark[0].n; yyval.n->TYPE = yystack.l_mark[0].n->TYPE; }
+	{ yyval.n = yystack.l_mark[0].n;  }
 break;
 case 27:
 #line 142 "symbol.y"
-	{ yyval.n = yystack.l_mark[0].n;  yyval.n->TYPE = yystack.l_mark[0].n->TYPE; }
+	{ yyval.n = yystack.l_mark[0].n;  }
 break;
 case 28:
 #line 143 "symbol.y"
-	{ yyval.n = yystack.l_mark[0].n; yyval.n->TYPE = yystack.l_mark[0].n->TYPE; }
+	{ yyval.n = yystack.l_mark[0].n;  }
 break;
 case 29:
 #line 146 "symbol.y"
@@ -796,50 +796,50 @@ case 32:
 #line 155 "symbol.y"
 	{ yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-3].n, NULL, yystack.l_mark[-1].n); yyval.n=yystack.l_mark[-2].n;
 											struct Lsymbol* lt = Llookup(yystack.l_mark[-3].n->NAME);
-											if(lt && (lt->TYPE == yystack.l_mark[-1].n->TYPE )) yyval.n->TYPE=0;
+											if(lt) { if (lt->TYPE == yystack.l_mark[-1].n->TYPE ) yyval.n->TYPE=0; }
 											else {
 												struct Gsymbol* gt = Glookup(yystack.l_mark[-3].n->NAME);
-												if(gt && gt->SIZE==0 && (gt->TYPE == yystack.l_mark[-1].n->TYPE )) yyval.n->TYPE=0;
-												else { yyval.n->TYPE=-1;	yyerror("Wrong assignment");}
+												if(gt) { if ( gt->SIZE==0 && (gt->TYPE == yystack.l_mark[-1].n->TYPE )) yyval.n->TYPE=0;
+												else { yyval.n->TYPE=-1;	yyerror("Wrong assignment");}}else { printf("ID %s not found\n",yystack.l_mark[-3].n->NAME); yyval.n->TYPE=-1;}
 											}}
 break;
 case 33:
 #line 163 "symbol.y"
 	{ yystack.l_mark[-6].n->center = yystack.l_mark[-4].n; yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-6].n, NULL, yystack.l_mark[-1].n); yyval.n=yystack.l_mark[-2].n;
 																struct Gsymbol* gt = Glookup(yystack.l_mark[-6].n->NAME);
-																if(gt && gt->SIZE!=0 && yystack.l_mark[-4].n->TYPE==1 && (gt->TYPE == yystack.l_mark[-1].n->TYPE)) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
-																yyerror("Wrong assignment");
-															}}
+																if(gt) {if ( gt->SIZE!=0 && yystack.l_mark[-4].n->TYPE==1 && (gt->TYPE == yystack.l_mark[-1].n->TYPE)) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
+																yyerror("Wrong assignment of array type");}} else {printf("Array %s not found\n",yystack.l_mark[-6].n->NAME); yyval.n->TYPE=-1; }
+															}
 break;
 case 34:
 #line 170 "symbol.y"
 	{ yystack.l_mark[-4].n = CreateNode(0,'r', 0, NULL, NULL, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-4].n;
 											struct Lsymbol* lt = Llookup(yystack.l_mark[-2].n->NAME);
-											if(lt != NULL && (lt->TYPE == 1))
+											if(lt && (lt->TYPE == 1))
 												yyval.n->TYPE=0;
 											else {
 												struct Gsymbol* gt = Glookup(yystack.l_mark[-2].n->NAME);
-												if(gt && gt->SIZE==0 && gt->TYPE == 1 ) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
-												yyerror("Read type error");}
+												if(gt) {if( gt->SIZE==0 && gt->TYPE == 1 ) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
+												yyerror("Read type error");}} else { printf("ID %s not found\n",yystack.l_mark[-2].n->NAME); yyval.n->TYPE=-1;}
 											}}
 break;
 case 35:
 #line 179 "symbol.y"
 	{ yystack.l_mark[-5].n->center = yystack.l_mark[-3].n;  yystack.l_mark[-7].n = CreateNode(0,'r', 0, NULL, NULL, yystack.l_mark[-5].n, NULL); yyval.n = yystack.l_mark[-7].n;
 												struct Gsymbol* gt = Glookup(yystack.l_mark[-5].n->NAME);
-												if(gt && gt->SIZE!=0 && gt->TYPE==1 && yystack.l_mark[-3].n->TYPE==1) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
-												yyerror("Read type error");}
+												if(gt) { if(gt->SIZE!=0 && gt->TYPE==1 && yystack.l_mark[-3].n->TYPE==1) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
+												yyerror("Read type error");}} else { printf("ID %s not found\n",yystack.l_mark[-5].n->NAME); yyval.n->TYPE=-1;}
 											}
 break;
 case 36:
 #line 186 "symbol.y"
 	{ yystack.l_mark[-4].n = CreateNode(0,'w', 0, NULL, NULL, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-4].n;
-																			if(yystack.l_mark[-2].n->TYPE==1) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
+																			if(yystack.l_mark[-2].n->TYPE==1) yyval.n->TYPE=0; else {yyval.n->TYPE=-1; yyerror("Write error");} }
 break;
 case 37:
 #line 190 "symbol.y"
 	{ yystack.l_mark[-2].n = CreateNode(0,'R', 0, NULL, NULL, yystack.l_mark[-1].n, NULL);  yyval.n = yystack.l_mark[-2].n;
-																			if(yystack.l_mark[-1].n->TYPE==1 || yystack.l_mark[-1].n->TYPE ==2) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
+																			if(yystack.l_mark[-1].n->TYPE==1) yyval.n->TYPE=0; else {yyval.n->TYPE=-1; yyerror("Return type nomatch");}}
 break;
 case 38:
 #line 194 "symbol.y"
@@ -915,17 +915,19 @@ case 55:
 break;
 case 56:
 #line 212 "symbol.y"
-	{ yyval.n = yystack.l_mark[0].n; struct Lsymbol* lt = Llookup(yystack.l_mark[0].n->NAME); if(lt != NULL) yyval.n->TYPE=lt->TYPE; else {
+	{ yyval.n = yystack.l_mark[0].n; struct Lsymbol* lt = Llookup(yystack.l_mark[0].n->NAME); if(lt) yyval.n->TYPE=lt->TYPE; else {
 															struct Gsymbol* gt = Glookup(yystack.l_mark[0].n->NAME);
-															if(gt && gt->SIZE==0) yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }}
+															if(gt) {if(gt->SIZE==0) yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }
+															else { printf("ID %s not found\n",yystack.l_mark[0].n->NAME); yyval.n->TYPE=-1;}}}
 break;
 case 57:
-#line 215 "symbol.y"
+#line 216 "symbol.y"
 	{   yystack.l_mark[-3].n->center = yystack.l_mark[-1].n; yyval.n = yystack.l_mark[-3].n;  struct Gsymbol* gt = Glookup(yystack.l_mark[-3].n->NAME);
-																	if(gt && gt->SIZE!=0 && yystack.l_mark[-1].n->TYPE==1)
+																	if(gt) { if(gt->SIZE!=0 && yystack.l_mark[-1].n->TYPE==1)
 																	yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }
+																	else { printf("Array %s not found\n",yystack.l_mark[-3].n->NAME); yyval.n->TYPE=-1;}}
 break;
-#line 928 "y.tab.c"
+#line 930 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

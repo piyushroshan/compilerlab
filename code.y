@@ -1,6 +1,9 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+%define INT 1
+%define BOOL 2;
+
 struct node {
 	int TYPE;			/* Integer (1), Boolean (2) or Void (0) (for statements) */
 					/* Must point to the type expression tree for user defined types */
@@ -14,13 +17,20 @@ struct node {
 	struct	node	*center, *left,	*right;
 };
 
+struct ArgStruct{
+	char* ARGNAME;
+	int ARGTYPE;
+	int PASSTYPE;	//0 Call By Value and 1 Call By Reference
+	struct ArgStruct *ARGNEXT;
+};
+
 struct Gsymbol {
 	char *NAME; // Name of the Identifier
 	int TYPE; // TYPE can be INTEGER or BOOLEAN
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
 	int SIZE; // Size field for arrays
-	//int BINDING; // Address of the Identifier in Memory
-	//ArgStruct *ARGLIST; // Argument List for functions
+	int BINDING; // Address of the Identifier in Memory
+	ArgStruct *ARGLIST; // Argument List for functions
 
 	/***Argstruct must store the name and type of each argument ***/
 	struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
@@ -31,7 +41,7 @@ struct Lsymbol {
 	char *NAME; // Name of the Identifier
 	int TYPE; // TYPE can be INTEGER or BOOLEAN
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
-	//int BINDING; // Address of the Identifier in Memory
+	int BINDING; // Address of the Identifier in Memory
 	struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Lnode;
 
@@ -45,6 +55,7 @@ struct Lsymbol *Llookup(char* NAME);
 void Linstall(char* NAME, int TYPE);
 int TYPE;
 int RTYPE;
+
 void PrintSymbol(){
 	struct Gsymbol *Gtemp = Gnode;
 	while(Gtemp != NULL){
@@ -59,6 +70,7 @@ void PrintSymbol(){
 	}
 	printf("\n");
 }
+
 %}
 
 %union {
@@ -101,8 +113,8 @@ GdeclStatement : type Gvars SEMICOLON
 Gvars : Gvar
 	| Gvars COMMA Gvar
 	;
-type : INTEGER { TYPE = 1; }
-	| BOOLEAN {TYPE=2; }
+type : INTEGER { TYPE = INT; }
+	| BOOLEAN {TYPE = BOOL; }
 	;
 
 Gvar : ID { Ginstall($1->NAME, TYPE, 0); }

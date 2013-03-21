@@ -13,17 +13,18 @@ enddecl
 
 begin
 
-read (n);
+read (f);
 
 i = 1;
 n = 21;
 while ( i <= n) do
 
 write (i);
-read (i);
+read (x);
 
 if (i==7) then
-i = i + 10;
+p = i + 10;
+q[2] = 52;
 endif;
 
 
@@ -32,7 +33,9 @@ i = i + 10;
 endif;
 
 n=n+i*5;
-
+g[i]=9;
+n = u[9]+6;
+write(i);
 endwhile;
 i=i%n;
 while ( TRUE AND FALSE) do

@@ -28,13 +28,20 @@ struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struc
 
 /** Symbol Table Entry is required for variables, arrays and functions**/
 
+struct ArgStruct{
+	char* ARGNAME;
+	int ARGTYPE;
+	int PASSTYPE;	//0 Call By Value and 1 Call By Reference
+	struct ArgStruct *ARGNEXT;
+};
+
 struct Gsymbol {
 	char *NAME; // Name of the Identifier
 	int TYPE; // TYPE can be INTEGER or BOOLEAN
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
 	int SIZE; // Size field for arrays
-	//int BINDING; // Address of the Identifier in Memory
-	//ArgStruct *ARGLIST; // Argument List for functions
+	int BINDING; // Address of the Identifier in Memory
+	ArgStruct *ARGLIST; // Argument List for functions
 
 	/***Argstruct must store the name and type of each argument ***/
 	struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
@@ -45,7 +52,7 @@ struct Lsymbol {
 	char *NAME; // Name of the Identifier
 	int TYPE; // TYPE can be INTEGER or BOOLEAN
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
-	//int BINDING; // Address of the Identifier in Memory
+	int BINDING; // Address of the Identifier in Memory
 	struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Lnode;
 
