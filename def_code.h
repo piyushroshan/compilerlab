@@ -1,27 +1,27 @@
 struct node {
-	int TYPE;			/* Integer (1), Boolean (2) or Void (3) (for statements) */
-					/* Must point to the type expression tree for user defined types */
-	int NODETYPE;			/* this field should carry following information:
-					* a) operator : (+,*,/ etc.) for expressions
-					* b) statement Type : (WHILE, READ etc.) for statements
-					* c) else 0
-					*/
-	int VALUE;			/* for constants */
-	char* NAME;			/* For Identifiers */
-	struct	node	*center, *left,	*right;
+    int TYPE;			/* Integer (1), Boolean (2) or Void (3) (for statements) */
+                    /* Must point to the type expression tree for user defined types */
+    int NODETYPE;			/* this field should carry following information:
+                    * a) operator : (+,*,/ etc.) for expressions
+                    * b) statement Type : (WHILE, READ etc.) for statements
+                    * c) else 0
+                    */
+    int VALUE;			/* for constants */
+    char* NAME;			/* For Identifiers */
+    struct	node	*center, *left,	*right;
 };
 
 
 struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struct node *ptr1, struct node *ptr2, struct node *ptr3) {
-	struct node* temp=(struct node *)malloc(sizeof(struct node));
-	temp->TYPE		=	TYPE1;
-	temp->NODETYPE		=	NODETYPE1;
-	temp->VALUE		=	VALUE1;
-	temp->NAME		=	NAME1;
-	temp->left		=	ptr1; // left node
-	temp->center		=	ptr2; // unknown nodes
-	temp->right		=	ptr3; // right node
-	return temp;
+    struct node* temp=(struct node *)malloc(sizeof(struct node));
+    temp->TYPE		=	TYPE1;
+    temp->NODETYPE		=	NODETYPE1;
+    temp->VALUE		=	VALUE1;
+    temp->NAME		=	NAME1;
+    temp->left		=	ptr1; // left node
+    temp->center		=	ptr2; // unknown nodes
+    temp->right		=	ptr3; // right node
+    return temp;
 }
 
 /** Sample Global and Local Symbol Table Structure **/
@@ -29,10 +29,10 @@ struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struc
 /** Symbol Table Entry is required for variables, arrays and functions**/
 
 struct ArgStruct{
-	char* ARGNAME;
-	int ARGTYPE;
-	int PASSTYPE;	//0 Call By Value and 1 Call By Reference
-	struct ArgStruct *ARGNEXT;
+    char* ARGNAME;
+    int ARGTYPE;
+    int PASSTYPE;	//0 Call By Value and 1 Call By Reference
+    struct ArgStruct *ARGNEXT;
 };
 
 sstruct Gsymbol {
@@ -62,229 +62,229 @@ struct Lsymbol {
 
 
 struct Gsymbol *Glookup(char* NAME){
-	struct Gsymbol *Gtemp = Gnode;
-	while(Gtemp != NULL){
-		if(strcmp(Gtemp->NAME, NAME) == 0)
-			return Gtemp;
-		Gtemp = Gtemp->NEXT;
-	}
-	return Gtemp;
+    struct Gsymbol *Gtemp = Gnode;
+    while(Gtemp != NULL){
+        if(strcmp(Gtemp->NAME, NAME) == 0)
+            return Gtemp;
+        Gtemp = Gtemp->NEXT;
+    }
+    return Gtemp;
 }
 
 void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, ArgStruct* ARGLIST){ // Installation
-	if(Glookup(NAME) == NULL){
-	    struct Gsymbol* temp=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));
-	    temp->NAME = NAME;
-	    temp->TYPE = TYPE;
-	    temp->SIZE = SIZE;
+    if(Glookup(NAME) == NULL){
+        struct Gsymbol* temp=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));
+        temp->NAME = NAME;
+        temp->TYPE = TYPE;
+        temp->SIZE = SIZE;
         temp->BINDING = BINDING;
         temp->VALUE = VALUE;
         temp->ARGLIST = ARGLIST;
- 	    temp->NEXT = Gnode;
- 	    Gnode = temp;
+        temp->NEXT = Gnode;
+        Gnode = temp;
     }else
-		printf("ID %s redeclared\n",NAME);
+        printf("ID %s redeclared\n",NAME);
 }
 
 
 struct Lsymbol *Llookup(char* NAME){
-	struct Lsymbol *Ltemp = Lnode;
-	while(Ltemp != NULL){
-		if(strcmp(Ltemp->NAME, NAME) == 0)
-			return Ltemp;
-		Ltemp = Ltemp->NEXT;
-	}
-	return Ltemp;
+    struct Lsymbol *Ltemp = Lnode;
+    while(Ltemp != NULL){
+        if(strcmp(Ltemp->NAME, NAME) == 0)
+            return Ltemp;
+        Ltemp = Ltemp->NEXT;
+    }
+    return Ltemp;
 }
 
 void Linstall(char* NAME, int TYPE,int BINDING,int VALUE){
-	if(Llookup(NAME) == NULL){
-		struct Lsymbol* temp=(struct Lsymbol *)malloc(sizeof(struct Lsymbol));
-		temp->NAME = NAME;
-		temp->TYPE = TYPE;
+    if(Llookup(NAME) == NULL){
+        struct Lsymbol* temp=(struct Lsymbol *)malloc(sizeof(struct Lsymbol));
+        temp->NAME = NAME;
+        temp->TYPE = TYPE;
         temp->BINDING = BINDING;
         temp->VALUE = VALUE;
-		temp->NEXT = Lnode;
-		Lnode = temp;
-	}else
-		printf("ID %s redeclared\n", NAME);
+        temp->NEXT = Lnode;
+        Lnode = temp;
+    }else
+        printf("ID %s redeclared\n", NAME);
 }
 
 void printTree(struct node* root){
-	if(root==NULL) {
-		return;
-	}
+    if(root==NULL) {
+        return;
+    }
 
-	switch(root->NODETYPE ) {
-		case 'f' :
-			printf("( ");
-			printf("%s ->",root->NAME);
-			printTree(root->center);
-			printf(" )\n");
-			break;
-		case 'S' :
-			printTree(root->center);
-			printTree(root->left);
-			printTree(root->right);
-			break;
-		case 'I' :
-			printf("( ");
-			printf("%s ","IF");
-			printTree(root->center);
-			printf("\n");
-			printTree(root->left);
-			printTree(root->right);
-			printf(" )\n");
-			break;
-		case 'W' :
-			printf("( ");
-			printf("%s ","WHILE");
-			printTree(root->center);
-			printf("\n");
-			printTree(root->left);
-			printf(" )\n");
-			break;
-		case 'r' :
-			printf("( ");
-			printf("%s ","READ");
-			printTree(root->center);
-			printf(" )\n");
-			break;
-		case 'w' :
-			printf("( ");
-			printf("%s ","WRITE");
-			printTree(root->center);
-			printf(" )\n");
-			break;
-		case 'R' :
-			printf("( ");
-			printf("%s ","RETURN");
-			printTree(root->center);
-			printf(" )\n");
-			break;
-		case '=' :
-			printf("( ");
-			printf("%c ",'=');
-			printTree(root->left);
-			printTree(root->right);
-			printf(" )\n");
-			break;
-		case '+' :
-			printf("( ");
-			printf("%c ",'+');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case '-' :
-			printf("( ");
-			printf("%c ",'-');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case '*' :
-			printf("( ");
-			printf("%c ",'*');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case '/' :
-			printf("( ");
-			printf("%c ",'/');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case '%' :
-			printf("( ");
-			printf("%c ",'%');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case 'T' :
-			printf("%s ","True");
-			break;
-		case 'F' :
-			printf("%s ","False");
-			break;
-		case '&' :
-			printf("( ");
-			printf("%c ",'&');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case '|' :
-			printf("( ");
-			printf("%c ",'|');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case '!' :
-			printf("( ");
-			printf("%c ",'!');
-			printTree(root->center);
-			printf(") ");
-			break;
-		case 'G' :
-			printf("( ");
-			printf("%s ",">=");
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case 'L' :
-			printf("( ");
-			printf("%s ","<=");
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case '>' :
-			printf("( ");
-			printf("%c ",'>');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case '<' :
-			printf("( ");
-			printf("%c ",'<');
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case 'E' :
-			printf("( ");
-			printf("%s ","==");
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case 'N' :
-			printf("( ");
-			printf("%s ","!=");
-			printTree(root->left);
-			printTree(root->right);
-			printf(") ");
-			break;
-		case 1:
-			printf("%d ",root->VALUE);
-			break;
-		case 2:
-			printf("%s",root->NAME);
-			if(root->center!=NULL){
-				printf("-->");
-				printTree(root->center);
-			}else
-				printf(" ");
-			break;
-		default:
-			break;
-	}
+    switch(root->NODETYPE ) {
+        case 'f' :
+            printf("( ");
+            printf("%s ->",root->NAME);
+            printTree(root->center);
+            printf(" )\n");
+            break;
+        case 'S' :
+            printTree(root->center);
+            printTree(root->left);
+            printTree(root->right);
+            break;
+        case 'I' :
+            printf("( ");
+            printf("%s ","IF");
+            printTree(root->center);
+            printf("\n");
+            printTree(root->left);
+            printTree(root->right);
+            printf(" )\n");
+            break;
+        case 'W' :
+            printf("( ");
+            printf("%s ","WHILE");
+            printTree(root->center);
+            printf("\n");
+            printTree(root->left);
+            printf(" )\n");
+            break;
+        case 'r' :
+            printf("( ");
+            printf("%s ","READ");
+            printTree(root->center);
+            printf(" )\n");
+            break;
+        case 'w' :
+            printf("( ");
+            printf("%s ","WRITE");
+            printTree(root->center);
+            printf(" )\n");
+            break;
+        case 'R' :
+            printf("( ");
+            printf("%s ","RETURN");
+            printTree(root->center);
+            printf(" )\n");
+            break;
+        case '=' :
+            printf("( ");
+            printf("%c ",'=');
+            printTree(root->left);
+            printTree(root->right);
+            printf(" )\n");
+            break;
+        case '+' :
+            printf("( ");
+            printf("%c ",'+');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case '-' :
+            printf("( ");
+            printf("%c ",'-');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case '*' :
+            printf("( ");
+            printf("%c ",'*');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case '/' :
+            printf("( ");
+            printf("%c ",'/');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case '%' :
+            printf("( ");
+            printf("%c ",'%');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case 'T' :
+            printf("%s ","True");
+            break;
+        case 'F' :
+            printf("%s ","False");
+            break;
+        case '&' :
+            printf("( ");
+            printf("%c ",'&');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case '|' :
+            printf("( ");
+            printf("%c ",'|');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case '!' :
+            printf("( ");
+            printf("%c ",'!');
+            printTree(root->center);
+            printf(") ");
+            break;
+        case 'G' :
+            printf("( ");
+            printf("%s ",">=");
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case 'L' :
+            printf("( ");
+            printf("%s ","<=");
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case '>' :
+            printf("( ");
+            printf("%c ",'>');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case '<' :
+            printf("( ");
+            printf("%c ",'<');
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case 'E' :
+            printf("( ");
+            printf("%s ","==");
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case 'N' :
+            printf("( ");
+            printf("%s ","!=");
+            printTree(root->left);
+            printTree(root->right);
+            printf(") ");
+            break;
+        case 1:
+            printf("%d ",root->VALUE);
+            break;
+        case 2:
+            printf("%s",root->NAME);
+            if(root->center!=NULL){
+                printf("-->");
+                printTree(root->center);
+            }else
+                printf(" ");
+            break;
+        default:
+            break;
+    }
 }
 

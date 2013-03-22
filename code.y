@@ -140,7 +140,7 @@ Gvar : ID {
             }
         }
     | ID LSQUARE NUMBER RSQUARE {
-                                Ginstall($1->NAME, TYPE+2, $3->VALUE);
+                                Ginstall($1->NAME, TYPE+2, $3->VALUE, Goffset, 0, NULL);
                                 switch(TYPE-2)
                                 {
                                     case INT :
@@ -170,7 +170,19 @@ vars : var
     | vars COMMA var
     ;
 
-var : ID { Linstall($1->NAME, TYPE); }
+var : ID {
+        printf("*****L offset of %s is %d\n",$1,Loffset);
+        Linstall($1->NAME, TYPE, Loffset, 0);
+        switch(TYPE)
+        {
+            case INT :
+                offset += SIZEOFINT;
+                break;
+            case BOOL :
+                offset += SIZEOFBOOL;
+                break;
+        }
+    }
     ;
 
 beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); if (($2==NULL || $2->TYPE==0) && $3->TYPE==0) $$->TYPE=0; else $$->TYPE=-1; }
