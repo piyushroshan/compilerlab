@@ -5,7 +5,7 @@ int %{
 %define BOOL 2;
 #define SIZEOFINT 1 //In SIM all memory location has size of 4bytes
 #define SIZEOFBOOL 1    //changing this sizes implies i have to change code for arrayindex
-
+int current_reg;
 
 struct node {
     int TYPE;			/* Integer (1), Boolean (2) or Void (0) (for statements) */
@@ -129,6 +129,7 @@ type : INTEGER { TYPE = INT; }
 Gvar : ID {
             printf("*****offset of %s is %d\n",$1,Goffset);
             Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL);
+            /*-----------Code Generation-------------------*/
             switch(TYPE)
             {
                 case INT :
@@ -138,10 +139,12 @@ Gvar : ID {
                     offset += SIZEOFBOOL;
                     break;
             }
+            /*---------------------------------------------*/
         }
     | ID LSQUARE NUMBER RSQUARE {
                                 Ginstall($1->NAME, TYPE+2, $3->VALUE, Goffset, 0, NULL);
-                                switch(TYPE-2)
+                                /*-----------Code Generation-------------------*/
+                                switch(TYPE)
                                 {
                                     case INT :
                                         offset += SIZEOFINT*$3->VALUE;
@@ -150,6 +153,7 @@ Gvar : ID {
                                         offset += SIZEOFBOOL*$3->VALUE;
                                         break;
                                 }
+                                /*---------------------------------------------*/
                             }
     ;
 
@@ -173,6 +177,7 @@ vars : var
 var : ID {
         printf("*****L offset of %s is %d\n",$1,Loffset);
         Linstall($1->NAME, TYPE, Loffset, 0);
+        /*-----------Code Generation-------------------*/
         switch(TYPE)
         {
             case INT :
@@ -182,6 +187,7 @@ var : ID {
                 offset += SIZEOFBOOL;
                 break;
         }
+        /*---------------------------------------------*/
     }
     ;
 
@@ -279,10 +285,95 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
 %%
 
 int main(){
-    return(yyparse());
+    Goffset = 0;
+    
+    yyparse();
+    printf("\nSTART\n");
+		printf("MOV R1,%d\n",Goffset-1);
+		printf("INR R1\n");
+		printf("MOV SP,R1\n");
+		printf("MOV %s,SP\n",reg3);
+		printf("MOV %s,%d\n",reg4,l_getarglocalsize(gtable,"main"));
+		printf("ADD %s,%s\n",reg3,reg4);
+		printf("MOV SP,%s\n",reg3);
+		printf("CALL Pmain\n");
+		printf("MOV %s,SP\n",reg3);
+		printf("MOV %s,%d\n",reg4,l_getarglocalsize(gtable,"main"));
+		printf("SUB %s,%s\n",reg3,reg4);
+		printf("MOV SP,%s\n",reg3);
+		printf("MOV R1,%d\n",Goffset-1);
+		printf("HALT\n");
 }
 
+char* newreg3()
+{
+	char *temp =(char *) malloc(5);
+	temp[0]='R';temp[1]='\0';
+	for(int i=2;i<100;i++)
+	{
+		temp[0]='R';temp[1]='\0';
+		strcat(temp,itoa(i));
+		if(reglist.member(temp)==-1)
+		{
+			printf("//Allocated from here\n");
+			return temp;
+		}
+	}
+	strcat(temp,itoa(current_reg));
+	current_reg++;
+	
+	//printf("*********Newreg %s\n",temp);
+	return temp;
+}
+
+char* newreg()
+{
+	char *temp =(char *) malloc(5);
+	temp[0]='R';temp[1]='\0';
+	strcat(temp,itoa(current_reg));
+	current_reg++;
+		
+	//printf("*********Newreg %s\n",temp);
+	return temp;
+}
+
+char* newlabel()
+{
+	static int current = 0;
+	current++;
+	char *temp =(char *) malloc(5);
+	temp[0]='L';temp[1]='\0';
+	strcat(temp,itoa(current));
+	
+	//printf("Newlabel %s\n",temp);
+	return temp;
+}
+
+char* itoa(int value)
+{
+	char *temp=(char *)malloc(10);
+	int i;
+
+	if(value==0)
+	{
+		temp[8]='0';
+		temp[9]='\0';
+		return(temp+8);
+	}
+	
+	for(i=8; i>0 && value ; i-- , value = value /10)
+	{
+		temp[i]=(char ) (48 + value%10 );
+	}
+	temp[9]='\0';
+
+	return (temp+i+1);
+	
+}
+
+
 int codeGen(struct node* root){
+
     return 0;
 }
 
