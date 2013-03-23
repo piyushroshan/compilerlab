@@ -611,6 +611,7 @@ void Gen3A(struct node* root){
     switch(root->NODETYPE){
         case 'f' :
             TAinstall('L',root->NAME,NULL);
+            TAinstall('L',root->NAME,NULL);
             Gen3A(root->center);
             break;
         case 'S':
@@ -803,7 +804,7 @@ fprintf(stderr, "%s\n",s);
 }
 
 
-#line 806 "y.tab.c"
+#line 807 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -1028,7 +1029,7 @@ break;
 case 10:
 #line 134 "code.y"
 	{
-            printf("*****offset of %s is %d\n",yystack.l_mark[0].n,Goffset);
+            printf("*****offset of %s is %d\n",yystack.l_mark[0].n->NAME,Goffset);
             Ginstall(yystack.l_mark[0].n->NAME, TYPE, 0, Goffset, 0, NULL);
             /*-----------Code Generation-------------------*/
             switch(TYPE)
@@ -1075,7 +1076,7 @@ break;
 case 20:
 #line 182 "code.y"
 	{
-        printf("*****L offset of %s is %d\n",yystack.l_mark[0].n,Loffset);
+        printf("*****L offset of %s is %d\n",yystack.l_mark[0].n->NAME,Loffset);
         Linstall(yystack.l_mark[0].n->NAME, TYPE, Loffset, 0);
         /*-----------Code Generation-------------------*/
         switch(TYPE)
@@ -1271,7 +1272,7 @@ case 57:
                                                                     yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }
                                                                     else { printf("Array %s not found\n",yystack.l_mark[-3].n->NAME); yyval.n->TYPE=-1;}}
 break;
-#line 1274 "y.tab.c"
+#line 1275 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

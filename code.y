@@ -61,7 +61,7 @@ void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct Arg
 struct Gsymbol *Glookup(char* NAME);
 struct Lsymbol *Llookup(char* NAME);
 void Linstall(char* NAME, int TYPE, int BINDING, int VALUE);
-void TAinstall(char op, char* op1, char* op2);
+void TAinstall(int op, char* op1, char* op2);
 void print_TAlist();
 int TYPE;
 int RTYPE;
@@ -132,7 +132,7 @@ type : INTEGER { TYPE = INT; }
     ;
 
 Gvar : ID {
-            printf("*****offset of %s is %d\n",$1,Goffset);
+            printf("*****offset of %s is %d\n",$1->NAME,Goffset);
             Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL);
             /*-----------Code Generation-------------------*/
             switch(TYPE)
@@ -180,7 +180,7 @@ vars : var
     ;
 
 var : ID {
-        printf("*****L offset of %s is %d\n",$1,Loffset);
+        printf("*****L offset of %s is %d\n",$1->NAME,Loffset);
         Linstall($1->NAME, TYPE, Loffset, 0);
         /*-----------Code Generation-------------------*/
         switch(TYPE)
@@ -391,6 +391,7 @@ void Gen3A(struct node* root){
 
     switch(root->NODETYPE){
         case 'f' :
+            TAinstall('L',root->NAME,NULL);
             TAinstall('L',root->NAME,NULL);
             Gen3A(root->center);
             break;

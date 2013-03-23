@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 struct ThreeA{
-    char op;
+    int op;
     char* op1;
     char* op2;
     struct ThreeA* next;
@@ -11,26 +11,27 @@ struct ThreeA{
 
 
 
-void TAinstall(char op, char* op1, char* op2){
-    struct ThreeA* temp = (struct ThreeA *)malloc(sizeof(struct ThreeA));
-    temp->op=op;
-    temp->op1=op1;
-    temp->op2=op2;
-    temp->next=NULL;
-    if(TAroot==NULL)
-    {
-        TAroot = (struct ThreeA *)malloc(sizeof(struct ThreeA));
-        TAlast = (struct ThreeA *)malloc(sizeof(struct ThreeA));
-        TAroot=temp;
-        TAlast=TAroot;
+void TAinstall(int op, char* op1, char* op2){
+    struct ThreeA *current = TAroot;
+    struct ThreeA* newNode = (struct ThreeA *)malloc(sizeof(struct ThreeA));
+    if (newNode == NULL) {
+        printf("malloc failed\n");
+        exit(-1);
     }
-    else
+
+    newNode->op=op;
+    newNode->op1=op1;
+    newNode->op2=op2;
+    newNode->next=NULL;
+    if(current==NULL)
     {
-        //TAlast->next=(struct ThreeA *)malloc(sizeof(struct ThreeA));
-        TAlast->next=temp;
-        TAlast=TAlast->next;
-        //TAlast=temp;
+        TAroot=newNode;
+        return;
     }
+    while (current->next) {
+        current = current->next;
+    }
+    current->next = newNode;
 }
 
 
