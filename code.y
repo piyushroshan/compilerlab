@@ -417,7 +417,7 @@ void Gen3A(struct node* root){
                 TAinstall('L',label,NULL);
             }
             break;
-            }
+        }
         case 'W':{
             char* l1=newlabel();
             char* l2=newlabel();
@@ -430,33 +430,33 @@ void Gen3A(struct node* root){
             TAinstall('G',l1,NULL);
             TAinstall('L',l2,NULL);
             break;
-            }
+        }
         case 'r':
-            {
+        {
             Gen3A(root->center);
             char* t = "t";
             strcat(t,itoa(current_temp));
             TAinstall('r',t,NULL);
             break;
-            }
+        }
         case 'w':
-            {
+        {
             Gen3A(root->center);
             char* t = "t";
             strcat(t,itoa(current_temp));
             TAinstall('w',t,NULL);
             break;
-            }
+        }
         case 'R':
-            {
+        {
             Gen3A(root->center);
             char* t = "t";
             strcat(t,itoa(current_temp));
             TAinstall('R',t,NULL);
             break;
-            }
+        }
         case '=':
-            {
+        {
             Gen3A(root->left);
             char* t1 = "t";
             strcat(t1,itoa(current_temp));
@@ -465,9 +465,9 @@ void Gen3A(struct node* root){
             strcat(t2,itoa(current_temp));
             TAinstall('=',t1,t2);
             break;
-            }
+        }
         case '+':
-            {
+        {
             Gen3A(root->left);
             Gen3A(root->right);
             char* t1 = "t";
@@ -477,9 +477,9 @@ void Gen3A(struct node* root){
             TAinstall('+', t1, t2);
             current_temp--;
             break;
-            }
+        }
         case '-':
-            {
+        {
             Gen3A(root->left);
             char* t1 = "t";
             strcat(t1,itoa(current_temp));
@@ -488,9 +488,9 @@ void Gen3A(struct node* root){
             strcat(t2,itoa(current_temp));
             TAinstall('-', t1, t2);
             break;
-            }
+        }
         case '*':
-            {
+        {
             Gen3A(root->left);
             char* t1 = "t";
             strcat(t1,itoa(current_temp));
@@ -499,9 +499,9 @@ void Gen3A(struct node* root){
             strcat(t2,itoa(current_temp));
             TAinstall('*', t1, t2);
             break;
-            }
+        }
         case '/':
-            {
+        {
             Gen3A(root->left);
             char* t1 = "t";
             strcat(t1,itoa(current_temp));
@@ -510,9 +510,9 @@ void Gen3A(struct node* root){
             strcat(t2,itoa(current_temp));
             TAinstall('/', t1, t2);
             break;
-            }
+        }
         case '%':
-            {
+        {
             Gen3A(root->left);
             char* t1 = "t";
             strcat(t1,itoa(current_temp));
@@ -521,33 +521,33 @@ void Gen3A(struct node* root){
             strcat(t2,itoa(current_temp));
             TAinstall('%', t1, t2);
             break;
-            }
+        }
         case 'T' :
-            {
+        {
             current_temp++;
             char* t = "t";
             strcat(t,itoa(current_temp));
             TAinstall('=',t,"T");
             break;
-            }
+        }
         case 'F' :
-            {
+        {
             current_temp++;
             char* t = "t";
             strcat(t,itoa(current_temp));
             TAinstall('=',t,"F");
             break;
-            }
+        }
         case 1:
-            {
+        {
             current_temp++;
             char* t = "t";
             strcat(t,itoa(current_temp));
             TAinstall('=',t,itoa(root->VALUE));
             break;
-            }
+        }
         case 2:
-            {
+        {
             if(root->center){
                 Gen3A(root->center);
                 char* t = "t";
@@ -567,14 +567,14 @@ void Gen3A(struct node* root){
                     TAinstall('l',t,Llookup(root->NAME)->BINDING);
             }
             break;
-            }
+        }
         default:
         {
             Gen3A(root->center);
             Gen3A(root->left);
             Gen3A(root->right);
         }
-            break;
+        break;
     }
 }
 
