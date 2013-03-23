@@ -1,5 +1,5 @@
 decl
-integer n,i,k[8] ;
+integer n,i,k[8];
 boolean a,b;
 enddecl
 integer main(){

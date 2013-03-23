@@ -35,14 +35,14 @@ struct ArgStruct{
     struct ArgStruct *ARGNEXT;
 };
 
-sstruct Gsymbol {
+struct Gsymbol {
     char *NAME; // Name of the Identifier
     int TYPE; // TYPE can be INTEGER or BOOLEAN
     /***The TYPE field must be a TypeStruct if user defined types are allowed***/
     int VALUE; // for constants
     int SIZE; // Size field for arrays
     int BINDING; // Address of the Identifier in Memory
-    ArgStruct *ARGLIST; // Argument List for functions
+    struct ArgStruct *ARGLIST; // Argument List for functions
 
     /***Argstruct must store the name and type of each argument ***/
     struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
@@ -71,7 +71,7 @@ struct Gsymbol *Glookup(char* NAME){
     return Gtemp;
 }
 
-void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, ArgStruct* ARGLIST){ // Installation
+void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct ArgStruct* ARGLIST){ // Installation
     if(Glookup(NAME) == NULL){
         struct Gsymbol* temp=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));
         temp->NAME = NAME;
@@ -123,9 +123,8 @@ void printTree(struct node* root){
             printf(" )\n");
             break;
         case 'S' :
-            printTree(root->center);
             printTree(root->left);
-            printTree(root->right);
+            printTree(root->center);
             break;
         case 'I' :
             printf("( ");
