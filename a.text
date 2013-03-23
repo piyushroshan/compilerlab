@@ -8,8 +8,14 @@ decl
 integer a, b,c;
 enddecl
 begin
+a=1;
 write(1);
-end
+read(a);
+while(TRUE) do
+    a=a+1;
 
+
+endwhile;
+end
 }
 

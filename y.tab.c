@@ -27,6 +27,8 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #define SIZEOFBOOL 1    /*changing this sizes implies i have to change code for arrayindex*/
 int current_reg;
 static int current_temp=0;
+char* itoa(int value);
+#define INTSIZE 10
 
 struct node {
     int TYPE;			/* Integer (1), Boolean (2) or Void (0) (for statements) */
@@ -79,7 +81,7 @@ void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct Arg
 struct Gsymbol *Glookup(char* NAME);
 struct Lsymbol *Llookup(char* NAME);
 void Linstall(char* NAME, int TYPE, int BINDING, int VALUE);
-void TAinstall(char op, char* op1, char* op2);
+void TAinstall(int op, char* op1, char* op2);
 void print_TAlist();
 int TYPE;
 int RTYPE;
@@ -103,7 +105,7 @@ void PrintSymbol(){
     printf("\n");
 }
 
-#line 90 "code.y"
+#line 92 "code.y"
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
@@ -114,7 +116,7 @@ typedef union {
     struct node* n;
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
-#line 117 "y.tab.c"
+#line 119 "y.tab.c"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -506,7 +508,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 291 "code.y"
+#line 293 "code.y"
 
 int main(){
     Goffset = 0;
@@ -575,32 +577,33 @@ char* newlabel()
 
 char* itoa(int value)
 {
-	char *temp=(char *)malloc(10);
-	int i;
+    char *temp=(char *)malloc(10);
+    int i;
 
-	if(value==0)
-	{
-		temp[8]='0';
-		temp[9]='\0';
-		return(temp+8);
-	}
+    if(value==0)
+    {
+        temp[8]='0';
+        temp[9]='\0';
+        return(temp+8);
+    }
 
-	for(i=8; i>0 && value ; i-- , value = value /10)
-	{
-		temp[i]=(char ) (48 + value%10 );
-	}
-	temp[9]='\0';
+    for(i=8; i>0 && value ; i-- , value = value /10)
+    {
+        temp[i]=(char ) (48 + value%10 );
+    }
+    temp[9]='\0';
 
-	return (temp+i+1);
+    return (temp+i+1);
 
 }
 
 char* newlabel() {
     static int num = 1;
-    char* label="L";
-    strcat(label,itoa(num));
+    char *temp =(char *) malloc(5);
+    temp[0]='L';temp[1]='\0';
+    strcat(temp,itoa(num));
     num++;
-    return label;
+    return temp;
 }
 
 void Gen3A(struct node* root){
@@ -610,18 +613,21 @@ void Gen3A(struct node* root){
 
     switch(root->NODETYPE){
         case 'f' :
-            TAinstall('L',root->NAME,NULL);
+        {
+            char* label=newlabel();
             TAinstall('L',root->NAME,NULL);
             Gen3A(root->center);
             break;
+        }
         case 'S':
             Gen3A(root->left);
             Gen3A(root->center);
             break;
         case 'I':{
-            char* label=newlabel();
+            char* label;
+            strcpy(label,newlabel());
             Gen3A(root->center);
-            char* t = "t";
+            char t[5] = "t";
             strcat(t,itoa(current_temp));
             TAinstall('I',t,label);
             Gen3A(root->left);
@@ -636,164 +642,186 @@ void Gen3A(struct node* root){
                 TAinstall('L',label,NULL);
             }
             break;
-            }
+        }
         case 'W':{
             char* l1=newlabel();
             char* l2=newlabel();
             TAinstall('L',l1,NULL);
             Gen3A(root->center);
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('I',t,l2);
             Gen3A(root->left);
             TAinstall('G',l1,NULL);
             TAinstall('L',l2,NULL);
             break;
-            }
+        }
         case 'r':
-            {
+        {
             Gen3A(root->center);
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('r',t,NULL);
             break;
-            }
+        }
         case 'w':
-            {
+        {
             Gen3A(root->center);
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('w',t,NULL);
+
             break;
-            }
+        }
         case 'R':
-            {
+        {
             Gen3A(root->center);
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('R',t,NULL);
             break;
-            }
+        }
         case '=':
-            {
+        {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('=',t1,t2);
             break;
-            }
+        }
         case '+':
-            {
+        {
             Gen3A(root->left);
             Gen3A(root->right);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp-2));
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp-1));
             TAinstall('+', t1, t2);
             current_temp--;
             break;
-            }
+        }
         case '-':
-            {
+        {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('-', t1, t2);
             break;
-            }
+        }
         case '*':
-            {
+        {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('*', t1, t2);
             break;
-            }
+        }
         case '/':
-            {
+        {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('/', t1, t2);
             break;
-            }
+        }
         case '%':
-            {
+        {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('%', t1, t2);
             break;
-            }
+        }
         case 'T' :
-            {
+        {
             current_temp++;
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('=',t,"T");
             break;
-            }
+        }
         case 'F' :
-            {
+        {
             current_temp++;
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('=',t,"F");
             break;
-            }
-        case 1:
-            {
+        }
+       case 1:
+        {
             current_temp++;
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('=',t,itoa(root->VALUE));
             break;
-            }
+        }
         case 2:
-            {
+        {
             if(root->center){
                 Gen3A(root->center);
-                char* t = "t";
+                char *t =(char *) malloc(5);
+                t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
                 TAinstall('l',root->NAME,t);
                 current_temp++;
-                char* t1 = "t";
+                char *t1 =(char *) malloc(5);
+                t1[0]='t';t1[1]='\0';
                 strcat(t1,itoa(current_temp));
                 TAinstall('=',t1,t);
             }else
             {
-                char* t = "t";
+                char *t =(char *) malloc(5);
+                t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
                 if(Glookup(root->NAME))
-                    TAinstall('l',t,Glookup(root->NAME)->BINDING);
+                    TAinstall('l',t,itoa(Glookup(root->NAME)->BINDING));
                 else
-                    TAinstall('l',t,Llookup(root->NAME)->BINDING);
+                    TAinstall('l',t,itoa(Llookup(root->NAME)->BINDING));
             }
             break;
-            }
+        }
         default:
         {
-            Gen3A(root->center);
-            Gen3A(root->left);
-            Gen3A(root->right);
+
+            return;
         }
-            break;
+        break;
     }
 }
 
@@ -804,7 +832,7 @@ fprintf(stderr, "%s\n",s);
 }
 
 
-#line 807 "y.tab.c"
+#line 835 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -1011,23 +1039,23 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 118 "code.y"
+#line 120 "code.y"
 	{ printf("PARSING SUCCESS\n"); yyval.n=yystack.l_mark[0].n; PrintSymbol(); printTree(yystack.l_mark[0].n); Gen3A(yystack.l_mark[0].n); print_TAlist();}
 break;
 case 3:
-#line 122 "code.y"
+#line 124 "code.y"
 	{/*empty*/}
 break;
 case 8:
-#line 130 "code.y"
+#line 132 "code.y"
 	{ TYPE = INT; }
 break;
 case 9:
-#line 131 "code.y"
+#line 133 "code.y"
 	{TYPE = BOOL; }
 break;
 case 10:
-#line 134 "code.y"
+#line 136 "code.y"
 	{
             printf("*****offset of %s is %d\n",yystack.l_mark[0].n->NAME,Goffset);
             Ginstall(yystack.l_mark[0].n->NAME, TYPE, 0, Goffset, 0, NULL);
@@ -1045,7 +1073,7 @@ case 10:
         }
 break;
 case 11:
-#line 149 "code.y"
+#line 151 "code.y"
 	{
                                 Ginstall(yystack.l_mark[-3].n->NAME, TYPE+2, yystack.l_mark[-1].n->VALUE, Goffset, 0, NULL);
                                 /*-----------Code Generation-------------------*/
@@ -1062,19 +1090,19 @@ case 11:
                             }
 break;
 case 12:
-#line 165 "code.y"
+#line 167 "code.y"
 	{ yyval.n=CreateNode(0,'f', 0, "MAIN", NULL, yystack.l_mark[-1].n, NULL);}
 break;
 case 13:
-#line 168 "code.y"
+#line 170 "code.y"
 	{ yyval.n=yystack.l_mark[0].n; }
 break;
 case 15:
-#line 173 "code.y"
+#line 175 "code.y"
 	{/*empty*/}
 break;
 case 20:
-#line 182 "code.y"
+#line 184 "code.y"
 	{
         printf("*****L offset of %s is %d\n",yystack.l_mark[0].n->NAME,Loffset);
         Linstall(yystack.l_mark[0].n->NAME, TYPE, Loffset, 0);
@@ -1092,53 +1120,53 @@ case 20:
     }
 break;
 case 21:
-#line 199 "code.y"
+#line 201 "code.y"
 	{  yyval.n=CreateNode(0,'S', 0, NULL, yystack.l_mark[-1].n, NULL, NULL); if ((yystack.l_mark[-1].n==NULL || yystack.l_mark[-1].n->TYPE==0) && yystack.l_mark[0].n->TYPE==0) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
 break;
 case 22:
-#line 202 "code.y"
+#line 204 "code.y"
 	{ yyval.n = NULL; }
 break;
 case 23:
-#line 203 "code.y"
-	{  yyval.n=CreateNode(0,'S', 0, NULL, yystack.l_mark[-1].n, yystack.l_mark[0].n, NULL); if ((yystack.l_mark[-1].n==NULL || yystack.l_mark[-1].n->TYPE==0) && yystack.l_mark[0].n->TYPE==0) yyval.n->TYPE=0; else yyval.n->TYPE=-1;}
+#line 205 "code.y"
+	{  yyval.n=CreateNode(0,'S', 0, NULL, yystack.l_mark[-1].n, yystack.l_mark[0].n, NULL); if ((yystack.l_mark[-1].n==NULL || yystack.l_mark[-1].n->TYPE==0) && yystack.l_mark[0].n->TYPE==0) yyval.n->TYPE=0; else {yyval.n->TYPE=-1; yyerror("error");}}
 break;
 case 24:
-#line 206 "code.y"
+#line 208 "code.y"
 	{ yyval.n = yystack.l_mark[0].n; }
 break;
 case 25:
-#line 207 "code.y"
+#line 209 "code.y"
 	{ yyval.n = yystack.l_mark[0].n;}
 break;
 case 26:
-#line 208 "code.y"
-	{ yyval.n = yystack.l_mark[0].n;  }
-break;
-case 27:
-#line 209 "code.y"
-	{ yyval.n = yystack.l_mark[0].n;  }
-break;
-case 28:
 #line 210 "code.y"
 	{ yyval.n = yystack.l_mark[0].n;  }
 break;
+case 27:
+#line 211 "code.y"
+	{ yyval.n = yystack.l_mark[0].n;  }
+break;
+case 28:
+#line 212 "code.y"
+	{ yyval.n = yystack.l_mark[0].n;  }
+break;
 case 29:
-#line 213 "code.y"
+#line 215 "code.y"
 	{ yystack.l_mark[-5].n = CreateNode(0,'I', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL); yyval.n = yystack.l_mark[-5].n;
                                                 if (yystack.l_mark[-4].n->TYPE==2 && (yystack.l_mark[-2].n==NULL || yystack.l_mark[-2].n->TYPE==0)) yyval.n->TYPE=0; else yyval.n->TYPE=-1;  }
 break;
 case 30:
-#line 215 "code.y"
+#line 217 "code.y"
 	{ yystack.l_mark[-7].n = CreateNode(0,'I', 0, NULL, yystack.l_mark[-4].n, yystack.l_mark[-6].n, yystack.l_mark[-2].n); yyval.n = yystack.l_mark[-7].n;
                                                 if (yystack.l_mark[-6].n->TYPE==2 && (yystack.l_mark[-4].n==NULL || yystack.l_mark[-4].n->TYPE==0) && (yystack.l_mark[-2].n==NULL || yystack.l_mark[-2].n->TYPE==0)) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
 break;
 case 31:
-#line 219 "code.y"
+#line 221 "code.y"
 	{ yystack.l_mark[-5].n = CreateNode(0,'W', 0, NULL, yystack.l_mark[-2].n, yystack.l_mark[-4].n, NULL); yyval.n=yystack.l_mark[-5].n; if (yystack.l_mark[-4].n->TYPE==2 && (yystack.l_mark[-2].n==NULL || yystack.l_mark[-2].n->TYPE==0)) yyval.n->TYPE=0; else yyval.n->TYPE=-1; }
 break;
 case 32:
-#line 222 "code.y"
+#line 224 "code.y"
 	{ yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-3].n, NULL, yystack.l_mark[-1].n); yyval.n=yystack.l_mark[-2].n;
                                             struct Lsymbol* lt = Llookup(yystack.l_mark[-3].n->NAME);
                                             if(lt) { if (lt->TYPE == yystack.l_mark[-1].n->TYPE ) yyval.n->TYPE=0; }
@@ -1149,7 +1177,7 @@ case 32:
                                             }}
 break;
 case 33:
-#line 230 "code.y"
+#line 232 "code.y"
 	{ yystack.l_mark[-6].n->center = yystack.l_mark[-4].n; yystack.l_mark[-2].n = CreateNode(0,'=', 0, NULL, yystack.l_mark[-6].n, NULL, yystack.l_mark[-1].n); yyval.n=yystack.l_mark[-2].n;
                                                                 struct Gsymbol* gt = Glookup(yystack.l_mark[-6].n->NAME);
                                                                 if(gt) {if ( gt->SIZE!=0 && yystack.l_mark[-4].n->TYPE==INT && ((gt->TYPE-2) == yystack.l_mark[-1].n->TYPE)) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
@@ -1157,7 +1185,7 @@ case 33:
                                                             }
 break;
 case 34:
-#line 237 "code.y"
+#line 239 "code.y"
 	{ yystack.l_mark[-4].n = CreateNode(0,'r', 0, NULL, NULL, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-4].n;
                                             struct Lsymbol* lt = Llookup(yystack.l_mark[-2].n->NAME);
                                             if(lt && (lt->TYPE == 1))
@@ -1169,7 +1197,7 @@ case 34:
                                             }}
 break;
 case 35:
-#line 246 "code.y"
+#line 248 "code.y"
 	{ yystack.l_mark[-5].n->center = yystack.l_mark[-3].n;  yystack.l_mark[-7].n = CreateNode(0,'r', 0, NULL, NULL, yystack.l_mark[-5].n, NULL); yyval.n = yystack.l_mark[-7].n;
                                                 struct Gsymbol* gt = Glookup(yystack.l_mark[-5].n->NAME);
                                                 if(gt) { if(gt->SIZE!=0 && gt->TYPE==(INT+2) && yystack.l_mark[-3].n->TYPE==1) yyval.n->TYPE=0; else { yyval.n->TYPE=-1;
@@ -1177,102 +1205,102 @@ case 35:
                                             }
 break;
 case 36:
-#line 253 "code.y"
+#line 255 "code.y"
 	{ yystack.l_mark[-4].n = CreateNode(0,'w', 0, NULL, NULL, yystack.l_mark[-2].n, NULL); yyval.n = yystack.l_mark[-4].n;
                                                                             if(yystack.l_mark[-2].n->TYPE==1) yyval.n->TYPE=0; else {yyval.n->TYPE=-1; yyerror("Write error");} }
 break;
 case 37:
-#line 257 "code.y"
+#line 259 "code.y"
 	{ yystack.l_mark[-2].n = CreateNode(0,'R', 0, NULL, NULL, yystack.l_mark[-1].n, NULL);  yyval.n = yystack.l_mark[-2].n;
                                                                             if(yystack.l_mark[-1].n->TYPE==1) yyval.n->TYPE=0; else {yyval.n->TYPE=-1; yyerror("Return type nomatch");}}
 break;
 case 38:
-#line 261 "code.y"
+#line 263 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'+', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1; }
 break;
 case 39:
-#line 262 "code.y"
+#line 264 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'-', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1;  }
 break;
 case 40:
-#line 263 "code.y"
+#line 265 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'*', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1;  }
 break;
 case 41:
-#line 264 "code.y"
+#line 266 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'/', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n;  if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1; }
 break;
 case 42:
-#line 265 "code.y"
+#line 267 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'%', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=1; else yyval.n->TYPE=-1;  }
 break;
 case 43:
-#line 266 "code.y"
+#line 268 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'E', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 44:
-#line 267 "code.y"
+#line 269 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'<', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 45:
-#line 268 "code.y"
+#line 270 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'>', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 46:
-#line 269 "code.y"
+#line 271 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'G', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 47:
-#line 270 "code.y"
+#line 272 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'L', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 48:
-#line 271 "code.y"
+#line 273 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'N', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==1 && yystack.l_mark[0].n->TYPE ==1) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 49:
-#line 272 "code.y"
+#line 274 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'&', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==2 && yystack.l_mark[0].n->TYPE ==2) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 50:
-#line 273 "code.y"
+#line 275 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'|', 0, NULL, yystack.l_mark[-2].n, NULL, yystack.l_mark[0].n); yyval.n = yystack.l_mark[-1].n; if(yystack.l_mark[-2].n->TYPE==2 && yystack.l_mark[0].n->TYPE ==2) yyval.n->TYPE=2; else yyval.n->TYPE=-1;  }
 break;
 case 51:
-#line 274 "code.y"
+#line 276 "code.y"
 	{ yystack.l_mark[-1].n = CreateNode(0,'!', 0, NULL, NULL, yystack.l_mark[0].n, NULL); yyval.n = yystack.l_mark[-1].n;  if(yystack.l_mark[0].n->TYPE==2) yyval.n->TYPE=2; else yyval.n->TYPE=-1; }
 break;
 case 52:
-#line 275 "code.y"
+#line 277 "code.y"
 	{ yyval.n = yystack.l_mark[-1].n; }
 break;
 case 53:
-#line 276 "code.y"
+#line 278 "code.y"
 	{ yystack.l_mark[0].n = CreateNode(2,'T', 0, NULL,NULL,NULL,NULL); yyval.n = yystack.l_mark[0].n;  }
 break;
 case 54:
-#line 277 "code.y"
+#line 279 "code.y"
 	{ yystack.l_mark[0].n = CreateNode(2,'F', 0, NULL, NULL, NULL, NULL); yyval.n = yystack.l_mark[0].n; }
 break;
 case 55:
-#line 278 "code.y"
+#line 280 "code.y"
 	{ yyval.n=yystack.l_mark[0].n; }
 break;
 case 56:
-#line 279 "code.y"
+#line 281 "code.y"
 	{ yyval.n = yystack.l_mark[0].n; struct Lsymbol* lt = Llookup(yystack.l_mark[0].n->NAME); if(lt) yyval.n->TYPE=lt->TYPE; else {
                                                             struct Gsymbol* gt = Glookup(yystack.l_mark[0].n->NAME);
                                                             if(gt) {if(gt->SIZE==0) yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }
                                                             else { printf("ID %s not found\n",yystack.l_mark[0].n->NAME); yyval.n->TYPE=-1;}}}
 break;
 case 57:
-#line 283 "code.y"
+#line 285 "code.y"
 	{   yystack.l_mark[-3].n->center = yystack.l_mark[-1].n; yyval.n = yystack.l_mark[-3].n;  struct Gsymbol* gt = Glookup(yystack.l_mark[-3].n->NAME);
                                                                     if(gt) { if(gt->SIZE!=0 && yystack.l_mark[-1].n->TYPE==1)
                                                                     yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }
                                                                     else { printf("Array %s not found\n",yystack.l_mark[-3].n->NAME); yyval.n->TYPE=-1;}}
 break;
-#line 1275 "y.tab.c"
+#line 1303 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

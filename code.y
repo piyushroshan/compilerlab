@@ -9,7 +9,10 @@
 #define SIZEOFBOOL 1    //changing this sizes implies i have to change code for arrayindex
 int current_reg;
 static int current_temp=0;
-
+char* itoa(int value);
+#define INTSIZE 10
+static int labelCount;
+static int regCount;
 struct node {
     int TYPE;			/* Integer (1), Boolean (2) or Void (0) (for statements) */
                     /* Must point to the type expression tree for user defined types */
@@ -115,7 +118,7 @@ void PrintSymbol(){
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar
 
 %%
-program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2); print_TAlist();}
+program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); /*Gen3A($2); print_TAlist();*/}
     ;
 Gdeclaration : DECL GdeclStatements ENDDECL
     ;
@@ -200,7 +203,7 @@ beginbody : BEGINN statements END {  $$=CreateNode(0,'S', 0, NULL, $2, NULL, NUL
     ;
 
 statements : { $$ = NULL; }
-    | statements statement {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE==0) && $2->TYPE==0) $$->TYPE=0; else $$->TYPE=-1;}
+    | statements statement {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE==0) && $2->TYPE==0) $$->TYPE=0; else {$$->TYPE=-1; yyerror("error");}}
     ;
 
 statement : ifelse { $$ = $1; }
@@ -356,32 +359,33 @@ char* newlabel()
 
 char* itoa(int value)
 {
-	char *temp=(char *)malloc(10);
-	int i;
+    char *temp=(char *)malloc(10);
+    int i;
 
-	if(value==0)
-	{
-		temp[8]='0';
-		temp[9]='\0';
-		return(temp+8);
-	}
+    if(value==0)
+    {
+        temp[8]='0';
+        temp[9]='\0';
+        return(temp+8);
+    }
 
-	for(i=8; i>0 && value ; i-- , value = value /10)
-	{
-		temp[i]=(char ) (48 + value%10 );
-	}
-	temp[9]='\0';
+    for(i=8; i>0 && value ; i-- , value = value /10)
+    {
+        temp[i]=(char ) (48 + value%10 );
+    }
+    temp[9]='\0';
 
-	return (temp+i+1);
+    return (temp+i+1);
 
 }
 
 char* newlabel() {
     static int num = 1;
-    char* label="L";
-    strcat(label,itoa(num));
+    char *temp =(char *) malloc(5);
+    temp[0]='L';temp[1]='\0';
+    strcat(temp,itoa(num));
     num++;
-    return label;
+    return temp;
 }
 
 void Gen3A(struct node* root){
@@ -391,18 +395,21 @@ void Gen3A(struct node* root){
 
     switch(root->NODETYPE){
         case 'f' :
-            TAinstall('L',root->NAME,NULL);
+        {
+            char* label=newlabel();
             TAinstall('L',root->NAME,NULL);
             Gen3A(root->center);
             break;
+        }
         case 'S':
             Gen3A(root->left);
             Gen3A(root->center);
             break;
         case 'I':{
-            char* label=newlabel();
+            char* label;
+            strcpy(label,newlabel());
             Gen3A(root->center);
-            char* t = "t";
+            char t[5] = "t";
             strcat(t,itoa(current_temp));
             TAinstall('I',t,label);
             Gen3A(root->left);
@@ -423,7 +430,8 @@ void Gen3A(struct node* root){
             char* l2=newlabel();
             TAinstall('L',l1,NULL);
             Gen3A(root->center);
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('I',t,l2);
             Gen3A(root->left);
@@ -434,7 +442,8 @@ void Gen3A(struct node* root){
         case 'r':
         {
             Gen3A(root->center);
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('r',t,NULL);
             break;
@@ -442,15 +451,18 @@ void Gen3A(struct node* root){
         case 'w':
         {
             Gen3A(root->center);
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('w',t,NULL);
+
             break;
         }
         case 'R':
         {
             Gen3A(root->center);
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('R',t,NULL);
             break;
@@ -458,10 +470,12 @@ void Gen3A(struct node* root){
         case '=':
         {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('=',t1,t2);
             break;
@@ -470,9 +484,11 @@ void Gen3A(struct node* root){
         {
             Gen3A(root->left);
             Gen3A(root->right);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp-2));
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp-1));
             TAinstall('+', t1, t2);
             current_temp--;
@@ -481,10 +497,12 @@ void Gen3A(struct node* root){
         case '-':
         {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('-', t1, t2);
             break;
@@ -492,10 +510,12 @@ void Gen3A(struct node* root){
         case '*':
         {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('*', t1, t2);
             break;
@@ -503,10 +523,12 @@ void Gen3A(struct node* root){
         case '/':
         {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('/', t1, t2);
             break;
@@ -514,10 +536,12 @@ void Gen3A(struct node* root){
         case '%':
         {
             Gen3A(root->left);
-            char* t1 = "t";
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             Gen3A(root->right);
-            char* t2 = "t";
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('%', t1, t2);
             break;
@@ -525,7 +549,8 @@ void Gen3A(struct node* root){
         case 'T' :
         {
             current_temp++;
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('=',t,"T");
             break;
@@ -533,15 +558,17 @@ void Gen3A(struct node* root){
         case 'F' :
         {
             current_temp++;
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('=',t,"F");
             break;
         }
-        case 1:
+       case 1:
         {
             current_temp++;
-            char* t = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('=',t,itoa(root->VALUE));
             break;
@@ -550,34 +577,87 @@ void Gen3A(struct node* root){
         {
             if(root->center){
                 Gen3A(root->center);
-                char* t = "t";
+                char *t =(char *) malloc(5);
+                t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
                 TAinstall('l',root->NAME,t);
                 current_temp++;
-                char* t1 = "t";
+                char *t1 =(char *) malloc(5);
+                t1[0]='t';t1[1]='\0';
                 strcat(t1,itoa(current_temp));
                 TAinstall('=',t1,t);
             }else
             {
-                char* t = "t";
+                char *t =(char *) malloc(5);
+                t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
                 if(Glookup(root->NAME))
-                    TAinstall('l',t,Glookup(root->NAME)->BINDING);
+                    TAinstall('l',t,itoa(Glookup(root->NAME)->BINDING));
                 else
-                    TAinstall('l',t,Llookup(root->NAME)->BINDING);
+                    TAinstall('l',t,itoa(Llookup(root->NAME)->BINDING));
             }
             break;
         }
         default:
         {
-            Gen3A(root->center);
-            Gen3A(root->left);
-            Gen3A(root->right);
+
+            return;
         }
         break;
     }
 }
 
+int getReg() { return ++regCount; }
+void freeReg() { regCount--;}
+int getLabel() { return ++labelCount; }
+void freeLabel() { labelCount--;}
+
+int codeGen(struct node* root){
+    switch(root->NODETYPE){
+        case 2:
+        {
+            reg = getReg();
+            fprintf(fp,"MOV R%d [%d]\n",reg,root->binding);
+            return reg;
+            break;
+        }
+        case 1:
+        {
+            reg = getReg();
+            fprintf(fp,"MOV R%d %d\n",reg,root->val);
+            return reg;
+            break;
+        }
+        case '+':
+        {
+            reg = codeGen(root->left);
+            codeGen(root->right);
+            fprintf(fp,"ADD R%d R%d\n",reg,(reg+1));
+            freeReg();
+            return reg;
+            break;
+        }
+        case '-':
+        {
+            reg = codeGen(root->left);
+            codeGen(root->right);
+            fprintf(fp,"SUB R%d R%d\n",reg,(reg+1));
+            freeReg();
+            return reg;
+            break;
+        }
+        case '*':
+        {
+            reg = codeGenerator(root->left);
+            codeGenerator(root->right);
+            fprintf(fp,"MUL R%d R%d\n",reg,(reg+1));
+            freeReg();
+            return reg;
+            break;
+        }
+
+    }
+}
 yyerror(s)
 char *s;
 {
