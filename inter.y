@@ -54,7 +54,7 @@ struct Lsymbol {
 } *Lnode;
 
 
-
+int GetGtableSize();
 void printTree(struct node* root);
 struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struct node *ptr1, struct node *ptr2, struct node *ptr3);
 void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct ArgStruct* ARGLIST);
@@ -115,7 +115,7 @@ void PrintSymbol(){
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar
 
 %%
-program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2); print_TAlist();}
+program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2,0); print_TAlist(); codeGen();}
     ;
 Gdeclaration : DECL GdeclStatements ENDDECL
     ;
@@ -158,11 +158,14 @@ Gvar : ID {
                                         Goffset += SIZEOFBOOL*$3->VALUE;
                                         break;
                                 }
+                                printf("*****offset of %s[%d] is %d\n",$1->NAME,$3->VALUE,Goffset);
                                 /*---------------------------------------------*/
                             }
     ;
 
-main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER { $$=CreateNode(0,'f', 0, "MAIN", NULL, $6, NULL);}
+main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER {
+                                                                    $$=CreateNode(0,'f', 0, "MAIN", NULL, $6, NULL);
+                                                                }
     ;
 
 fbody : declaration beginbody  { $$=$2; }
@@ -292,67 +295,20 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
 int main(){
     Goffset = 0;
 
+    FILE *fp;
+    fp = fopen("sim.asm","w");
+    fprintf(fp,"START\n");
+    fprintf(fp,"MOV SP, 0\n");
+    fprintf(fp,"MOV BP, 0\n");
+    fclose(fp);
     yyparse();
-    /*printf("\nSTART\n");
-		printf("MOV R1,%d\n",Goffset-1);
-		printf("INR R1\n");
-		printf("MOV SP,R1\n");
-		printf("MOV %s,SP\n",reg3);
-		printf("MOV %s,%d\n",reg4,l_getarglocalsize(gtable,"main"));
-		printf("ADD %s,%s\n",reg3,reg4);
-		printf("MOV SP,%s\n",reg3);
-		printf("CALL Pmain\n");
-		printf("MOV %s,SP\n",reg3);
-		printf("MOV %s,%d\n",reg4,l_getarglocalsize(gtable,"main"));
-		printf("SUB %s,%s\n",reg3,reg4);
-		printf("MOV SP,%s\n",reg3);
-		printf("MOV R1,%d\n",Goffset-1);
-		printf("HALT\n");*/
+    fp=fopen("sim.asm","a");
+    fprintf(fp,"HALT\n");
+    fclose(fp);
+    return 0;
+
 }
 
-/*char* newreg3()
-{
-	char *temp =(char *) malloc(5);
-	temp[0]='R';temp[1]='\0';
-	for(int i=2;i<100;i++)
-	{
-		temp[0]='R';temp[1]='\0';
-		strcat(temp,itoa(i));
-		if(reglist.member(temp)==-1)
-		{
-			printf("//Allocated from here\n");
-			return temp;
-		}
-	}
-	strcat(temp,itoa(current_reg));
-	current_reg++;
-
-	//printf("*********Newreg %s\n",temp);
-	return temp;
-}
-
-char* newreg()
-{
-	char *temp =(char *) malloc(5);
-	temp[0]='R';temp[1]='\0';
-	strcat(temp,itoa(current_reg));
-	current_reg++;
-
-	//printf("*********Newreg %s\n",temp);
-	return temp;
-}
-
-char* newlabel()
-{
-	static int current = 0;
-	current++;
-	char *temp =(char *) malloc(5);
-	temp[0]='L';temp[1]='\0';
-	strcat(temp,itoa(current));
-
-	//printf("Newlabel %s\n",temp);
-	return temp;
-}*/
 
 char* itoa(int value)
 {
@@ -380,14 +336,14 @@ char* newlabel() {
    static int current = 0;
     current++;
     char *temp =(char *) malloc(5);
-    temp[0]='B';temp[1]='\0';
+    temp[0]='L';temp[1]='\0';
     strcat(temp,itoa(current));
 
     //printf("Newlabel %s\n",temp);
     return temp;
 }
 
-void Gen3A(struct node* root){
+void Gen3A(struct node* root,int flag){
     if(root==NULL){
         return;
     }
@@ -395,93 +351,90 @@ void Gen3A(struct node* root){
     switch(root->NODETYPE){
         case 'f' :{
             TAinstall('B',root->NAME,NULL,NULL);
-            Gen3A(root->center);
+            Gen3A(root->center,0);
             break;}
         case 'S':
-            Gen3A(root->left);
-            Gen3A(root->center);
+            Gen3A(root->left,0);
+            Gen3A(root->center,0);
             break;
         case 'I':{
+            int ct = current_temp;
             char* label=newlabel();
-            Gen3A(root->center);
+            Gen3A(root->center,0);
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('I',t,label,NULL);
-            Gen3A(root->left);
+            Gen3A(root->left,0);
 
             if(root->right){
                 char* endif = newlabel();
                 TAinstall('g',endif,NULL,NULL);
                 TAinstall('B',label,NULL,NULL);
-                Gen3A(root->right);
+                Gen3A(root->right,0);
                 TAinstall('B',endif,NULL,NULL);
             }else{
                 TAinstall('B',label,NULL,NULL);
             }
+            current_temp=ct;
             break;
         }
         case 'W':{
+            int ct = current_temp;
             char* l1=newlabel();
             char* l2=newlabel();
             TAinstall('B',l1,NULL,NULL);
-            Gen3A(root->center);
+            Gen3A(root->center,0);
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
+
             TAinstall('I',t,l2,NULL);
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             TAinstall('g',l1,NULL,NULL);
             TAinstall('B',l2,NULL,NULL);
+            current_temp = ct;
             break;
         }
         case 'r':
         {
-            Gen3A(root->center);
+            int ct = current_temp;
+            Gen3A(root->center,0);
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('r',t,NULL,NULL);
+            current_temp=ct;
             break;
         }
         case 'w':
         {
-            Gen3A(root->center);
+            int ct = current_temp;
+            Gen3A(root->center,0);
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('w',t,NULL,NULL);
+            current_temp=ct;
             break;
         }
         case 'R':
         {
-            Gen3A(root->center);
+            Gen3A(root->center,0);
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
             TAinstall('R',t,NULL,NULL);
-            break;
-        }
-        case '=':
-        {
-            Gen3A(root->right);
-            char *t2 =(char *) malloc(5);
-            t2[0]='t';t2[1]='\0';
-            strcat(t2,itoa(current_temp));
-            Gen3A(root->left);
-            char *t1 =(char *) malloc(5);
-            t1[0]='t';t1[1]='\0';
-            strcat(t1,itoa(current_temp));
-            TAinstall('=',t1,t1,t2);
+            current_temp--;
             break;
         }
         case '+':
         {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -491,11 +444,11 @@ void Gen3A(struct node* root){
         }
         case '-':
         {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -505,11 +458,11 @@ void Gen3A(struct node* root){
         }
         case '*':
         {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -519,11 +472,11 @@ void Gen3A(struct node* root){
         }
         case '/':
         {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -533,11 +486,11 @@ void Gen3A(struct node* root){
         }
         case '%':
         {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -551,7 +504,7 @@ void Gen3A(struct node* root){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('l',t,"T",NULL);
+            TAinstall('M',t,"1",NULL);
             break;
         }
         case 'F' :
@@ -560,17 +513,16 @@ void Gen3A(struct node* root){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('l',t,"F",NULL);
+            TAinstall('M',t,"0",NULL);
             break;
         }
-                    break;
         case '&' :
             {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -580,11 +532,11 @@ void Gen3A(struct node* root){
         }
         case '|' :
            {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -594,7 +546,7 @@ void Gen3A(struct node* root){
         }
         case '!' :
             {
-            Gen3A(root->center);
+            Gen3A(root->center,0);
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
@@ -603,11 +555,11 @@ void Gen3A(struct node* root){
         }
         case 'G' :
             {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -617,11 +569,11 @@ void Gen3A(struct node* root){
         }
         case 'L' :
             {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -631,11 +583,11 @@ void Gen3A(struct node* root){
         }
         case '>' :
             {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -645,11 +597,11 @@ void Gen3A(struct node* root){
         }
         case '<' :
             {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -659,11 +611,11 @@ void Gen3A(struct node* root){
         }
         case 'E' :
             {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -673,11 +625,11 @@ void Gen3A(struct node* root){
         }
         case 'N' :
            {
-            Gen3A(root->left);
+            Gen3A(root->left,0);
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
-            Gen3A(root->right);
+            Gen3A(root->right,0);
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
@@ -691,18 +643,18 @@ void Gen3A(struct node* root){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('l',t,itoa(root->VALUE),NULL);
+            TAinstall('M',t,itoa(root->VALUE),NULL);
             break;
         }
         case 2:
         {
+            char *t =(char *) malloc(5);
             if(root->center){
-                Gen3A(root->center);
+                Gen3A(root->center,0);
                 current_temp++;
-                char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
-                TAinstall('l',t,root->NAME,NULL);
+                TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
                 char *t1 =(char *) malloc(5);
                 t1[0]='t';t1[1]='\0';
                 strcat(t1,itoa(current_temp-1));
@@ -710,24 +662,299 @@ void Gen3A(struct node* root){
             }else
             {
                 current_temp++;
-                char *t =(char *) malloc(5);
-            t[0]='t';t[1]='\0';
+                t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
                 if(Glookup(root->NAME))
-                    TAinstall('l',t,itoa(Glookup(root->NAME)->BINDING),NULL);
+                    TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
                 else
-                    TAinstall('l',t,itoa(Llookup(root->NAME)->BINDING),NULL);
+                    TAinstall('M',t,itoa(Llookup(root->NAME)->BINDING+GetGtableSize()),NULL);
             }
+            if(flag==0){
+                TAinstall('=',t,t,NULL);
+                break;
+            }else{
+                break;
+            }
+        }
+        case '=':
+        {
+            int ct = current_temp;
+            Gen3A(root->right,0);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            Gen3A(root->left,1);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            TAinstall('=',t1,t2,NULL);
+            current_temp=ct;
             break;
+
         }
         default:
         {
-            Gen3A(root->center);
-            Gen3A(root->left);
-            Gen3A(root->right);
+            Gen3A(root->center,0);
+            Gen3A(root->left,0);
+            Gen3A(root->right,0);
         }
         break;
     }
+}
+
+void codeGen()
+{
+    FILE *fp;
+    fp = fopen("sim.asm","a");
+    fclose(fp);
+    while(TAroot){
+        switch(TAroot->op){
+            case '+':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"ADD %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case '-':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"SUB %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case '*':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"MUL %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case '/':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"DIV %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case '%':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"MOD %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case 'L':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"LE %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case 'G':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"GE %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case '<':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"LT %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case '>':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"GT %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case 'N':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"NE %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case 'E':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"EQ %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case '&':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"MUL %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case '|':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"ADD %s,%s\n",r1,r2);
+                fprintf(fp,"GE %s,1\n",r1);
+                fclose(fp);
+                break;
+            }
+            case '!':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op2);
+                r1[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"LT %s,1\n",r1);
+                fclose(fp);
+                break;
+            }
+            case 'B':{
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"%s:\n",TAroot->op1);
+                fclose(fp);
+                break;
+            }
+            case 'g':{
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"JMP %s\n",TAroot->op1);
+                fclose(fp);
+                break;
+            }
+            case 'r':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                r1[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"IN %s\n",r1);
+                fclose(fp);
+                break;
+            }
+            case 'w':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                r1[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"OUT %s\n",r1);
+                fclose(fp);
+                break;
+            }
+            case '=':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op2);
+                r1[0]='R';
+                r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"MOV [%s],%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case 'M':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op2);
+                r1[0]='R';
+                if(r2[0]=='t')
+                    r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"MOV %s,%s\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case 'I':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                r1[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"JZ %s,%s\n",r1,TAroot->op2);
+                fclose(fp);
+                break;
+            }
+            case 'R':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                r1[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"MOV R0,%s\n",r1);
+                fprintf(fp,"RET\n");
+                fclose(fp);
+                break;
+            }
+            default:
+                break;
+        }
+    TAroot=TAroot->next;
+    }
+
 }
 
 yyerror(s)
