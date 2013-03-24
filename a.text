@@ -9,12 +9,9 @@ decl
 integer a, b,c;
 enddecl
 begin
-read(a);
-x=NOT FALSE;
-x=TRUE OR FALSE;
-if(x)
+if(TRUE OR FALSE)
 then
-write(a);
+write(9);
 endif;
 return 0;
 end
