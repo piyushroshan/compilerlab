@@ -3,15 +3,16 @@
 #include <stdbool.h>
 #include <string.h>
 struct ThreeA{
-    int op;
+    char op;
     char* op1;
     char* op2;
+    char* op3;
     struct ThreeA* next;
 } *TAroot,*TAlast;
 
 
 
-void TAinstall(int op, char* op1, char* op2){
+void TAinstall(char op, char* op1, char* op2,char* op3){
     struct ThreeA *current = TAroot;
     struct ThreeA* newNode = (struct ThreeA *)malloc(sizeof(struct ThreeA));
     if (newNode == NULL) {
@@ -22,6 +23,7 @@ void TAinstall(int op, char* op1, char* op2){
     newNode->op=op;
     newNode->op1=op1;
     newNode->op2=op2;
+    newNode->op3=op3;
     newNode->next=NULL;
     if(current==NULL)
     {
@@ -40,7 +42,7 @@ void print_TAlist(){
     temp=TAroot;
     while(temp)
     {
-        printf("%c\t%s\t%s\n",temp->op,temp->op1,temp->op2);
+        printf("%c\t%s\t%s\t%s\n",temp->op,temp->op1,temp->op2,temp->op3);
         temp = temp->next;
     }
 }

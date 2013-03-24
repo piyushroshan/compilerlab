@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "linklist_p.h"
+#include "linklist.h"
 #define INT 1
 #define BOOL 2
 #define SIZEOFINT 1 //In SIM all memory location has size of 4bytes
@@ -399,11 +399,14 @@ void Gen3A(struct node* root,int flag){
         case 'r':
         {
             int ct = current_temp;
-            Gen3A(root->center,0);
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('r',t,NULL,NULL);
+            Gen3A(root->center,1);
+            strcat(t1,itoa(current_temp));
+            TAinstall('r',t,t1,NULL);
             current_temp=ct;
             break;
         }
@@ -670,7 +673,7 @@ void Gen3A(struct node* root,int flag){
                     TAinstall('M',t,itoa(Llookup(root->NAME)->BINDING+GetGtableSize()),NULL);
             }
             if(flag==0){
-                TAinstall('=',t,t,NULL);
+                TAinstall('l',t,t,NULL);
                 break;
             }else{
                 break;
@@ -890,9 +893,13 @@ void codeGen()
             case 'r':{
                 char *r1 =(char *) malloc(5);
                 strcpy(r1,TAroot->op1);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op2);
                 r1[0]='R';
+                r2[0]='R';
                 fp = fopen("sim.asm","a");
                 fprintf(fp,"IN %s\n",r1);
+                fprintf(fp,"MOV [%s] %s\n",r2,r1);
                 fclose(fp);
                 break;
             }
@@ -930,6 +937,19 @@ void codeGen()
                 fclose(fp);
                 break;
             }
+            case 'l':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op2);
+                r1[0]='R';
+                if(r2[0]=='t')
+                    r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"MOV %s,[%s]\n",r1,r2);
+                fclose(fp);
+                break;
+            }
             case 'I':{
                 char *r1 =(char *) malloc(5);
                 strcpy(r1,TAroot->op1);
@@ -945,7 +965,7 @@ void codeGen()
                 r1[0]='R';
                 fp = fopen("sim.asm","a");
                 fprintf(fp,"MOV R0,%s\n",r1);
-                fprintf(fp,"RET\n");
+                //fprintf(fp,"RET\n");
                 fclose(fp);
                 break;
             }
