@@ -9,8 +9,13 @@ decl
 integer a, b,c;
 enddecl
 begin
+read(a);
 x=NOT FALSE;
 x=TRUE OR FALSE;
+if(x)
+then
+write(a);
+endif;
 return 0;
 end
 }

@@ -1093,7 +1093,7 @@ void codeGen()
                 char *r2 =(char *) malloc(5);
                 strcpy(r2,TAroot->op2);
                 char *r3 =(char *) malloc(5);
-                strcpy(r3,TAroot->op2);
+                strcpy(r3,TAroot->op3);
                 r3[0]='R';
                 r1[0]='R';
                 r2[0]='R';
