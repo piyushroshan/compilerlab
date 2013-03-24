@@ -560,6 +560,7 @@ void Gen3A(struct node* root,int flag){
             strcat(t,itoa(current_temp));
             char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
+            current_temp++;
             strcat(t1,itoa(current_temp));
             TAinstall('!',t, t,t1);
             current_temp--;
