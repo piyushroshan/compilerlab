@@ -2,17 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "linklist.h"
+#include "linklist_p.h"
 #define INT 1
 #define BOOL 2
 #define SIZEOFINT 1 //In SIM all memory location has size of 4bytes
 #define SIZEOFBOOL 1    //changing this sizes implies i have to change code for arrayindex
 int current_reg;
 static int current_temp=0;
-char* itoa(int value);
-#define INTSIZE 10
-static int labelCount;
-static int regCount;
+
 struct node {
     int TYPE;			/* Integer (1), Boolean (2) or Void (0) (for statements) */
                     /* Must point to the type expression tree for user defined types */
@@ -64,7 +61,7 @@ void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct Arg
 struct Gsymbol *Glookup(char* NAME);
 struct Lsymbol *Llookup(char* NAME);
 void Linstall(char* NAME, int TYPE, int BINDING, int VALUE);
-void TAinstall(int op, char* op1, char* op2);
+void TAinstall(char op, char* op1, char* op2,char* op3);
 void print_TAlist();
 int TYPE;
 int RTYPE;
@@ -118,7 +115,7 @@ void PrintSymbol(){
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar
 
 %%
-program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); /*Gen3A($2); print_TAlist();*/}
+program : Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2); print_TAlist();}
     ;
 Gdeclaration : DECL GdeclStatements ENDDECL
     ;
@@ -199,11 +196,11 @@ var : ID {
     }
     ;
 
-beginbody : BEGINN statements END {  $$=CreateNode(0,'S', 0, NULL, $2, NULL, NULL); if (($2==NULL || $2->TYPE==0) && $3->TYPE==0) $$->TYPE=0; else $$->TYPE=-1; }
+beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); if (($2==NULL || $2->TYPE==0) && $3->TYPE==0) $$->TYPE=0; else $$->TYPE=-1; }
     ;
 
 statements : { $$ = NULL; }
-    | statements statement {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE==0) && $2->TYPE==0) $$->TYPE=0; else {$$->TYPE=-1; yyerror("error");}}
+    | statements statement {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE==0) && $2->TYPE==0) $$->TYPE=0; else $$->TYPE=-1;}
     ;
 
 statement : ifelse { $$ = $1; }
@@ -293,47 +290,100 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
 %%
 
 int main(){
-    FILE *fp;
-    fp = fopen("sim.asm","w");
-    fprintf(fp,"START\n");
-    fprintf(fp,"MOV SP, 0\n");
-    fprintf(fp,"MOV BP, 0\n");
-    fclose(fp);
+    Goffset = 0;
+
     yyparse();
-    fp = fopen("sim.asm","a");
-    fprintf(fp,"HALT\n");
-    fclose(fp);
+    /*printf("\nSTART\n");
+		printf("MOV R1,%d\n",Goffset-1);
+		printf("INR R1\n");
+		printf("MOV SP,R1\n");
+		printf("MOV %s,SP\n",reg3);
+		printf("MOV %s,%d\n",reg4,l_getarglocalsize(gtable,"main"));
+		printf("ADD %s,%s\n",reg3,reg4);
+		printf("MOV SP,%s\n",reg3);
+		printf("CALL Pmain\n");
+		printf("MOV %s,SP\n",reg3);
+		printf("MOV %s,%d\n",reg4,l_getarglocalsize(gtable,"main"));
+		printf("SUB %s,%s\n",reg3,reg4);
+		printf("MOV SP,%s\n",reg3);
+		printf("MOV R1,%d\n",Goffset-1);
+		printf("HALT\n");*/
 }
 
+/*char* newreg3()
+{
+	char *temp =(char *) malloc(5);
+	temp[0]='R';temp[1]='\0';
+	for(int i=2;i<100;i++)
+	{
+		temp[0]='R';temp[1]='\0';
+		strcat(temp,itoa(i));
+		if(reglist.member(temp)==-1)
+		{
+			printf("//Allocated from here\n");
+			return temp;
+		}
+	}
+	strcat(temp,itoa(current_reg));
+	current_reg++;
+
+	//printf("*********Newreg %s\n",temp);
+	return temp;
+}
+
+char* newreg()
+{
+	char *temp =(char *) malloc(5);
+	temp[0]='R';temp[1]='\0';
+	strcat(temp,itoa(current_reg));
+	current_reg++;
+
+	//printf("*********Newreg %s\n",temp);
+	return temp;
+}
+
+char* newlabel()
+{
+	static int current = 0;
+	current++;
+	char *temp =(char *) malloc(5);
+	temp[0]='L';temp[1]='\0';
+	strcat(temp,itoa(current));
+
+	//printf("Newlabel %s\n",temp);
+	return temp;
+}*/
 
 char* itoa(int value)
 {
-    char *temp=(char *)malloc(10);
-    int i;
+	char *temp=(char *)malloc(10);
+	int i;
 
-    if(value==0)
-    {
-        temp[8]='0';
-        temp[9]='\0';
-        return(temp+8);
-    }
+	if(value==0)
+	{
+		temp[8]='0';
+		temp[9]='\0';
+		return(temp+8);
+	}
 
-    for(i=8; i>0 && value ; i-- , value = value /10)
-    {
-        temp[i]=(char ) (48 + value%10 );
-    }
-    temp[9]='\0';
+	for(i=8; i>0 && value ; i-- , value = value /10)
+	{
+		temp[i]=(char ) (48 + value%10 );
+	}
+	temp[9]='\0';
 
-    return (temp+i+1);
+	return (temp+i+1);
 
 }
 
 char* newlabel() {
-    static int num = 1;
+   static int current = 0;
+    current++;
     char *temp =(char *) malloc(5);
-    temp[0]='L';temp[1]='\0';
-    strcat(temp,itoa(num));
-    num++;
+    temp[0]='B';temp[1]='\0';
+    strcat(temp,itoa(current));
+
+    //printf("Newlabel %s\n",temp);
     return temp;
 }
 
@@ -343,49 +393,46 @@ void Gen3A(struct node* root){
     }
 
     switch(root->NODETYPE){
-        case 'f' :
-        {
-            char* label=newlabel();
-            TAinstall('L',root->NAME,NULL);
+        case 'f' :{
+            TAinstall('B',root->NAME,NULL,NULL);
             Gen3A(root->center);
-            break;
-        }
+            break;}
         case 'S':
             Gen3A(root->left);
             Gen3A(root->center);
             break;
         case 'I':{
-            char* label;
-            strcpy(label,newlabel());
+            char* label=newlabel();
             Gen3A(root->center);
-            char t[5] = "t";
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('I',t,label);
+            TAinstall('I',t,label,NULL);
             Gen3A(root->left);
 
             if(root->right){
                 char* endif = newlabel();
-                TAinstall('G',endif,NULL);
-                TAinstall('L',label,NULL);
+                TAinstall('g',endif,NULL,NULL);
+                TAinstall('B',label,NULL,NULL);
                 Gen3A(root->right);
-                TAinstall('L',endif,NULL);
+                TAinstall('B',endif,NULL,NULL);
             }else{
-                TAinstall('L',label,NULL);
+                TAinstall('B',label,NULL,NULL);
             }
             break;
         }
         case 'W':{
             char* l1=newlabel();
             char* l2=newlabel();
-            TAinstall('L',l1,NULL);
+            TAinstall('B',l1,NULL,NULL);
             Gen3A(root->center);
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('I',t,l2);
+            TAinstall('I',t,l2,NULL);
             Gen3A(root->left);
-            TAinstall('G',l1,NULL);
-            TAinstall('L',l2,NULL);
+            TAinstall('g',l1,NULL,NULL);
+            TAinstall('B',l2,NULL,NULL);
             break;
         }
         case 'r':
@@ -394,7 +441,7 @@ void Gen3A(struct node* root){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('r',t,NULL);
+            TAinstall('r',t,NULL,NULL);
             break;
         }
         case 'w':
@@ -403,8 +450,7 @@ void Gen3A(struct node* root){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('w',t,NULL);
-
+            TAinstall('w',t,NULL,NULL);
             break;
         }
         case 'R':
@@ -413,10 +459,23 @@ void Gen3A(struct node* root){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('R',t,NULL);
+            TAinstall('R',t,NULL,NULL);
             break;
         }
         case '=':
+        {
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            TAinstall('=',t1,t1,t2);
+            break;
+        }
+        case '+':
         {
             Gen3A(root->left);
             char *t1 =(char *) malloc(5);
@@ -426,20 +485,7 @@ void Gen3A(struct node* root){
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
-            TAinstall('=',t1,t2);
-            break;
-        }
-        case '+':
-        {
-            Gen3A(root->left);
-            Gen3A(root->right);
-            char *t1 =(char *) malloc(5);
-            t1[0]='t';t1[1]='\0';
-            strcat(t1,itoa(current_temp-2));
-            char *t2 =(char *) malloc(5);
-            t2[0]='t';t2[1]='\0';
-            strcat(t2,itoa(current_temp-1));
-            TAinstall('+', t1, t2);
+            TAinstall('+',t1, t1, t2);
             current_temp--;
             break;
         }
@@ -453,7 +499,8 @@ void Gen3A(struct node* root){
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
-            TAinstall('-', t1, t2);
+            TAinstall('-',t1, t1, t2);
+            current_temp--;
             break;
         }
         case '*':
@@ -466,7 +513,8 @@ void Gen3A(struct node* root){
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
-            TAinstall('*', t1, t2);
+            TAinstall('*',t1, t1, t2);
+            current_temp--;
             break;
         }
         case '/':
@@ -479,7 +527,8 @@ void Gen3A(struct node* root){
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
-            TAinstall('/', t1, t2);
+            TAinstall('/',t1, t1, t2);
+            current_temp--;
             break;
         }
         case '%':
@@ -492,7 +541,8 @@ void Gen3A(struct node* root){
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
-            TAinstall('%', t1, t2);
+            TAinstall('%',t1, t1, t2);
+            current_temp--;
             break;
         }
         case 'T' :
@@ -501,7 +551,7 @@ void Gen3A(struct node* root){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('=',t,"T");
+            TAinstall('l',t,"T",NULL);
             break;
         }
         case 'F' :
@@ -510,349 +560,176 @@ void Gen3A(struct node* root){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('=',t,"F");
+            TAinstall('l',t,"F",NULL);
             break;
         }
-       case 1:
+                    break;
+        case '&' :
+            {
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            TAinstall('&',t1, t1, t2);
+            current_temp--;
+            break;
+        }
+        case '|' :
+           {
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            TAinstall('|',t1, t1, t2);
+            current_temp--;
+            break;
+        }
+        case '!' :
+            {
+            Gen3A(root->center);
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
+            strcat(t,itoa(current_temp));
+            TAinstall('-',t, t,NULL);
+            break;
+        }
+        case 'G' :
+            {
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            TAinstall('G',t1, t1, t2);
+            current_temp--;
+            break;
+        }
+        case 'L' :
+            {
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            TAinstall('L',t1, t1, t2);
+            current_temp--;
+            break;
+        }
+        case '>' :
+            {
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            TAinstall('>',t1, t1, t2);
+            current_temp--;
+            break;
+        }
+        case '<' :
+            {
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            TAinstall('<',t1, t1, t2);
+            current_temp--;
+            break;
+        }
+        case 'E' :
+            {
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            TAinstall('E',t1, t1, t2);
+            current_temp--;
+            break;
+        }
+        case 'N' :
+           {
+            Gen3A(root->left);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            Gen3A(root->right);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            strcat(t2,itoa(current_temp));
+            TAinstall('N',t1, t1, t2);
+            current_temp--;
+            break;
+        }
+        case 1:
         {
             current_temp++;
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('=',t,itoa(root->VALUE));
+            TAinstall('l',t,itoa(root->VALUE),NULL);
             break;
         }
         case 2:
         {
             if(root->center){
                 Gen3A(root->center);
+                current_temp++;
                 char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
-                TAinstall('l',root->NAME,t);
-                current_temp++;
+                TAinstall('l',t,root->NAME,NULL);
                 char *t1 =(char *) malloc(5);
                 t1[0]='t';t1[1]='\0';
-                strcat(t1,itoa(current_temp));
-                TAinstall('=',t1,t);
+                strcat(t1,itoa(current_temp-1));
+                TAinstall('+',t,t,t1);
             }else
             {
+                current_temp++;
                 char *t =(char *) malloc(5);
-                t[0]='t';t[1]='\0';
+            t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
                 if(Glookup(root->NAME))
-                    TAinstall('l',t,itoa(Glookup(root->NAME)->BINDING));
+                    TAinstall('l',t,itoa(Glookup(root->NAME)->BINDING),NULL);
                 else
-                    TAinstall('l',t,itoa(Llookup(root->NAME)->BINDING));
+                    TAinstall('l',t,itoa(Llookup(root->NAME)->BINDING),NULL);
             }
             break;
         }
         default:
         {
-
-            return;
+            Gen3A(root->center);
+            Gen3A(root->left);
+            Gen3A(root->right);
         }
         break;
     }
 }
 
-int getReg() { return ++regCount; }
-void freeReg() { regCount--;}
-int getLabel() { return ++labelCount; }
-void freeLabel() { labelCount--;}
-
-int evaluate(struct node *root) {
-    int a,b;
-    switch(root->NODETYPE){
-        case 2:{
-            return (bindArray[root->binding]);
-            break;
-        }
-        case 1:{
-            return (root->val);
-            break;
-        }
-        case '+': {
-            a = evaluate(root->left);
-            b = evaluate(root->right);
-            return (a+b);
-            break;
-        }
-        case '-': {
-            a = evaluate(root->left);
-            b = evaluate(root->right);
-            return (a-b);
-            break;
-        }
-        case '*' {
-            a = evaluate(root->left);
-            b = evaluate(root->right);
-            return (a*b);
-            break;
-        }
-        case '/': {
-            a = evaluate(root->left);
-            b = evaluate(root->right);
-            return (a/b);
-            break;
-        }
-        case '=': {
-            bindArray[root->left->binding] = evaluate(root->right);
-            break;
-        }
-        case 'r': {
-            printf("READ(%c) :",root->left->name);
-            scanf("%d",&a);
-            bindArray[root->left->binding] = a;
-            return -1;
-        }
-        case 'w': {
-            a = evaluate(root->left);
-            printf("WRITE(E) : %d\n",a);
-            return -1;
-            break;
-        }
-        case 'S': {
-            evaluate(root->left);
-            evaluate(root->right);
-            return -1;
-            break;
-        }
-        case '<': {
-            if (evaluate(root->left) < evaluate(root->right))
-                return 1;
-            else
-                return 0;
-            break;
-        }
-        case '>': {
-            if (evaluate(root->left) > evaluate(root->right))
-                return 1;
-            else
-                return 0;
-            break;
-        }
-        case 'L': {
-            if (evaluate(root->left) <= evaluate(root->right))
-                return 1;
-            else
-                return 0;
-            break;
-        }
-        case 'G': {
-            if (evaluate(root->left) >= evaluate(root->right))
-                return 1;
-            else
-                return 0;
-            break;
-        }
-        case 'E': {
-            if (evaluate(root->left) == evaluate(root->right))
-                return 1;
-            else
-                return 0;
-            break;
-        }
-        case 'N': {
-            if (evaluate(root->left) != evaluate(root->right))
-                return 1;
-            else
-                return 0;
-            break;
-        }
-        case 'I': {
-            if (evaluate(root->center)==1)
-                evaluate(root->left);
-            else
-                evaluate(root->right);
-            break;
-        }
-        case 'W': {
-            while (evaluate(root->center)==1) {
-                evaluate(root->left);
-            }
-            break;
-        }
-    }
-
-}
-
-
-int codeGen(struct node* root){
-    int reg;
-    int loc;
-    int lbl1,lbl2;
-    int temp_label;
-    tdatatype *typedefdatatype;
-    int reg_count, regc;
-    gsymbol *gtemp = NULL;
-    int i,count = 0;
-    FILE *fp;
-    switch(root->NODETYPE){
-        case 2:
-        {
-            reg = getReg();
-            fprintf(fp,"MOV R%d [%d]\n",reg,root->binding);
-            return reg;
-            break;
-        }
-        case 1:
-        {
-            reg = getReg();
-            fprintf(fp,"MOV R%d %d\n",reg,root->val);
-            return reg;
-            break;
-        }
-        case '+':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"ADD R%d R%d\n",reg,(reg+1));
-            freeReg();
-            return reg;
-            break;
-        }
-        case '-':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"SUB R%d R%d\n",reg,(reg+1));
-            freeReg();
-            return reg;
-            break;
-        }
-        case '*':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"MUL R%d R%d\n",reg,(reg+1));
-            freeReg();
-            return reg;
-            break;
-        }
-        case '/':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"DIV R%d R%d\n",reg,(reg+1));
-            freeReg();
-            return reg;
-            break;
-        }
-        case '=':
-        {
-            loc = root->left->binding;
-            reg = codeGen(root->right);
-            fprintf(fp,"MOV [%d] R%d\n",loc,reg);
-            freeReg();
-            return -1;
-        }
-        case 'r':
-        {
-            loc = root->left->binding;
-            reg = getReg();
-            fprintf(fp,"IN R%d\n",reg);
-            fprintf(fp,"MOV [%d] R%d\n",loc,reg);
-            freeReg();
-            return -1;
-        }
-        case 'w':
-        {
-            reg = codeGen(root->left);
-            fprintf(fp,"OUT R%d\n",reg);
-            freeReg();
-            return -1;
-        }
-        case 'S':
-            codeGen(root->left);
-            codeGen(root->right);
-            return -1;
-        case '<':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"LT R%d R%d\n",reg,reg+1);
-            freeReg();
-            return reg;
-            break;
-        }
-        case '>':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"LE R%d R%d\n",reg,reg+1);
-            freeReg();
-            return reg;
-        }
-        case 'L':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"GE R%d R%d\n",reg,reg+1);
-            freeReg();
-            return reg;
-        }
-        case 'E':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"EQ R%d R%d\n",reg,reg+1);
-            freeReg();
-            return reg;
-        }
-        case 'N':
-        {
-            reg = codeGen(root->left);
-            codeGen(root->right);
-            fprintf(fp,"NE R%d R%d\n",reg,reg+1);
-            freeReg();
-            return reg;
-        }
-        case 'I':
-        {
-            reg = codeGen(root->center);
-            lbl1 = getLabel();
-            fprintf(fp,"JZ R%d Label%d\n",reg,lbl1);
-            freeReg();
-            codeGen(root->center);
-            if(root->right){
-                lbl2 = getLabel();
-                fprintf(fp,"JMP Label%d\n",lbl2);
-                fprintf(fp,"Label%d:\n",lbl1);
-                codeGen(root->right);
-                fprintf(fp,"Label%d:\n",lbl2);
-
-            }else{
-                fprintf(fp,"Label%d:\n",lbl1);
-            }
-            break;
-        }
-        case 'W':
-        {
-            lbl1 = getLabel();
-            lbl2 = getLabel();
-            fprintf(fp,"Label%d:\n",lbl1);
-            reg = codeGen(root -> center);
-            fprintf(fp,"JZ R%d Label%d\n",reg,lbl2);
-            regcount--;
-            codeGen(root -> left);
-            fprintf(fp,"JMP Label%d\n",lbl1);
-            fprintf(fp,"Label%d:\n",lbl2);
-        }
-        case '&':
-        {
-            codeGen(temp->left);
-            codeGen(temp->right);
-
-            fp = fopen("sim.asm","a");
-
-            fprintf(fp,"MUL R%d, R%d\n", regcount-2, regcount-1);
-            regcount--;
-            fclose(fp);
-            break;
-        }
-    }
-}
 yyerror(s)
 char *s;
 {
