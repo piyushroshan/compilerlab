@@ -766,7 +766,11 @@ void Gen3A(struct node* root,int flag){
             char *t2 =(char *) malloc(5);
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
-            TAinstall('|',t1, t1, t2);
+            char *t3 =(char *) malloc(5);
+            t3[0]='t';t3[1]='\0';
+            strcat(t3,itoa(current_temp));
+            TAinstall('|',t1, t2, t3);
+            current_temp--;
             current_temp--;
             break;
         }
@@ -776,7 +780,11 @@ void Gen3A(struct node* root,int flag){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('!',t, t,NULL);
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            TAinstall('!',t, t,t1);
+            current_temp--;
             break;
         }
         case 'G' :
@@ -1081,23 +1089,31 @@ void codeGen()
             }
             case '|':{
                 char *r1 =(char *) malloc(5);
-                strcpy(r1,TAroot->op2);
+                strcpy(r1,TAroot->op1);
                 char *r2 =(char *) malloc(5);
-                strcpy(r2,TAroot->op3);
+                strcpy(r2,TAroot->op2);
+                char *r3 =(char *) malloc(5);
+                strcpy(r3,TAroot->op2);
+                r3[0]='R';
                 r1[0]='R';
                 r2[0]='R';
                 fp = fopen("sim.asm","a");
+                fprintf(fp,"MOV %s,1\n",r3);
                 fprintf(fp,"ADD %s,%s\n",r1,r2);
-                fprintf(fp,"GE %s,1\n",r1);
+                fprintf(fp,"GE %s,%s\n",r1,r3);
                 fclose(fp);
                 break;
             }
             case '!':{
                 char *r1 =(char *) malloc(5);
                 strcpy(r1,TAroot->op2);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op3);
                 r1[0]='R';
+                r2[0]='R';
                 fp = fopen("sim.asm","a");
-                fprintf(fp,"LT %s,1\n",r1);
+                fprintf(fp,"MOV %s,1\n",r2);
+                fprintf(fp,"LT %s,%s\n",r1,r2);
                 fclose(fp);
                 break;
             }
@@ -1207,7 +1223,7 @@ fprintf(stderr, "%s\n",s);
 }
 
 
-#line 1210 "y.tab.c"
+#line 1226 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -1678,7 +1694,7 @@ case 57:
                                                                     yyval.n->TYPE=gt->TYPE; else yyval.n->TYPE=-1; }
                                                                     else { printf("Array %s not found\n",yystack.l_mark[-3].n->NAME); yyval.n->TYPE=-1;}}
 break;
-#line 1681 "y.tab.c"
+#line 1697 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

@@ -1,5 +1,6 @@
 decl
 	integer i,j,k;
+	boolean x;
 enddecl
 
 integer main()
@@ -8,15 +9,9 @@ decl
 integer a, b,c;
 enddecl
 begin
-a=4;
-read(a);
-read(b);
-write(a/b);
-while(TRUE AND FALSE)do
-write(a);
-a=a+1;
-endwhile;
-return a;
+x=NOT FALSE;
+x=TRUE OR FALSE;
+return 0;
 end
 }
 
