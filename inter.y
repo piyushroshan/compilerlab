@@ -553,7 +553,7 @@ void Gen3A(struct node* root,int flag){
             char *t =(char *) malloc(5);
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            TAinstall('-',t, t,NULL);
+            TAinstall('!',t, t,NULL);
             break;
         }
         case 'G' :

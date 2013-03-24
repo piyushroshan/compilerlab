@@ -10,7 +10,12 @@ enddecl
 begin
 a=4;
 read(a);
+read(b);
 write(a);
+while(NOT(a<b))do
+write(a);
+a=a+1;
+endwhile;
 return a;
 end
 }
