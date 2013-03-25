@@ -9,10 +9,13 @@ decl
 integer a, b,c;
 enddecl
 begin
-if(TRUE OR FALSE)
-then
-write(9);
-endif;
+read(a);
+write(a);
+do
+write(a);
+a = a+1;
+while(a<10)
+endwhile;
 return 0;
 end
 }
