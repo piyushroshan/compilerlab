@@ -139,7 +139,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 92 "code.y"
+#line 93 "func.y"
 
     struct node* n;
 

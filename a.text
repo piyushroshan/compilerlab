@@ -1,22 +1,59 @@
 decl
-	integer i,j,k;
-	boolean x;
+
+integer factorial(integer n);
+
 enddecl
 
-integer main()
-{
+integer factorial (integer n) {
+
 decl
-integer a, b,c;
+
+integer rvalue;
+
 enddecl
+
 begin
-read(a);
-write(a);
-do
-write(a);
-a = a+1;
-while(a<10)
-endwhile;
-return 0;
+
+if (n==1) then
+
+rvalue = 1;
+
+else
+
+rvalue = n * factorial (n-1);
+
+endif;
+
+return rvalue;	 // Note only one RETURN statement is allowed.
+
 end
+
 }
 
+integer main( ){ // Main definition should always begin like this
+
+decl
+
+integer n,i ;
+
+enddecl
+
+begin
+
+read (n);
+
+i = 1;
+
+while ( i <= n) do
+
+write ( factorial(i));
+
+i = i + 1;
+
+endwhile;
+
+return 1;	 // Any integer value may be returned
+
+end
+
+}
