@@ -21,7 +21,7 @@ struct node {
                     */
     int VALUE;			/* for constants */
     char* NAME;			/* For Identifiers */
-    struct	node	*center, *left,	*right;
+    struct	node 	*center, *left,	*right;
     struct ArgStruct *argList;
     struct Gsymbol *lookup;
 };
@@ -76,7 +76,7 @@ int Goffset;     //It's for assigning location value to globalvariables
 int Loffset;    //It's for assigning location value to localvariables
 
 
-
+int pcount=0; //count parameters
 
 int returnmem = 4000;
 int mem = 1000;
@@ -116,42 +116,6 @@ struct wstack{
  struct wstack *next;
 }*wtop;
 
-
-void ipush(int count)
-{
- struct istack *temp = malloc(sizeof(struct istack));
- temp->value = count;
- temp->next = itop;
- itop = temp;
- }
-
-int ipop()
-{
-  struct istack *temp = itop;
-  int res = temp->value;
-  itop = itop->next;
-  free(temp);
-  return res;
-}
-
-void wpush(int count)
-{
- struct wstack *temp = malloc(sizeof(struct wstack));
- temp->value = count;
- temp->next = wtop;
- wtop = temp;
- }
-
-int wpop()
-{
-  struct wstack *temp = wtop;
-  int res = temp->value;
-  wtop = wtop->next;
-  free(temp);
-  return res;
-}
-
-
 %}
 
 %union {
@@ -178,7 +142,7 @@ int wpop()
 %left  MULT  DIVIDE  MODULUS
 
 %type <n> program main_function fbody beginbody statements statement ifelse dowhile read write
-%type <n> return expression astatement dw functions function exprList parametr PvarsList Pvar
+%type <n> return expression astatement dw functions function exprList parametr PvarsList Pvar Fparametr FvarsList Pvars PvarsDef
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar
 
 %%
@@ -240,11 +204,14 @@ Pvar : ID {
 	;
 
 functions : { $$ = NULL; }
-	| functions function {  $$=CreateNode(0,'F', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else $$->TYPE=-1; yyerror("Bad functions") ; }
+	| functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else $$->TYPE=-1; yyerror("Bad functions") ; }
 	;
 
-function : type ID LPAREN parametr RPAREN LFLOWER fbody RFLOWER {
-																$$=CreateNode(0,'f', 0, $2->NAME, $4, $7, NULL); }
+function : type ID LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER {
+																$$=CreateNode(0,'f', 0, $2->NAME, $4, $7, NULL);
+																if($7->TYPE == TYPE) { $$->TYPE=FUNC; }else{ yyerror(" return type error"); $$->TYPE = -1;}
+                                                                    fnDefCheck(TYPE, $2->NAME, headArg);
+																}
 	;
 
 Gvar : ID {
@@ -296,6 +263,7 @@ Gvar : ID {
 
 main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER {
                                                                     $$=CreateNode(0,'f', 0, "MAIN", NULL, $6, NULL);
+                                                                    if($6->TYPE == INT) { $$->TYPE=0; }else{ yyerror(" return type error"); $$->TYPE = -1;}
                                                                 }
     ;
 
@@ -330,7 +298,7 @@ var : ID {
     }
     ;
 
-beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); if (($2==NULL || $2->TYPE==0) && $3->TYPE==0) $$->TYPE=0; else $$->TYPE=-1; yyerror("Bad begin error"); }
+beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); if ($2==NULL || $2->TYPE==0) $$->TYPE=$3->TYPE; else {$$->TYPE=-1; yyerror("Bad begin error");} }
     ;
 
 statements : { $$ = NULL; }
@@ -342,7 +310,6 @@ statement : ifelse { $$ = $1; }
     | read { $$ = $1;  }
     | write { $$ = $1;  }
     | astatement { $$ = $1;  }
-    | dw {$$=$1;}
     ;
 
 ifelse : IF expression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, NULL); $$ = $1;
@@ -353,7 +320,6 @@ ifelse : IF expression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 
 
 dowhile : WHILE expression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $4, $2, NULL); $$=$1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; yyerror("while error"); }
     ;
-dw :  DO statements WHILE expression ENDWHILE SEMICOLON { $1 = CreateNode(0,'D', 0, NULL, $2, $4, NULL); $$=$1; if ($4->TYPE==2 && ($2==NULL || $2->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; yyerror("Do while error"); }
 
 astatement : ID ASSIGN expression SEMICOLON { $2 = CreateNode(0,'=', 0, NULL, $1, NULL, $3); $$=$2;
                                             struct Lsymbol* lt = Llookup($1->NAME);
@@ -420,13 +386,24 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                                                     if(gt) { if(gt->SIZE!=0 && $3->TYPE==1)
                                                                     $$->TYPE=gt->TYPE; else $$->TYPE=-1; yyerror("array type expression"); }
                                                                     else { printf("Array %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}
-	|	ID LPAREN exprList RPAREN { }
-	| ID LPAREN RPAREN { }
+	| ID LPAREN exprList RPAREN { struct Gsymbol* gtemp = Glookup($1->NAME);
+                                    $$=CreateNode(0,'C', pcount, $1->NAME,NULL,$3,NULL);
+                                    if(gtemp==NULL || gtemp->SIZE!=0) yyerror("Undefined Function");
+                                    else
+                                    {
+                                        $$->lookup = gtemp;
+                                        $$->TYPE = gtemp->TYPE;
+                                    }
+                                    pcount=0;
+        }
     ;
 
+FexprList:
+        | exprList { }
+        ;
 
-exprList : exprList COMMA expression {}
-		| expression {}
+exprList : exprList COMMA expression { $$=CreateNode(0,',', 0, NULL,$1,$3,NULL); pcount++; }
+		| expression { $$=$1; pcount++; }
 		;
 
 %%
@@ -458,31 +435,31 @@ void makeArglist(struct ArgStruct* head, struct ArgStruct* arg)
 	}
 	else
 	{
-		struct ArgStruct* i = head;
-		while(i->ARGNEXT!=NULL)
+		struct ArgStruct* temp = head;
+		while(temp->ARGNEXT!=NULL)
 		{
-			if(strcmp(i->ARGNAME,arg->ARGNAME)==0)
+			if(strcmp(temp->ARGNAME,arg->ARGNAME)==0)
 			 {
 			 	yyerror("Multiple Declaration of Arguments");
 			 }
-			i = i->ARGNEXT;
+			temp = temp->ARGNEXT;
 		}
-		if(strcmp(i->ARGNAME,arg->ARGNAME)==0)
+		if(strcmp(temp->ARGNAME,arg->ARGNAME)==0)
 		 {
 		 	yyerror("Multiple Declaration of Arguments");
 		 }
-		i->ARGNEXT = arg;
+		temp->ARGNEXT = arg;
 	}
 }
 
 
 void printArg(struct ArgStruct* head)
 {
-	struct ArgStruct* i = head;
-	while(i!=NULL)
+	struct ArgStruct* temp = head;
+	while(temp!=NULL)
 	{
-		printf("%d %s - ",i->ARGTYPE,i->ARGNAME);
-		i=i->ARGNEXT;
+		printf("%d %s - ",temp->ARGTYPE,temp->ARGNAME);
+		temp=temp->ARGNEXT;
 	}
 }
 
@@ -520,14 +497,14 @@ int argDefCheck(struct ArgStruct* arg1, struct ArgStruct* arg2)
 
 int argInstall(struct ArgStruct* head)
 {
-	struct ArgStruct* i = head;
+	struct ArgStruct* temp = head;
 	memcount=-1;
 	/*memcount starts at -3 for arguments, as -1: Return address and -2 Return value*/
-	while(i!=NULL)
+	while(temp!=NULL)
 	{
 		memcount = memcount - 2;
-		Linstall(i->ARGNAME,i->ARGTYPE);
-		i=i->ARGNEXT;
+		Linstall(temp->ARGNAME,temp->ARGTYPE);
+		temp=temp->ARGNEXT;
 	}
 	memcount=1;
 }
@@ -993,6 +970,25 @@ void Gen3A(struct node* root,int flag){
             current_temp=ct;
             break;
 
+        }
+        case 'C':
+        {
+            int ct = current_temp;
+
+            int pc=root->value;
+            struct node* temp = root->center;
+            while(pc)
+            {
+                char *t =(char *) malloc(5);
+                t[0]='t';t[1]='\0';
+                Gen3A(temp->center);
+                strcat(t,itoa(current_temp));
+                pc--;
+                TAinstall('V',t,NULL,NULL);
+                temp=temp->left;
+            }
+            current_temp=ct;
+            break;
         }
         default:
         {
