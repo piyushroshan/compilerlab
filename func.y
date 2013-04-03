@@ -77,6 +77,13 @@ int Loffset;    //It's for assigning location value to localvariables
 
 
 
+
+int returnmem = 4000;
+int mem = 1000;
+int argc = 0;
+int fcount = 0;
+
+
 //  Adding arguments
 struct ArgStruct* headArg = NULL;
 struct ArgStruct* newArg;
