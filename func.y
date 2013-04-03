@@ -23,6 +23,7 @@ struct node {
     char* NAME;			/* For Identifiers */
     struct	node	*center, *left,	*right;
     struct ArgStruct *argList;
+    struct Gsymbol *lookup;
 };
 
 struct ArgStruct{
@@ -96,6 +97,54 @@ void PrintSymbol(){
     printf("\n");
 }
 
+
+struct istack
+{
+ int value;
+ struct istack *next;
+}*itop;
+
+struct wstack{
+ int value;
+ struct wstack *next;
+}*wtop;
+
+
+void ipush(int count)
+{
+ struct istack *temp = malloc(sizeof(struct istack));
+ temp->value = count;
+ temp->next = itop;
+ itop = temp;
+ }
+
+int ipop()
+{
+  struct istack *temp = itop;
+  int res = temp->value;
+  itop = itop->next;
+  free(temp);
+  return res;
+}
+
+void wpush(int count)
+{
+ struct wstack *temp = malloc(sizeof(struct wstack));
+ temp->value = count;
+ temp->next = wtop;
+ wtop = temp;
+ }
+
+int wpop()
+{
+  struct wstack *temp = wtop;
+  int res = temp->value;
+  wtop = wtop->next;
+  free(temp);
+  return res;
+}
+
+
 %}
 
 %union {
@@ -126,7 +175,7 @@ void PrintSymbol(){
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar
 
 %%
-program : /*Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2,0); print_TAlist(); codeGen();} 
+program : /*Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2,0); print_TAlist(); codeGen();}
 	| */
 	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); }
     ;
@@ -145,11 +194,23 @@ type : INTEGER { TYPE = INT; }
     ;
 
 parametr : {}
-	|type PvarsList { struct ArgStruct *ARGNEXT; 
+	|PvarsList { }
 	;
 
-PvarsList	: Pvars SEMICOLON parametr { argInstall(headArg); }
-	;
+Fparametr : {}
+    | FvarsList { argInstall(headArg); }
+    ;
+
+FvarsList : FvarsList SEMICOLON PvarsDef
+    | PvarsDef
+    ;
+
+PvarsList	: PvarsList SEMICOLON PvarsDef
+    | PvarsDef
+    ;
+
+PvarsDef : type Pvars { }
+    ;
 
 Pvars : Pvars COMMA Pvar { makeArglist(headArg, newArg);	}
 	| Pvar		{ makeArglist(headArg, newArg);	}
@@ -175,7 +236,7 @@ functions : { $$ = NULL; }
 	| functions function {  $$=CreateNode(0,'F', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else $$->TYPE=-1; yyerror("Bad functions") ; }
 	;
 
-function : type ID LPAREN parametr RPAREN LFLOWER fbody RFLOWER { 
+function : type ID LPAREN parametr RPAREN LFLOWER fbody RFLOWER {
 																$$=CreateNode(0,'f', 0, $2->NAME, $4, $7, NULL); }
 	;
 
@@ -210,8 +271,17 @@ Gvar : ID {
                                 /*---------------------------------------------*/
                             }
     | ID LPAREN parametr RPAREN {
-    								Ginstall($1->NAME, TYPE+FUNC, 0, -1, 0, $3->argList);	
+    								Ginstall($1->NAME, TYPE, 0, -1, 0, $3->argList);
     								/*-----------Code Generation-------------------*/
+    								switch(TYPE)
+                                {
+                                    case INT :
+                                        Goffset += SIZEOFINT*$3->VALUE;
+                                        break;
+                                    case BOOL :
+                                        Goffset += SIZEOFBOOL*$3->VALUE;
+                                        break;
+                                }
                                 	printf("*****offset of function %s is %d\n",$1->NAME,$3->VALUE,Goffset);
                                 /*---------------------------------------------*/
     							}
@@ -375,14 +445,13 @@ int main(){
 
 void makeArglist(struct ArgStruct* head, struct ArgStruct* arg)
 {
-
 	if(headArg == NULL)
 	 {
 	 	headArg = arg;
 	}
 	else
-	{ 
-		struct ArgStruct* i = head; 
+	{
+		struct ArgStruct* i = head;
 		while(i->ARGNEXT!=NULL)
 		{
 			if(strcmp(i->ARGNAME,arg->ARGNAME)==0)
@@ -396,7 +465,6 @@ void makeArglist(struct ArgStruct* head, struct ArgStruct* arg)
 		 	yyerror("Multiple Declaration of Arguments");
 		 }
 		i->ARGNEXT = arg;
-
 	}
 }
 
@@ -419,30 +487,27 @@ int argDefCheck(struct ArgStruct* arg1, struct ArgStruct* arg2)
 	{
 		if(j==NULL)
 		{
-
 		 	return 0;
-
 		}
 		else
 		{
 			if(strcmp(j->ARGNAME,i->ARGNAME)!=0 || i->ARGTYPE!=j->ARGTYPE )
 			{
 			return 0;
-			} 
+			}
 			//Linstall(j->ARGNAME,j->ARGTYPE);
 			i=i->ARGNEXT;
 			j=j->ARGNEXT;
 
 		}
 	}
-	if(j==NULL) 
+	if(j==NULL)
 	{
 	 	return 1;
 	}
-	else 
-	{	
+	else
+	{
 	 	return 0;
-
 	}
 }
 
