@@ -142,8 +142,8 @@ struct wstack{
 %left  MULT  DIVIDE  MODULUS
 
 %type <n> program main_function fbody beginbody statements statement ifelse dowhile read write
-%type <n> return expression astatement dw functions function exprList parametr PvarsList Pvar Fparametr FvarsList Pvars PvarsDef
-%type <n> GdeclStatement Gvars type vars declStatement var Gvar
+%type <n> return expression astatement  functions function exprList parametr PvarsList Pvar Fparametr FvarsList Pvars PvarsDef
+%type <n> GdeclStatement Gvars type vars declStatement var Gvar FexprList
 
 %%
 program : /*Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2,0); print_TAlist(); codeGen();}
@@ -245,7 +245,7 @@ Gvar : ID {
                                 /*---------------------------------------------*/
                             }
     | ID LPAREN parametr RPAREN {
-    								Ginstall($1->NAME, TYPE, 0, -1, 0, $3->argList);
+    								Ginstall($1->NAME, TYPE, 0, -1, 0, NULL);
     								/*-----------Code Generation-------------------*/
     								switch(TYPE)
                                 {
@@ -386,7 +386,7 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                                                     if(gt) { if(gt->SIZE!=0 && $3->TYPE==1)
                                                                     $$->TYPE=gt->TYPE; else $$->TYPE=-1; yyerror("array type expression"); }
                                                                     else { printf("Array %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}
-	| ID LPAREN exprList RPAREN { struct Gsymbol* gtemp = Glookup($1->NAME);
+	| ID LPAREN FexprList RPAREN { struct Gsymbol* gtemp = Glookup($1->NAME);
                                     $$=CreateNode(0,'C', pcount, $1->NAME,NULL,$3,NULL);
                                     if(gtemp==NULL || gtemp->SIZE!=0) yyerror("Undefined Function");
                                     else
@@ -398,8 +398,8 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
         }
     ;
 
-FexprList:
-        | exprList { }
+FexprList: { $$=NULL; }
+        | exprList { $$ = $1; }
         ;
 
 exprList : exprList COMMA expression { $$=CreateNode(0,',', 0, NULL,$1,$3,NULL); pcount++; }
@@ -975,18 +975,24 @@ void Gen3A(struct node* root,int flag){
         {
             int ct = current_temp;
 
-            int pc=root->value;
+            int pc=root->VALUE;
             struct node* temp = root->center;
-            while(pc)
+            struct Gsymbol* gtemp = Glookup(root->NAME);
+            struct ArgStruct* args = gtemp->lookup;
+            while(pc && temp)
             {
+                if(args && args->ARGTYPE == gtemp->TYPE){
                 char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
-                Gen3A(temp->center);
+                Gen3A(temp->center,0);
                 strcat(t,itoa(current_temp));
-                pc--;
                 TAinstall('V',t,NULL,NULL);
+                current_temp--;
+                pc--;
                 temp=temp->left;
+                }
             }
+            TAinstall('B',root->NAME,NULL,NULL);
             current_temp=ct;
             break;
         }
