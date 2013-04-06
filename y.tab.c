@@ -133,7 +133,7 @@ struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struc
 void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct ArgStruct* ARGLIST, struct Lsymbol* LTABLE);
 struct Gsymbol *Glookup(char* NAME);
 struct Lsymbol *Llookup(char* NAME, struct Lsymbol* Lnode);
-void Linstall(char* NAME, int TYPE, int BINDING, int VALUE, int PASSTYPE, struct Lsymbol* Lnode);
+struct Lsymbol* Linstall(char* NAME, int TYPE, int BINDING, int VALUE, int PASSTYPE, struct Lsymbol* Lnode);
 void TAinstall(char op, char* op1, char* op2,char* op3);
 void print_TAlist();
 void codeGen();
@@ -667,13 +667,13 @@ static const yytype_uint16 yyrline[] =
        0,   149,   149,   151,   153,   154,   156,   158,   159,   161,
      162,   164,   165,   168,   169,   172,   173,   176,   177,   180,
      183,   184,   187,   194,   202,   203,   206,   209,   210,   213,
-     220,   231,   246,   262,   262,   292,   293,   296,   296,   318,
-     318,   332,   332,   352,   352,   354,   355,   357,   359,   360,
-     363,   380,   383,   384,   387,   388,   389,   390,   391,   394,
-     396,   400,   403,   411,   418,   427,   434,   438,   442,   443,
-     444,   445,   446,   447,   448,   449,   450,   451,   452,   453,
-     454,   455,   456,   457,   458,   459,   460,   464,   468,   528,
-     529,   532,   533,   534
+     220,   231,   246,   262,   262,   292,   293,   296,   296,   310,
+     310,   324,   324,   345,   345,   347,   348,   350,   352,   353,
+     356,   373,   376,   377,   380,   381,   382,   383,   384,   387,
+     389,   393,   396,   404,   411,   420,   427,   431,   435,   436,
+     437,   438,   439,   440,   441,   442,   443,   444,   445,   446,
+     447,   448,   449,   450,   451,   452,   453,   457,   461,   521,
+     522,   525,   526,   527
 };
 #endif
 
@@ -1769,7 +1769,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 149 "func.y"
-    { printf("PARSING SUCCESS\n"); PrintSymbol(); printTree((yyvsp[(3) - (3)].n)); }
+    { printf("PARSING SUCCESS\n"); (yyval.n)=CreateNode(0,'S', 0, NULL, (yyvsp[(2) - (3)].n), (yyvsp[(3) - (3)].n), NULL); PrintSymbol(); printTree((yyval.n)); }
     break;
 
   case 4:
@@ -2008,7 +2008,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 293 "func.y"
-    {  (yyval.n)=CreateNode(0,'S', 0, NULL, (yyvsp[(1) - (2)].n), (yyvsp[(2) - (2)].n), NULL); if (((yyvsp[(1) - (2)].n)==NULL || (yyvsp[(1) - (2)].n)->TYPE == FUNC) && (yyvsp[(2) - (2)].n)->TYPE== FUNC) (yyval.n)->TYPE= FUNC; else (yyval.n)->TYPE=-1; yyerror("Bad functions") ; }
+    {  (yyval.n)=CreateNode(0,'S', 0, NULL, (yyvsp[(1) - (2)].n), (yyvsp[(2) - (2)].n), NULL); if (((yyvsp[(1) - (2)].n)==NULL || (yyvsp[(1) - (2)].n)->TYPE == FUNC) && (yyvsp[(2) - (2)].n)->TYPE== FUNC) (yyval.n)->TYPE= FUNC; else {(yyval.n)->TYPE=-1; yyerror("Bad functions") ;} }
     break;
 
   case 37:
@@ -2028,18 +2028,10 @@ yyreduce:
                                                                 {
                                                                     gt->LTABLE = Lnode;
                                                                     gt->ARGLIST = headArg2;
-                                                                    printf("added headarg2\n");
-                                                                    PrintLSymbol(Lnode);
-                                                                }
-                                                                if(fnDefCheck(FTYPE, fname, headArg))
-                                                                {
-
-                                                                }else
-                                                                {
-                                                                    yyerror("Function definition error");
                                                                 }
                                                                 (yyval.n)=CreateNode(0,'f', 0, fname, (yyvsp[(5) - (9)].n), (yyvsp[(8) - (9)].n), NULL);
                                                                 if((yyvsp[(8) - (9)].n)->TYPE == FTYPE) { (yyval.n)->TYPE=FUNC; }else{ yyerror(" return type error"); (yyval.n)->TYPE = -1;}
+                                                                PrintLSymbol(Lnode);
 
         }
     break;
@@ -2047,9 +2039,9 @@ yyreduce:
   case 39:
 
 /* Line 1806 of yacc.c  */
-#line 318 "func.y"
-    {
-                                                                    headArg2 = NULL;
+#line 310 "func.y"
+    {                                      headArg = (struct ArgStruct*)NULL;
+                                                                    headArg2 = (struct ArgStruct*)NULL;
                                                                     fname = (char *)malloc(30);
                                                                     strcpy(fname,(yyvsp[(2) - (2)].n)->NAME);
                                                                     FTYPE = INT;
@@ -2059,7 +2051,7 @@ yyreduce:
   case 40:
 
 /* Line 1806 of yacc.c  */
-#line 325 "func.y"
+#line 317 "func.y"
     {
                                                                     (yyval.n)=CreateNode(0,'f', 0, "MAIN", NULL, (yyvsp[(7) - (8)].n), NULL);
                                                                     if((yyvsp[(7) - (8)].n)->TYPE == FTYPE) { (yyval.n)->TYPE=0; }else{ yyerror(" return type error"); printf("main return %d",(yyvsp[(7) - (8)].n)->TYPE); (yyval.n)->TYPE = -1;}
@@ -2070,7 +2062,7 @@ yyreduce:
   case 41:
 
 /* Line 1806 of yacc.c  */
-#line 332 "func.y"
+#line 324 "func.y"
     { if( strcmp(fname,"main")!=0)
                         {
                         if (fnDefCheck(INT, fname, headArg2))
@@ -2079,6 +2071,7 @@ yyreduce:
                             if(gt)
                             {
                                 gt->LTABLE = Lnode;
+                                gt->ARGLIST = headArg2;
                             }
                             else yyerror("Function definition error");
                         }
@@ -2093,37 +2086,37 @@ yyreduce:
   case 42:
 
 /* Line 1806 of yacc.c  */
-#line 349 "func.y"
+#line 342 "func.y"
     { (yyval.n) = (yyvsp[(3) - (3)].n);}
     break;
 
   case 43:
 
 /* Line 1806 of yacc.c  */
-#line 352 "func.y"
+#line 345 "func.y"
     { Lnode = malloc(sizeof(struct Lsymbol)); Lnode = NULL; Loffset = 0; }
     break;
 
   case 44:
 
 /* Line 1806 of yacc.c  */
-#line 352 "func.y"
+#line 345 "func.y"
     {  }
     break;
 
   case 45:
 
 /* Line 1806 of yacc.c  */
-#line 354 "func.y"
+#line 347 "func.y"
     {/*empty*/}
     break;
 
   case 50:
 
 /* Line 1806 of yacc.c  */
-#line 363 "func.y"
+#line 356 "func.y"
     {
-        Linstall((yyvsp[(1) - (1)].n)->NAME, TYPE, Loffset, 0,0, Lnode);
+        Lnode = Linstall((yyvsp[(1) - (1)].n)->NAME, TYPE, Loffset, 0,0, Lnode);
          printf("*****L offset of %s is %d\n",(yyvsp[(1) - (1)].n)->NAME,Loffset);
         /*-----------Code Generation-------------------*/
         switch(TYPE)
@@ -2142,86 +2135,86 @@ yyreduce:
   case 51:
 
 /* Line 1806 of yacc.c  */
-#line 380 "func.y"
+#line 373 "func.y"
     {  (yyval.n)=CreateNode(1,'S', 0, NULL, (yyvsp[(2) - (4)].n), (yyvsp[(3) - (4)].n), NULL); if ((yyvsp[(2) - (4)].n)==NULL || (yyvsp[(2) - (4)].n)->TYPE==0) { (yyval.n)->TYPE = (yyvsp[(3) - (4)].n)->TYPE; } else {(yyval.n)->TYPE=-1; yyerror("Bad begin error");} }
     break;
 
   case 52:
 
 /* Line 1806 of yacc.c  */
-#line 383 "func.y"
+#line 376 "func.y"
     { (yyval.n) = NULL; }
     break;
 
   case 53:
 
 /* Line 1806 of yacc.c  */
-#line 384 "func.y"
+#line 377 "func.y"
     {  (yyval.n)=CreateNode(0,'S', 0, NULL, (yyvsp[(1) - (2)].n), (yyvsp[(2) - (2)].n), NULL); if (((yyvsp[(1) - (2)].n)==NULL || (yyvsp[(1) - (2)].n)->TYPE==0) && (yyvsp[(2) - (2)].n)->TYPE==0) (yyval.n)->TYPE=0; else { (yyval.n)->TYPE=-1; yyerror("Bad statements");}}
     break;
 
   case 54:
 
 /* Line 1806 of yacc.c  */
-#line 387 "func.y"
+#line 380 "func.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n); }
     break;
 
   case 55:
 
 /* Line 1806 of yacc.c  */
-#line 388 "func.y"
+#line 381 "func.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n);}
     break;
 
   case 56:
 
 /* Line 1806 of yacc.c  */
-#line 389 "func.y"
+#line 382 "func.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n);  }
     break;
 
   case 57:
 
 /* Line 1806 of yacc.c  */
-#line 390 "func.y"
+#line 383 "func.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n);  }
     break;
 
   case 58:
 
 /* Line 1806 of yacc.c  */
-#line 391 "func.y"
+#line 384 "func.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n);  }
     break;
 
   case 59:
 
 /* Line 1806 of yacc.c  */
-#line 394 "func.y"
+#line 387 "func.y"
     { (yyvsp[(1) - (6)].n) = CreateNode(0,'I', 0, NULL, (yyvsp[(4) - (6)].n), (yyvsp[(2) - (6)].n), NULL); (yyval.n) = (yyvsp[(1) - (6)].n);
-                                                if ((yyvsp[(2) - (6)].n)->TYPE==2 && ((yyvsp[(4) - (6)].n)==NULL || (yyvsp[(4) - (6)].n)->TYPE==0)) (yyval.n)->TYPE=0; else (yyval.n)->TYPE=-1; yyerror("If type error");  }
+                                                if ((yyvsp[(2) - (6)].n)->TYPE==2 && ((yyvsp[(4) - (6)].n)==NULL || (yyvsp[(4) - (6)].n)->TYPE==0)) (yyval.n)->TYPE=0; else {(yyval.n)->TYPE=-1; yyerror("If type error"); } }
     break;
 
   case 60:
 
 /* Line 1806 of yacc.c  */
-#line 396 "func.y"
+#line 389 "func.y"
     { (yyvsp[(1) - (8)].n) = CreateNode(0,'I', 0, NULL, (yyvsp[(4) - (8)].n), (yyvsp[(2) - (8)].n), (yyvsp[(6) - (8)].n)); (yyval.n) = (yyvsp[(1) - (8)].n);
-                                                if ((yyvsp[(2) - (8)].n)->TYPE==2 && ((yyvsp[(4) - (8)].n)==NULL || (yyvsp[(4) - (8)].n)->TYPE==0) && ((yyvsp[(6) - (8)].n)==NULL || (yyvsp[(6) - (8)].n)->TYPE==0)) (yyval.n)->TYPE=0; else (yyval.n)->TYPE=-1; yyerror("If else error"); }
+                                                if ((yyvsp[(2) - (8)].n)->TYPE==2 && ((yyvsp[(4) - (8)].n)==NULL || (yyvsp[(4) - (8)].n)->TYPE==0) && ((yyvsp[(6) - (8)].n)==NULL || (yyvsp[(6) - (8)].n)->TYPE==0)) (yyval.n)->TYPE=0; else { (yyval.n)->TYPE=-1; yyerror("If else error");}}
     break;
 
   case 61:
 
 /* Line 1806 of yacc.c  */
-#line 400 "func.y"
+#line 393 "func.y"
     { (yyvsp[(1) - (6)].n) = CreateNode(0,'W', 0, NULL, (yyvsp[(4) - (6)].n), (yyvsp[(2) - (6)].n), NULL); (yyval.n)=(yyvsp[(1) - (6)].n); if ((yyvsp[(2) - (6)].n)->TYPE==2 && ((yyvsp[(4) - (6)].n)==NULL || (yyvsp[(4) - (6)].n)->TYPE==0)) (yyval.n)->TYPE=0; else (yyval.n)->TYPE=-1; yyerror("while error"); }
     break;
 
   case 62:
 
 /* Line 1806 of yacc.c  */
-#line 403 "func.y"
+#line 396 "func.y"
     { (yyvsp[(2) - (4)].n) = CreateNode(0,'=', 0, NULL, (yyvsp[(1) - (4)].n), NULL, (yyvsp[(3) - (4)].n)); (yyval.n)=(yyvsp[(2) - (4)].n);
                                             struct Lsymbol* lt = Llookup((yyvsp[(1) - (4)].n)->NAME, Lnode);
                                             if(lt) { if (lt->TYPE == (yyvsp[(3) - (4)].n)->TYPE ) (yyval.n)->TYPE=0; }
@@ -2235,7 +2228,7 @@ yyreduce:
   case 63:
 
 /* Line 1806 of yacc.c  */
-#line 411 "func.y"
+#line 404 "func.y"
     { (yyvsp[(1) - (7)].n)->center = (yyvsp[(3) - (7)].n); (yyvsp[(5) - (7)].n) = CreateNode(0,'=', 0, NULL, (yyvsp[(1) - (7)].n), NULL, (yyvsp[(6) - (7)].n)); (yyval.n)=(yyvsp[(5) - (7)].n);
                                                                 struct Gsymbol* gt = Glookup((yyvsp[(1) - (7)].n)->NAME);
                                                                 if(gt) {if ( gt->SIZE!=0 && (yyvsp[(3) - (7)].n)->TYPE==INT && ((gt->TYPE-2) == (yyvsp[(6) - (7)].n)->TYPE)) (yyval.n)->TYPE=0; else { (yyval.n)->TYPE=-1;
@@ -2246,7 +2239,7 @@ yyreduce:
   case 64:
 
 /* Line 1806 of yacc.c  */
-#line 418 "func.y"
+#line 411 "func.y"
     { (yyvsp[(1) - (5)].n) = CreateNode(0,'r', 0, NULL, NULL, (yyvsp[(3) - (5)].n), NULL); (yyval.n) = (yyvsp[(1) - (5)].n);
                                             struct Lsymbol* lt = Llookup((yyvsp[(3) - (5)].n)->NAME, Lnode);
                                             if(lt && (lt->TYPE == 1))
@@ -2261,7 +2254,7 @@ yyreduce:
   case 65:
 
 /* Line 1806 of yacc.c  */
-#line 427 "func.y"
+#line 420 "func.y"
     { (yyvsp[(3) - (8)].n)->center = (yyvsp[(5) - (8)].n);  (yyvsp[(1) - (8)].n) = CreateNode(0,'r', 0, NULL, NULL, (yyvsp[(3) - (8)].n), NULL); (yyval.n) = (yyvsp[(1) - (8)].n);
                                                 struct Gsymbol* gt = Glookup((yyvsp[(3) - (8)].n)->NAME);
                                                 if(gt) { if(gt->SIZE!=0 && gt->TYPE==(INT+2) && (yyvsp[(5) - (8)].n)->TYPE==1) (yyval.n)->TYPE=0; else { (yyval.n)->TYPE=-1;
@@ -2272,7 +2265,7 @@ yyreduce:
   case 66:
 
 /* Line 1806 of yacc.c  */
-#line 434 "func.y"
+#line 427 "func.y"
     { (yyvsp[(1) - (5)].n) = CreateNode(0,'w', 0, NULL, NULL, (yyvsp[(3) - (5)].n), NULL); (yyval.n) = (yyvsp[(1) - (5)].n);
                                                                             if((yyvsp[(3) - (5)].n)->TYPE==1) (yyval.n)->TYPE=0; else {(yyval.n)->TYPE=-1; yyerror("Write error");} }
     break;
@@ -2280,7 +2273,7 @@ yyreduce:
   case 67:
 
 /* Line 1806 of yacc.c  */
-#line 438 "func.y"
+#line 431 "func.y"
     { (yyvsp[(1) - (3)].n) = CreateNode(0,'R', 0, NULL, NULL, (yyvsp[(2) - (3)].n), NULL);  (yyval.n) = (yyvsp[(1) - (3)].n);
                                         (yyval.n)->TYPE = (yyvsp[(2) - (3)].n)->TYPE;  }
     break;
@@ -2288,133 +2281,133 @@ yyreduce:
   case 68:
 
 /* Line 1806 of yacc.c  */
-#line 442 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'+', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else (yyval.n)->TYPE=-1; yyerror("+ error"); }
+#line 435 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'+', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else {(yyval.n)->TYPE=-1; yyerror("+ error");} }
     break;
 
   case 69:
 
 /* Line 1806 of yacc.c  */
-#line 443 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'-', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else (yyval.n)->TYPE=-1; yyerror("- error");  }
+#line 436 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'-', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else {(yyval.n)->TYPE=-1; yyerror("- error"); } }
     break;
 
   case 70:
 
 /* Line 1806 of yacc.c  */
-#line 444 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'*', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else (yyval.n)->TYPE=-1; yyerror("* error"); }
+#line 437 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'*', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else{(yyval.n)->TYPE=-1; yyerror("* error"); }}
     break;
 
   case 71:
 
 /* Line 1806 of yacc.c  */
-#line 445 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'/', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n);  if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else (yyval.n)->TYPE=-1; yyerror("/ error"); }
+#line 438 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'/', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n);  if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else {(yyval.n)->TYPE=-1; yyerror("/ error"); }}
     break;
 
   case 72:
 
 /* Line 1806 of yacc.c  */
-#line 446 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'%', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else (yyval.n)->TYPE=-1; yyerror("%error"); }
+#line 439 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'%', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=1; else {(yyval.n)->TYPE=-1; yyerror("%error"); }}
     break;
 
   case 73:
 
 /* Line 1806 of yacc.c  */
-#line 447 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'E', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror("= error");  }
+#line 440 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'E', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else {(yyval.n)->TYPE=-1; yyerror("== error");  }}
     break;
 
   case 74:
 
 /* Line 1806 of yacc.c  */
-#line 448 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'<', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror("< error"); }
+#line 441 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'<', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else {(yyval.n)->TYPE=-1; yyerror("< error"); }}
     break;
 
   case 75:
 
 /* Line 1806 of yacc.c  */
-#line 449 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'>', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror("> error"); }
+#line 442 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'>', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else {(yyval.n)->TYPE=-1; yyerror("> error"); }}
     break;
 
   case 76:
 
 /* Line 1806 of yacc.c  */
-#line 450 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'G', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror(">= error"); }
+#line 443 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'G', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else {(yyval.n)->TYPE=-1; yyerror(">= error"); }}
     break;
 
   case 77:
 
 /* Line 1806 of yacc.c  */
-#line 451 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'L', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror("<= error");  }
+#line 444 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'L', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else {(yyval.n)->TYPE=-1; yyerror("<= error"); } }
     break;
 
   case 78:
 
 /* Line 1806 of yacc.c  */
-#line 452 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'N', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror("!= error");  }
+#line 445 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'N', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==1 && (yyvsp[(3) - (3)].n)->TYPE ==1) (yyval.n)->TYPE=2; else {(yyval.n)->TYPE=-1; yyerror("!= error"); } }
     break;
 
   case 79:
 
 /* Line 1806 of yacc.c  */
-#line 453 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'&', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==2 && (yyvsp[(3) - (3)].n)->TYPE ==2) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror("& error"); }
+#line 446 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'&', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==2 && (yyvsp[(3) - (3)].n)->TYPE ==2) (yyval.n)->TYPE=2; else {(yyval.n)->TYPE=-1; yyerror("& error");} }
     break;
 
   case 80:
 
 /* Line 1806 of yacc.c  */
-#line 454 "func.y"
-    { (yyvsp[(2) - (3)].n) = CreateNode(0,'|', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==2 && (yyvsp[(3) - (3)].n)->TYPE ==2) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror("| error"); }
+#line 447 "func.y"
+    { (yyvsp[(2) - (3)].n) = CreateNode(0,'|', 0, NULL, (yyvsp[(1) - (3)].n), NULL, (yyvsp[(3) - (3)].n)); (yyval.n) = (yyvsp[(2) - (3)].n); if((yyvsp[(1) - (3)].n)->TYPE==2 && (yyvsp[(3) - (3)].n)->TYPE ==2) (yyval.n)->TYPE=2; else {(yyval.n)->TYPE=-1; yyerror("| error");} }
     break;
 
   case 81:
 
 /* Line 1806 of yacc.c  */
-#line 455 "func.y"
-    { (yyvsp[(1) - (2)].n) = CreateNode(0,'!', 0, NULL, NULL, (yyvsp[(2) - (2)].n), NULL); (yyval.n) = (yyvsp[(1) - (2)].n);  if((yyvsp[(2) - (2)].n)->TYPE==2) (yyval.n)->TYPE=2; else (yyval.n)->TYPE=-1; yyerror("NOT error"); }
+#line 448 "func.y"
+    { (yyvsp[(1) - (2)].n) = CreateNode(0,'!', 0, NULL, NULL, (yyvsp[(2) - (2)].n), NULL); (yyval.n) = (yyvsp[(1) - (2)].n);  if((yyvsp[(2) - (2)].n)->TYPE==2) (yyval.n)->TYPE=2; {(yyval.n)->TYPE=-1; yyerror("NOT error");} }
     break;
 
   case 82:
 
 /* Line 1806 of yacc.c  */
-#line 456 "func.y"
+#line 449 "func.y"
     { (yyval.n) = (yyvsp[(2) - (3)].n); }
     break;
 
   case 83:
 
 /* Line 1806 of yacc.c  */
-#line 457 "func.y"
+#line 450 "func.y"
     { (yyvsp[(1) - (1)].n) = CreateNode(2,'T', 0, NULL,NULL,NULL,NULL); (yyval.n) = (yyvsp[(1) - (1)].n);  }
     break;
 
   case 84:
 
 /* Line 1806 of yacc.c  */
-#line 458 "func.y"
+#line 451 "func.y"
     { (yyvsp[(1) - (1)].n) = CreateNode(2,'F', 0, NULL, NULL, NULL, NULL); (yyval.n) = (yyvsp[(1) - (1)].n); }
     break;
 
   case 85:
 
 /* Line 1806 of yacc.c  */
-#line 459 "func.y"
+#line 452 "func.y"
     { (yyval.n)=(yyvsp[(1) - (1)].n); }
     break;
 
   case 86:
 
 /* Line 1806 of yacc.c  */
-#line 460 "func.y"
+#line 453 "func.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n); struct Lsymbol* lt = Llookup((yyvsp[(1) - (1)].n)->NAME, Lnode); if(lt) (yyval.n)->TYPE=lt->TYPE; else {
                                                             struct Gsymbol* gt = Glookup((yyvsp[(1) - (1)].n)->NAME);
                                                             if(gt) {if(gt->SIZE==0) (yyval.n)->TYPE=gt->TYPE; else (yyval.n)->TYPE=-1; }
@@ -2424,7 +2417,7 @@ yyreduce:
   case 87:
 
 /* Line 1806 of yacc.c  */
-#line 464 "func.y"
+#line 457 "func.y"
     {   (yyvsp[(1) - (4)].n)->center = (yyvsp[(3) - (4)].n); (yyval.n) = (yyvsp[(1) - (4)].n);  struct Gsymbol* gt = Glookup((yyvsp[(1) - (4)].n)->NAME);
                                                                     if(gt) { if(gt->SIZE!=0 && (yyvsp[(3) - (4)].n)->TYPE==1)
                                                                     (yyval.n)->TYPE=gt->TYPE; else (yyval.n)->TYPE=-1; yyerror("array type expression"); }
@@ -2434,7 +2427,7 @@ yyreduce:
   case 88:
 
 /* Line 1806 of yacc.c  */
-#line 468 "func.y"
+#line 461 "func.y"
     { struct Gsymbol* gtemp = Glookup((yyvsp[(1) - (4)].n)->NAME);
                                     (yyval.n)=CreateNode(0,'C', pcount, (yyvsp[(1) - (4)].n)->NAME,NULL,(yyvsp[(3) - (4)].n),NULL);
                                     if(gtemp==NULL || gtemp->SIZE!=0) yyerror("Undefined Function");
@@ -2498,35 +2491,35 @@ yyreduce:
   case 89:
 
 /* Line 1806 of yacc.c  */
-#line 528 "func.y"
+#line 521 "func.y"
     { (yyval.n)=NULL; }
     break;
 
   case 90:
 
 /* Line 1806 of yacc.c  */
-#line 529 "func.y"
+#line 522 "func.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n); }
     break;
 
   case 91:
 
 /* Line 1806 of yacc.c  */
-#line 532 "func.y"
+#line 525 "func.y"
     { (yyval.n)=CreateNode(0,',', 0, NULL,(yyvsp[(1) - (3)].n),(yyvsp[(3) - (3)].n),NULL); pcount++; }
     break;
 
   case 92:
 
 /* Line 1806 of yacc.c  */
-#line 533 "func.y"
+#line 526 "func.y"
     { (yyval.n)=(yyvsp[(1) - (1)].n); pcount++; }
     break;
 
   case 93:
 
 /* Line 1806 of yacc.c  */
-#line 534 "func.y"
+#line 527 "func.y"
     { (yyval.n) = (yyvsp[(1) - (2)].n); (yyval.n)->NODETYPE='v'; struct Lsymbol* lt = Llookup((yyvsp[(1) - (2)].n)->NAME, Lnode); if(lt) (yyval.n)->TYPE=lt->TYPE; else {
                                                             struct Gsymbol* gt = Glookup((yyvsp[(1) - (2)].n)->NAME);
                                                             if(gt) {if(gt->SIZE==0) (yyval.n)->TYPE=gt->TYPE; else (yyval.n)->TYPE=-1; }
@@ -2537,7 +2530,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 2541 "y.tab.c"
+#line 2534 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2768,7 +2761,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 541 "func.y"
+#line 534 "func.y"
 
 
 int main(){
@@ -2866,15 +2859,17 @@ int argDefCheck(struct ArgStruct* arg1, struct ArgStruct* arg2)
 	{
 		if(j==NULL)
 		{
+		    printf("Argument arg2 short\n");
 		 	return 0;
 		}
 		else
 		{
 			if(strcmp(j->ARGNAME,i->ARGNAME)!=0 || i->ARGTYPE!=j->ARGTYPE )
 			{
+			printf("Argument name no match\n");
 			return 0;
 			}
-			Linstall(i->ARGNAME, i->ARGTYPE, Loffset, 0, i->PASSTYPE, Lnode);
+			Lnode = Linstall(i->ARGNAME, i->ARGTYPE, Loffset, 0, i->PASSTYPE, Lnode);
             /*-----------Code Generation-------------------*/
             switch(TYPE)
             {
@@ -3758,5 +3753,5 @@ char *s;
 fprintf(stderr, "%s\n",s);
 }
 
-
+  
 

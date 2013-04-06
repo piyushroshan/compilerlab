@@ -1,19 +1,25 @@
 decl
 	integer x,c ;
-	boolean z,p,o,i;
-	integer fact(integer n,a,b);
+	boolean z,i;
+	integer fact(integer n,a,b; boolean h);
 enddecl
 
-integer fact(integer n,a,b)
+integer fact(integer n,a,b; boolean h)
 {
 decl
-integer n;
+integer x;
 enddecl
 begin
- if(n>0)
- then
- write( fact(n-1));
- endif;
+x=1;
+if (x==1) then
+
+x = 1;
+
+else
+
+x = fact(1,2,3,TRUE);
+
+endif;
  return 1;
  end
 }
@@ -27,7 +33,15 @@ boolean m;
 enddecl
 
 begin
-fact(3);
+if (x==1) then
+
+x = 1;
+
+else
+
+x = 11;
+
+endif;
 write(1);
 read(x);
 return 1;

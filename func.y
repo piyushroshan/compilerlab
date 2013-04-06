@@ -64,7 +64,7 @@ struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struc
 void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct ArgStruct* ARGLIST, struct Lsymbol* LTABLE);
 struct Gsymbol *Glookup(char* NAME);
 struct Lsymbol *Llookup(char* NAME, struct Lsymbol* Lnode);
-void Linstall(char* NAME, int TYPE, int BINDING, int VALUE, int PASSTYPE, struct Lsymbol* Lnode);
+struct Lsymbol* Linstall(char* NAME, int TYPE, int BINDING, int VALUE, int PASSTYPE, struct Lsymbol* Lnode);
 void TAinstall(char op, char* op1, char* op2,char* op3);
 void print_TAlist();
 void codeGen();
@@ -146,7 +146,7 @@ void printArg(struct ArgStruct* head);
 %%
 program : /*Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2,0); print_TAlist(); codeGen();}
 	| */
-	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); PrintSymbol(); printTree($3); }
+	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); PrintSymbol(); printTree($$); }
     ;
 Gdeclaration : DECL GdeclStatements ENDDECL
     ;
@@ -290,7 +290,7 @@ Gvar : ID {
     ;
 
 functions : { $$ = NULL; }
-    | functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else $$->TYPE=-1; yyerror("Bad functions") ; }
+    | functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else {$$->TYPE=-1; yyerror("Bad functions") ;} }
     ;
 
 function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); printf(fname); } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER { 
@@ -299,24 +299,16 @@ function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); printf
                                                                 {
                                                                     gt->LTABLE = Lnode;
                                                                     gt->ARGLIST = headArg2;
-                                                                    printf("added headarg2\n");
-                                                                    PrintLSymbol(Lnode);
-                                                                }
-                                                                if(fnDefCheck(FTYPE, fname, headArg))
-                                                                {
-
-                                                                }else
-                                                                {
-                                                                    yyerror("Function definition error");
                                                                 }
                                                                 $$=CreateNode(0,'f', 0, fname, $5, $8, NULL);
                                                                 if($8->TYPE == FTYPE) { $$->TYPE=FUNC; }else{ yyerror(" return type error"); $$->TYPE = -1;}
+                                                                PrintLSymbol(Lnode);
 
         }
     ;
     
-main_function : INTEGER MAIN {
-                                                                    headArg2 = NULL;
+main_function : INTEGER MAIN {                                      headArg = (struct ArgStruct*)NULL;
+                                                                    headArg2 = (struct ArgStruct*)NULL;
                                                                     fname = (char *)malloc(30);
                                                                     strcpy(fname,$2->NAME);
                                                                     FTYPE = INT;
@@ -337,6 +329,7 @@ fbody : declaration { if( strcmp(fname,"main")!=0)
                             if(gt)
                             {
                                 gt->LTABLE = Lnode;
+                                gt->ARGLIST = headArg2;
                             }
                             else yyerror("Function definition error");
                         }
@@ -361,7 +354,7 @@ vars : var
     ;
 
 var : ID {
-        Linstall($1->NAME, TYPE, Loffset, 0,0, Lnode);
+        Lnode = Linstall($1->NAME, TYPE, Loffset, 0,0, Lnode);
          printf("*****L offset of %s is %d\n",$1->NAME,Loffset);
         /*-----------Code Generation-------------------*/
         switch(TYPE)
@@ -392,9 +385,9 @@ statement : ifelse { $$ = $1; }
     ;
 
 ifelse : IF expression THEN statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, NULL); $$ = $1;
-                                                if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; yyerror("If type error");  }
+                                                if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else {$$->TYPE=-1; yyerror("If type error"); } }
     | IF expression THEN statements ELSE statements ENDIF SEMICOLON { $1 = CreateNode(0,'I', 0, NULL, $4, $2, $6); $$ = $1;
-                                                if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0) && ($6==NULL || $6->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; yyerror("If else error"); }
+                                                if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0) && ($6==NULL || $6->TYPE==0)) $$->TYPE=0; else { $$->TYPE=-1; yyerror("If else error");}}
     ;
 
 dowhile : WHILE expression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,'W', 0, NULL, $4, $2, NULL); $$=$1; if ($2->TYPE==2 && ($4==NULL || $4->TYPE==0)) $$->TYPE=0; else $$->TYPE=-1; yyerror("while error"); }
@@ -439,20 +432,20 @@ return : RETURN expression SEMICOLON { $1 = CreateNode(0,'R', 0, NULL, NULL, $2,
                                         $$->TYPE = $2->TYPE;  }
     ;
 
-expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; yyerror("+ error"); }
-    | expression MINUS expression { $2 = CreateNode(0,'-', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; yyerror("- error");  }
-    | expression MULT expression { $2 = CreateNode(0,'*', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; yyerror("* error"); }
-    | expression DIVIDE expression { $2 = CreateNode(0,'/', 0, NULL, $1, NULL, $3); $$ = $2;  if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; yyerror("/ error"); }
-    | expression MODULUS expression { $2 = CreateNode(0,'%', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; yyerror("%error"); }
-    | expression EQUAL expression { $2 = CreateNode(0,'E', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1; yyerror("= error");  }
-    | expression LESS_THAN expression { $2 = CreateNode(0,'<', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1; yyerror("< error"); }
-    | expression GREATER_THAN expression { $2 = CreateNode(0,'>', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1; yyerror("> error"); }
-    | expression GREATER_EQ expression { $2 = CreateNode(0,'G', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1; yyerror(">= error"); }
-    | expression LESS_EQUAL expression { $2 = CreateNode(0,'L', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1; yyerror("<= error");  }
-    | expression NEQUAL expression { $2 = CreateNode(0,'N', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else $$->TYPE=-1; yyerror("!= error");  }
-    | expression AND expression { $2 = CreateNode(0,'&', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==2 && $3->TYPE ==2) $$->TYPE=2; else $$->TYPE=-1; yyerror("& error"); }
-    | expression OR expression { $2 = CreateNode(0,'|', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==2 && $3->TYPE ==2) $$->TYPE=2; else $$->TYPE=-1; yyerror("| error"); }
-    | NOT expression { $1 = CreateNode(0,'!', 0, NULL, NULL, $2, NULL); $$ = $1;  if($2->TYPE==2) $$->TYPE=2; else $$->TYPE=-1; yyerror("NOT error"); }
+expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else {$$->TYPE=-1; yyerror("+ error");} }
+    | expression MINUS expression { $2 = CreateNode(0,'-', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else {$$->TYPE=-1; yyerror("- error"); } }
+    | expression MULT expression { $2 = CreateNode(0,'*', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else{$$->TYPE=-1; yyerror("* error"); }}
+    | expression DIVIDE expression { $2 = CreateNode(0,'/', 0, NULL, $1, NULL, $3); $$ = $2;  if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else {$$->TYPE=-1; yyerror("/ error"); }}
+    | expression MODULUS expression { $2 = CreateNode(0,'%', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else {$$->TYPE=-1; yyerror("%error"); }}
+    | expression EQUAL expression { $2 = CreateNode(0,'E', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else {$$->TYPE=-1; yyerror("== error");  }}
+    | expression LESS_THAN expression { $2 = CreateNode(0,'<', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else {$$->TYPE=-1; yyerror("< error"); }}
+    | expression GREATER_THAN expression { $2 = CreateNode(0,'>', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else {$$->TYPE=-1; yyerror("> error"); }}
+    | expression GREATER_EQ expression { $2 = CreateNode(0,'G', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else {$$->TYPE=-1; yyerror(">= error"); }}
+    | expression LESS_EQUAL expression { $2 = CreateNode(0,'L', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else {$$->TYPE=-1; yyerror("<= error"); } }
+    | expression NEQUAL expression { $2 = CreateNode(0,'N', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=2; else {$$->TYPE=-1; yyerror("!= error"); } }
+    | expression AND expression { $2 = CreateNode(0,'&', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==2 && $3->TYPE ==2) $$->TYPE=2; else {$$->TYPE=-1; yyerror("& error");} }
+    | expression OR expression { $2 = CreateNode(0,'|', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==2 && $3->TYPE ==2) $$->TYPE=2; else {$$->TYPE=-1; yyerror("| error");} }
+    | NOT expression { $1 = CreateNode(0,'!', 0, NULL, NULL, $2, NULL); $$ = $1;  if($2->TYPE==2) $$->TYPE=2; {$$->TYPE=-1; yyerror("NOT error");} }
     | LPAREN expression RPAREN { $$ = $2; }
     | TRUE { $1 = CreateNode(2,'T', 0, NULL,NULL,NULL,NULL); $$ = $1;  }
     | FALSE { $1 = CreateNode(2,'F', 0, NULL, NULL, NULL, NULL); $$ = $1; }
@@ -635,15 +628,17 @@ int argDefCheck(struct ArgStruct* arg1, struct ArgStruct* arg2)
 	{
 		if(j==NULL)
 		{
+		    printf("Argument arg2 short\n");
 		 	return 0;
 		}
 		else
 		{
 			if(strcmp(j->ARGNAME,i->ARGNAME)!=0 || i->ARGTYPE!=j->ARGTYPE )
 			{
+			printf("Argument name no match\n");
 			return 0;
 			}
-			Linstall(i->ARGNAME, i->ARGTYPE, Loffset, 0, i->PASSTYPE, Lnode);
+			Lnode = Linstall(i->ARGNAME, i->ARGTYPE, Loffset, 0, i->PASSTYPE, Lnode);
             /*-----------Code Generation-------------------*/
             switch(TYPE)
             {
@@ -1527,4 +1522,4 @@ char *s;
 fprintf(stderr, "%s\n",s);
 }
 
-
+  

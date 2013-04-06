@@ -111,7 +111,7 @@ struct Lsymbol *Llookup(char* NAME, struct Lsymbol* Ltemp1){
 
 
 
-void Linstall(char* NAME, int TYPE,int BINDING,int VALUE, int PASSTYPE, struct Lsymbol* Lnode){
+struct Lsymbol* Linstall(char* NAME, int TYPE,int BINDING,int VALUE, int PASSTYPE, struct Lsymbol* Lnode){
     if(!Llookup(NAME, Lnode)){
         struct Lsymbol* temp=(struct Lsymbol *)malloc(sizeof(struct Lsymbol));
         temp->NAME = NAME;
@@ -121,9 +121,10 @@ void Linstall(char* NAME, int TYPE,int BINDING,int VALUE, int PASSTYPE, struct L
         temp->PASSTYPE = PASSTYPE;
         temp->NEXT = Lnode;
         Lnode = temp;
-        printf("installed 1 LINSTALL %s\n",NAME);
+        return Lnode;
     }else
         printf("ID %s redeclared\n", NAME);
+        return Lnode;
 }
 
 void printTree(struct node* root){
@@ -136,6 +137,7 @@ void printTree(struct node* root){
             printf("( ");
             printf("%s ->",root->NAME);
             printTree(root->center);
+            printTree(root->left);
             printf(" )\n");
             break;
         case 'S' :
