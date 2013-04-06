@@ -1,12 +1,13 @@
 decl
 	integer x,c ;
 	boolean z,p,o,i;
-	integer fact(integer n);
+	integer fact(integer n,a,b);
 enddecl
 
-integer fact(integer n)
+integer fact(integer n,a,b)
 {
 decl
+integer n;
 enddecl
 begin
  if(n>0)

@@ -121,6 +121,7 @@ void Linstall(char* NAME, int TYPE,int BINDING,int VALUE, int PASSTYPE, struct L
         temp->PASSTYPE = PASSTYPE;
         temp->NEXT = Lnode;
         Lnode = temp;
+        printf("installed 1 LINSTALL %s\n",NAME);
     }else
         printf("ID %s redeclared\n", NAME);
 }

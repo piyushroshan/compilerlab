@@ -100,7 +100,19 @@ void PrintSymbol(){
     printf("\n");
     printf("\n");
 }
-void makeArglist(struct ArgStruct* head, struct ArgStruct* arg);
+
+void PrintLSymbol(struct Lsymbol *Lnode){
+    struct Lsymbol *Ltemp = Lnode;
+    while(Ltemp != NULL){
+        printf("%s --> %d ",Ltemp->NAME,Ltemp->TYPE) ;
+        Ltemp =Ltemp->NEXT;
+    }
+    printf("\n");
+    printf("\n");
+}
+
+void makeArglist(struct ArgStruct* arg);
+void makeArglist2(struct ArgStruct* arg);
 void printArg(struct ArgStruct* head);
 %}
 
@@ -168,14 +180,25 @@ FvarsList : FvarsList SEMICOLON FvarsDef
 FvarsDef : type Fvars
     ;
 
-Fvars : Fvars COMMA Fvar { makeArglist(headArg2, newArg);    }
-	| Fvar { makeArglist(headArg2, newArg);  }
+Fvars : Fvars COMMA Fvar { makeArglist2(newArg);    }
+	| Fvar { makeArglist2(newArg);  }
 	;
 
-Fvar : ID
-	|ADDRESSOF ID
-	;
-
+Fvar : ID {
+                            newArg = malloc(sizeof(struct ArgStruct));
+                            newArg->ARGNAME = $1->NAME;
+                            newArg->ARGTYPE = TYPE;
+                            newArg->PASSTYPE = 0;
+                            newArg->ARGNEXT = NULL;
+        }
+    |ADDRESSOF ID  {
+                             newArg = malloc(sizeof(struct ArgStruct));
+                            newArg->ARGNAME = $2->NAME;
+                            newArg->ARGTYPE = TYPE;
+                            newArg->PASSTYPE = 1;
+                            newArg->ARGNEXT = NULL;
+    }
+    ;
 PvarsList	: PvarsList SEMICOLON PvarsDef
     | PvarsDef
     ;
@@ -183,8 +206,8 @@ PvarsList	: PvarsList SEMICOLON PvarsDef
 PvarsDef : type Pvars { }
     ;
 
-Pvars : Pvars COMMA Pvar { makeArglist(headArg, newArg);	}
-	| Pvar		{ makeArglist(headArg, newArg);	}
+Pvars : Pvars COMMA Pvar { makeArglist(newArg);	}
+	| Pvar		{ makeArglist(newArg);	}
 	;
 
 Pvar : ID {
@@ -203,35 +226,7 @@ Pvar : ID {
 	}
 	;
 
-functions : { $$ = NULL; }
-	| functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else $$->TYPE=-1; yyerror("Bad functions") ; }
-	;
 
-function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME);  } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER { printf(fname);
-                                                                struct Gsymbol* gt =  Glookup($2->NAME);
-                                                                if(gt)
-                                                                {
-                                                                    gt->LTABLE = Lnode;
-                                                                    gt->ARGLIST = headArg2;
-                                                                }
-                                                                if(fnDefCheck(FTYPE, fname, headArg))
-                                                                {
-                                                                    struct Gsymbol* gt =  Glookup($2->NAME);
-                                                                    if(gt)
-                                                                        {
-                                                                            gt->LTABLE = Lnode;
-                                                                            gt->ARGLIST = headArg;
-
-                                                                        }
-																}else
-																{
-																    yyerror("Function definition error");
-																}
-																$$=CreateNode(0,'f', 0, fname, $5, $8, NULL);
-																if($8->TYPE == FTYPE) { $$->TYPE=FUNC; }else{ yyerror(" return type error"); $$->TYPE = -1;}
-
-		}
-	;
 
 Gvar : ID {
             printf("*****offset of %s is %d\n",$1->NAME,Goffset);
@@ -265,12 +260,12 @@ Gvar : ID {
                                 /*---------------------------------------------*/
                             }
     | ID {
-                                headArg = malloc(sizeof(struct ArgStruct));
+                                
                                 headArg = NULL;
-    								Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL, NULL);
-    								printf("*****offset of function %s is %d\n",$1->NAME,Goffset);
-    								/*-----------Code Generation-------------------*/
-    								switch(TYPE)
+                                Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL, NULL);
+                                printf("*****offset of function %s is %d\n",$1->NAME,Goffset);
+                                /*-----------Code Generation-------------------*/
+                                switch(TYPE)
                                 {
                                     case INT:
                                         Goffset += SIZEOFINT;
@@ -281,18 +276,46 @@ Gvar : ID {
                                 }
 
                                 /*---------------------------------------------*/
-    							} LPAREN parametr RPAREN {
-
-    							struct Gsymbol* gt =  Glookup($2->NAME);
-                            if(gt)
-                            {
-                                gt->LTABLE = Lnode;
-                                gt->ARGLIST = headArg;
-
     							}
+        LPAREN parametr RPAREN {
+
+    							struct Gsymbol* gt =  Glookup($1->NAME);
+                                if(gt)
+                                {
+                                    gt->ARGLIST = headArg;
+    							}else
+                                    yyerror("function not found");
+                        }
+    							
     ;
 
-main_function : INTEGER MAIN {headArg2 = malloc(sizeof(struct ArgStruct));
+functions : { $$ = NULL; }
+    | functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else $$->TYPE=-1; yyerror("Bad functions") ; }
+    ;
+
+function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); printf(fname); } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER { 
+                                                                struct Gsymbol* gt =  Glookup($2->NAME);
+                                                                if(gt)
+                                                                {
+                                                                    gt->LTABLE = Lnode;
+                                                                    gt->ARGLIST = headArg2;
+                                                                    printf("added headarg2\n");
+                                                                    PrintLSymbol(Lnode);
+                                                                }
+                                                                if(fnDefCheck(FTYPE, fname, headArg))
+                                                                {
+
+                                                                }else
+                                                                {
+                                                                    yyerror("Function definition error");
+                                                                }
+                                                                $$=CreateNode(0,'f', 0, fname, $5, $8, NULL);
+                                                                if($8->TYPE == FTYPE) { $$->TYPE=FUNC; }else{ yyerror(" return type error"); $$->TYPE = -1;}
+
+        }
+    ;
+    
+main_function : INTEGER MAIN {
                                                                     headArg2 = NULL;
                                                                     fname = (char *)malloc(30);
                                                                     strcpy(fname,$2->NAME);
@@ -307,21 +330,22 @@ main_function : INTEGER MAIN {headArg2 = malloc(sizeof(struct ArgStruct));
     ;
 
 fbody : declaration { if( strcmp(fname,"main")!=0)
-                        if (fnDefCheck(INT, fname, headArg))
+                        {
+                        if (fnDefCheck(INT, fname, headArg2))
                         {
                             struct Gsymbol* gt = Glookup(fname);
                             if(gt)
                             {
                                 gt->LTABLE = Lnode;
                             }
+                            else yyerror("Function definition error");
                         }
-                        else yyerror("Function definition error");
+                        }
                         else
                         {
                             Ginstall(fname, FTYPE, 0, Goffset, 0, NULL, Lnode);
+                        }
                     }
-                    }
-
                     beginbody { $$ = $3;}
     ;
 
@@ -457,13 +481,13 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                         {
                                             if(ptemp==NULL && ARGLIST)
                                             {
-                                                yyerror("argument count error");
+                                                yyerror("argument count error 1");
                                                 break;
                                             }
 
                                             if(ARGLIST==NULL && ptemp)
                                             {
-                                                yyerror("argument count error");
+                                                yyerror("argument count error 2");
                                                 break;
                                             }
 
@@ -478,7 +502,7 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                                         pcount--;
                                                     }
                                                     else{
-                                                        yyerror("argument type error");
+                                                        yyerror("argument type error 1");
                                                         break;
                                                     }
 
@@ -490,7 +514,7 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                                         pcount--;
                                                     }
                                                     else{
-                                                        yyerror("argument type error");
+                                                        yyerror("argument type error 2");
                                                         break;
                                                     }
 
@@ -535,20 +559,23 @@ int main(){
 }
 
 
-void makeArglist(struct ArgStruct* head, struct ArgStruct* arg)
+void makeArglist( struct ArgStruct* arg)
 {
-	if(headArg == NULL)
+	if(!headArg)
 	 {
 	 	headArg = arg;
+	 	printf("installed1 argument fisrt\n");
 	}
 	else
 	{
-		struct ArgStruct* temp = head;
+		struct ArgStruct* temp = headArg;
+		printf("installed argument rest\n");
 		while(temp->ARGNEXT!=NULL)
 		{
 			if(strcmp(temp->ARGNAME,arg->ARGNAME)==0)
 			 {
 			 	yyerror("Multiple Declaration of Arguments");
+			 	break;
 			 }
 			temp = temp->ARGNEXT;
 		}
@@ -558,8 +585,37 @@ void makeArglist(struct ArgStruct* head, struct ArgStruct* arg)
 		 }
 		temp->ARGNEXT = arg;
 	}
+	printArg(headArg);
 }
 
+void makeArglist2(struct ArgStruct* arg)
+{
+    if(!headArg2)
+     {
+        headArg2 = arg;
+        printf("installed2 argument fisrt\n");
+    }
+    else
+    {
+        struct ArgStruct* temp = headArg2;
+        printf("installed argument rest\n");
+        while(temp->ARGNEXT!=NULL)
+        {
+            if(strcmp(temp->ARGNAME,arg->ARGNAME)==0)
+             {
+                yyerror("Multiple Declaration of Arguments");
+                break;
+             }
+            temp = temp->ARGNEXT;
+        }
+        if(strcmp(temp->ARGNAME,arg->ARGNAME)==0)
+         {
+            yyerror("Multiple Declaration of Arguments");
+         }
+        temp->ARGNEXT = arg;
+    }
+    printArg(headArg2);
+}
 
 void printArg(struct ArgStruct* head)
 {
@@ -598,8 +654,10 @@ int argDefCheck(struct ArgStruct* arg1, struct ArgStruct* arg2)
                 Loffset += SIZEOFBOOL;
                 break;
             }
+            printf("installed 1 args %s\n",i->ARGNAME);
 			i=i->ARGNEXT;
 			j=j->ARGNEXT;
+			 PrintLSymbol(Lnode);
 
 		}
 	}
