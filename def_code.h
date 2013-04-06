@@ -140,6 +140,13 @@ void printTree(struct node* root){
             printTree(root->left);
             printf(" )\n");
             break;
+        case 'C' :
+            printf("( ");
+            printf("%s ->",root->NAME);
+            printTree(root->center);
+            printTree(root->left);
+            printf(" )\n");
+            break;
         case 'S' :
             printTree(root->left);
             printTree(root->center);

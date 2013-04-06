@@ -672,8 +672,8 @@ static const yytype_uint16 yyrline[] =
      356,   373,   376,   377,   380,   381,   382,   383,   384,   387,
      389,   393,   396,   404,   411,   420,   427,   431,   435,   436,
      437,   438,   439,   440,   441,   442,   443,   444,   445,   446,
-     447,   448,   449,   450,   451,   452,   453,   457,   461,   521,
-     522,   525,   526,   527
+     447,   448,   449,   450,   451,   452,   453,   457,   461,   529,
+     530,   533,   534,   535
 };
 #endif
 
@@ -1769,7 +1769,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 149 "func.y"
-    { printf("PARSING SUCCESS\n"); (yyval.n)=CreateNode(0,'S', 0, NULL, (yyvsp[(2) - (3)].n), (yyvsp[(3) - (3)].n), NULL); PrintSymbol(); printTree((yyval.n)); }
+    { printf("PARSING SUCCESS\n"); (yyval.n)=CreateNode(0,'S', 0, NULL, (yyvsp[(2) - (3)].n), (yyvsp[(3) - (3)].n), NULL); PrintSymbol(); printTree((yyval.n)); Gen3A((yyval.n),0); print_TAlist(); }
     break;
 
   case 4:
@@ -2015,7 +2015,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 296 "func.y"
-    { fname = (char *)malloc(30); strcpy(fname,(yyvsp[(2) - (2)].n)->NAME); printf(fname); }
+    { fname = (char *)malloc(30); strcpy(fname,(yyvsp[(2) - (2)].n)->NAME); }
     break;
 
   case 38:
@@ -2438,50 +2438,58 @@ yyreduce:
                                     }
                                     struct ArgStruct* ARGLIST = gtemp->ARGLIST;
                                     struct node* ptemp=(yyvsp[(3) - (4)].n);
-                                    while(true)
+                                    printf("PRINTING AGRUMENTS\n");
+                                    printArg(ARGLIST);
+                                    while(ARGLIST )
                                     {
                                         if(pcount>0 )
                                         {
+                                            printf("%s %d %d\n",ARGLIST->ARGNAME, ARGLIST->ARGTYPE, ptemp->center->TYPE );
                                             if(ptemp==NULL && ARGLIST)
                                             {
                                                 yyerror("argument count error 1");
-                                                break;
                                             }
-
+                                            else
                                             if(ARGLIST==NULL && ptemp)
                                             {
                                                 yyerror("argument count error 2");
-                                                break;
                                             }
-
-                                            if(ARGLIST->ARGTYPE == ptemp->left->TYPE)
+                                            else
+                                            if(ARGLIST->ARGTYPE == ptemp->center->TYPE)
                                             {
                                                 if(ARGLIST->PASSTYPE == 1)
                                                 {
-                                                    if(ptemp->left->NODETYPE=='v')
+                                                    if(ptemp->center->PASSTYPE==1)
                                                     {
-                                                        ARGLIST=ARGLIST->ARGNEXT;
-                                                        ptemp = ptemp->center;
-                                                        pcount--;
+                                                        printf("matched argument %d\n",pcount);
                                                     }
                                                     else{
                                                         yyerror("argument type error 1");
-                                                        break;
                                                     }
+                                                    ARGLIST=ARGLIST->ARGNEXT;
+                                                    ptemp = ptemp->left;
 
-                                                }else if(ARGLIST->PASSTYPE == 0)
-                                                    if(ptemp->left->NODETYPE==',')
+                                                }else if(ARGLIST->PASSTYPE == 0){
+                                                    printf("NODETYPE %d\n",ptemp->center->PASSTYPE);
+                                                    if(ptemp->center->PASSTYPE==0)
                                                     {
-                                                        ARGLIST=ARGLIST->ARGNEXT;
-                                                        ptemp = ptemp->center;
-                                                        pcount--;
+                                                        printf("matched argument %d\n",pcount);
                                                     }
                                                     else{
                                                         yyerror("argument type error 2");
-                                                        break;
                                                     }
+                                                    ARGLIST=ARGLIST->ARGNEXT;
+                                                    ptemp = ptemp->left;
+                                                }
 
+                                            }else
+                                            {
+                                                 yyerror("match type error 1");
                                             }
+                                            pcount--;
+                                        }else
+                                        {
+                                        break;
                                         }
                                     }
                                     pcount=0;
@@ -2491,36 +2499,36 @@ yyreduce:
   case 89:
 
 /* Line 1806 of yacc.c  */
-#line 521 "func.y"
+#line 529 "func.y"
     { (yyval.n)=NULL; }
     break;
 
   case 90:
 
 /* Line 1806 of yacc.c  */
-#line 522 "func.y"
+#line 530 "func.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n); }
     break;
 
   case 91:
 
 /* Line 1806 of yacc.c  */
-#line 525 "func.y"
-    { (yyval.n)=CreateNode(0,',', 0, NULL,(yyvsp[(1) - (3)].n),(yyvsp[(3) - (3)].n),NULL); pcount++; }
+#line 533 "func.y"
+    { (yyval.n)=CreateNode(0,'z', 0, NULL,(yyvsp[(1) - (3)].n),(yyvsp[(3) - (3)].n),NULL); pcount++; }
     break;
 
   case 92:
 
 /* Line 1806 of yacc.c  */
-#line 526 "func.y"
-    { (yyval.n)=(yyvsp[(1) - (1)].n); pcount++; }
+#line 534 "func.y"
+    { (yyval.n)=CreateNode(0,'z', 0, NULL,NULL,(yyvsp[(1) - (1)].n),NULL); pcount++; (yyvsp[(1) - (1)].n)->PASSTYPE=0; }
     break;
 
   case 93:
 
 /* Line 1806 of yacc.c  */
-#line 527 "func.y"
-    { (yyval.n) = (yyvsp[(1) - (2)].n); (yyval.n)->NODETYPE='v'; struct Lsymbol* lt = Llookup((yyvsp[(1) - (2)].n)->NAME, Lnode); if(lt) (yyval.n)->TYPE=lt->TYPE; else {
+#line 535 "func.y"
+    { (yyval.n) = (yyvsp[(1) - (2)].n); (yyval.n)->PASSTYPE=1; struct Lsymbol* lt = Llookup((yyvsp[(1) - (2)].n)->NAME, Lnode); if(lt) (yyval.n)->TYPE=lt->TYPE; else {
                                                             struct Gsymbol* gt = Glookup((yyvsp[(1) - (2)].n)->NAME);
                                                             if(gt) {if(gt->SIZE==0) (yyval.n)->TYPE=gt->TYPE; else (yyval.n)->TYPE=-1; }
                                                             else { printf("ID %s not found\n",(yyvsp[(1) - (2)].n)->NAME); yyerror(""); (yyval.n)->TYPE=-1;}}
@@ -2530,7 +2538,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 2534 "y.tab.c"
+#line 2542 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2761,7 +2769,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 534 "func.y"
+#line 542 "func.y"
 
 
 int main(){
@@ -2807,7 +2815,8 @@ void makeArglist( struct ArgStruct* arg)
 		 {
 		 	yyerror("Multiple Declaration of Arguments");
 		 }
-		temp->ARGNEXT = arg;
+		  arg->ARGNEXT=headArg;
+		  headArg = arg;
 	}
 	printArg(headArg);
 }
@@ -2836,7 +2845,8 @@ void makeArglist2(struct ArgStruct* arg)
          {
             yyerror("Multiple Declaration of Arguments");
          }
-        temp->ARGNEXT = arg;
+        arg->ARGNEXT=headArg2;
+		headArg2 = arg;
     }
     printArg(headArg2);
 }

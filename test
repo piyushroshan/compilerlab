@@ -1,10 +1,10 @@
 decl
 	integer x,c ;
 	boolean z,i;
-	integer fact(integer n,a,b; boolean h);
+	integer fact(integer n,a,b; boolean h,x);
 enddecl
 
-integer fact(integer n,a,b; boolean h)
+integer fact(integer n,a,b; boolean h,x)
 {
 decl
 integer x;
@@ -17,7 +17,7 @@ x = 1;
 
 else
 
-x = fact(1,2,3,TRUE);
+x = fact(1,2,3,TRUE,FALSE);
 
 endif;
  return 1;

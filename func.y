@@ -146,7 +146,7 @@ void printArg(struct ArgStruct* head);
 %%
 program : /*Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2,0); print_TAlist(); codeGen();}
 	| */
-	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); PrintSymbol(); printTree($$); }
+	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); PrintSymbol(); printTree($$); Gen3A($$,0); print_TAlist(); }
     ;
 Gdeclaration : DECL GdeclStatements ENDDECL
     ;
@@ -293,7 +293,7 @@ functions : { $$ = NULL; }
     | functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else {$$->TYPE=-1; yyerror("Bad functions") ;} }
     ;
 
-function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); printf(fname); } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER { 
+function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER { 
                                                                 struct Gsymbol* gt =  Glookup($2->NAME);
                                                                 if(gt)
                                                                 {
@@ -468,50 +468,58 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                     }
                                     struct ArgStruct* ARGLIST = gtemp->ARGLIST;
                                     struct node* ptemp=$3;
-                                    while(true)
+                                    printf("PRINTING AGRUMENTS\n");
+                                    printArg(ARGLIST);
+                                    while(ARGLIST )
                                     {
                                         if(pcount>0 )
                                         {
+                                            printf("%s %d %d\n",ARGLIST->ARGNAME, ARGLIST->ARGTYPE, ptemp->center->TYPE );
                                             if(ptemp==NULL && ARGLIST)
                                             {
                                                 yyerror("argument count error 1");
-                                                break;
                                             }
-
+                                            else
                                             if(ARGLIST==NULL && ptemp)
                                             {
                                                 yyerror("argument count error 2");
-                                                break;
                                             }
-
-                                            if(ARGLIST->ARGTYPE == ptemp->left->TYPE)
+                                            else
+                                            if(ARGLIST->ARGTYPE == ptemp->center->TYPE)
                                             {
                                                 if(ARGLIST->PASSTYPE == 1)
                                                 {
-                                                    if(ptemp->left->NODETYPE=='v')
+                                                    if(ptemp->center->PASSTYPE==1)
                                                     {
-                                                        ARGLIST=ARGLIST->ARGNEXT;
-                                                        ptemp = ptemp->center;
-                                                        pcount--;
+                                                        printf("matched argument %d\n",pcount);
                                                     }
                                                     else{
                                                         yyerror("argument type error 1");
-                                                        break;
                                                     }
+                                                    ARGLIST=ARGLIST->ARGNEXT;
+                                                    ptemp = ptemp->left;
 
-                                                }else if(ARGLIST->PASSTYPE == 0)
-                                                    if(ptemp->left->NODETYPE==',')
+                                                }else if(ARGLIST->PASSTYPE == 0){
+                                                    printf("NODETYPE %d\n",ptemp->center->PASSTYPE);
+                                                    if(ptemp->center->PASSTYPE==0)
                                                     {
-                                                        ARGLIST=ARGLIST->ARGNEXT;
-                                                        ptemp = ptemp->center;
-                                                        pcount--;
+                                                        printf("matched argument %d\n",pcount);
                                                     }
                                                     else{
                                                         yyerror("argument type error 2");
-                                                        break;
                                                     }
+                                                    ARGLIST=ARGLIST->ARGNEXT;
+                                                    ptemp = ptemp->left;
+                                                }
 
+                                            }else
+                                            {
+                                                 yyerror("match type error 1");
                                             }
+                                            pcount--;
+                                        }else
+                                        {
+                                        break;
                                         }
                                     }
                                     pcount=0;
@@ -522,9 +530,9 @@ FexprList: { $$=NULL; }
         | exprList { $$ = $1; }
         ;
 
-exprList : exprList COMMA expression { $$=CreateNode(0,',', 0, NULL,$1,$3,NULL); pcount++; }
-		| expression { $$=$1; pcount++; }
-		| ADDRESSOF ID { $$ = $1; $$->NODETYPE='v'; struct Lsymbol* lt = Llookup($1->NAME, Lnode); if(lt) $$->TYPE=lt->TYPE; else {
+exprList : exprList COMMA expression { $$=CreateNode(0,'z', 0, NULL,$1,$3,NULL); pcount++; }
+		| expression { $$=CreateNode(0,'z', 0, NULL,NULL,$1,NULL); pcount++; $1->PASSTYPE=0; }
+		| ADDRESSOF ID { $$ = $1; $$->PASSTYPE=1; struct Lsymbol* lt = Llookup($1->NAME, Lnode); if(lt) $$->TYPE=lt->TYPE; else {
                                                             struct Gsymbol* gt = Glookup($1->NAME);
                                                             if(gt) {if(gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }
                                                             else { printf("ID %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}
@@ -576,7 +584,8 @@ void makeArglist( struct ArgStruct* arg)
 		 {
 		 	yyerror("Multiple Declaration of Arguments");
 		 }
-		temp->ARGNEXT = arg;
+		  arg->ARGNEXT=headArg;
+		  headArg = arg;
 	}
 	printArg(headArg);
 }
@@ -605,7 +614,8 @@ void makeArglist2(struct ArgStruct* arg)
          {
             yyerror("Multiple Declaration of Arguments");
          }
-        temp->ARGNEXT = arg;
+        arg->ARGNEXT=headArg2;
+		headArg2 = arg;
     }
     printArg(headArg2);
 }
