@@ -19,10 +19,11 @@ struct node {
                     * b) statement Type : (WHILE, READ etc.) for statements
                     * c) else 0
                     */
+    int PASSTYPE;
     int VALUE;			/* for constants */
     char* NAME;			/* For Identifiers */
     struct	node 	*center, *left,	*right;
-    struct ArgStruct *argList;
+    struct ArgStruct *ARGLIST;
     struct Gsymbol *lookup;
 };
 
@@ -104,17 +105,6 @@ void PrintSymbol(){
     printf("\n");
 }
 
-
-struct istack
-{
- int value;
- struct istack *next;
-}*itop;
-
-struct wstack{
- int value;
- struct wstack *next;
-}*wtop;
 
 %}
 
@@ -394,8 +384,44 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                         $$->lookup = gtemp;
                                         $$->TYPE = gtemp->TYPE;
                                     }
+                                    struct ArgStruct* ARGLIST = gtemp->ARGLIST;
+                                    struct node* ptemp=$3;
+                                    while(true)
+                                    {
+                                        if(pcount>0 )
+                                        {
+                                            if(ptemp==NULL && ARGLIST)
+                                            {
+                                                yyerror("argument count error");
+                                                break;
+                                            }
+
+                                            if(ARGLIST==NULL && ptemp)
+                                            {
+                                                yyerror("argument count error");
+                                                break;
+                                            }
+
+                                            if(ARGLIST->TYPE == ptemp->left->TYPE)
+                                            {
+                                                if(ARGLIST->PASSTYPE == 1)
+                                                {
+                                                    if(ptemp->left->NODETYPE=='v')
+                                                    {
+                                                        ARGLIST=ARGLIST->ARGNEXT;
+                                                        ptemp = ptemp->center;
+                                                        pcount--;
+                                                    }
+                                                    else{
+                                                        yyerror("argument type error");
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     pcount=0;
-        }
+                            }
     ;
 
 FexprList: { $$=NULL; }
@@ -404,6 +430,11 @@ FexprList: { $$=NULL; }
 
 exprList : exprList COMMA expression { $$=CreateNode(0,',', 0, NULL,$1,$3,NULL); pcount++; }
 		| expression { $$=$1; pcount++; }
+		| ADDRESSOF ID { $$ = $1; $$->NODETYPE='v'; struct Lsymbol* lt = Llookup($1->NAME); if(lt) $$->TYPE=lt->TYPE; else {
+                                                            struct Gsymbol* gt = Glookup($1->NAME);
+                                                            if(gt) {if(gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }
+                                                            else { printf("ID %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}
+                        }
 		;
 
 %%
@@ -600,6 +631,7 @@ void Gen3A(struct node* root,int flag){
 
     switch(root->NODETYPE){
         case 'f' :{
+
             TAinstall('B',root->NAME,NULL,NULL);
             Gen3A(root->center,0);
             break;}
@@ -943,10 +975,10 @@ void Gen3A(struct node* root,int flag){
                 current_temp++;
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
-                if(Glookup(root->NAME))
-                    TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
-                else
+                if(Llookup(root->NAME))
                     TAinstall('M',t,itoa(Llookup(root->NAME)->BINDING+GetGtableSize()),NULL);
+                else
+                    TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
             }
             if(flag==0){
                 TAinstall('l',t,t,NULL);
@@ -969,7 +1001,6 @@ void Gen3A(struct node* root,int flag){
             TAinstall('=',t1,t2,NULL);
             current_temp=ct;
             break;
-
         }
         case 'C':
         {
@@ -996,13 +1027,24 @@ void Gen3A(struct node* root,int flag){
             current_temp=ct;
             break;
         }
+        case 'v':
+        {
+            current_temp++;
+            t[0]='t';t[1]='\0';
+            strcat(t,itoa(current_temp));
+            if(Llookup(root->NAME))
+                TAinstall('M',t,itoa(Llookup(root->NAME)->BINDING+GetGtableSize()),NULL);
+            else
+                TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
+            break;
+        }
         default:
         {
             Gen3A(root->center,0);
             Gen3A(root->left,0);
             Gen3A(root->right,0);
+            break;
         }
-        break;
     }
 }
 
