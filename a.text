@@ -1,5 +1,5 @@
 decl
-
+integer a, b;
 integer factorial(integer n);
 
 enddecl

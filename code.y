@@ -103,12 +103,12 @@ void PrintSymbol(){
 //precedence dcaration
 %left COMMA
 %right  ASSIGN
-%left AND OR
+%left OR
+%left AND
 %left EQUAL NEQUAL
-%left LESS_THAN LESS_EQUAL GREATER_THAN GREATER_EQ
-%right NOT
+%left LESS_THAN LESS_EQUAL GREATER_THAN GREATER_EQ 
 %left LPAREN RPAREN LSQUARE RSQUARE
-
+%right NOT
 %left  PLUS  MINUS
 %left  MULT  DIVIDE  MODULUS
 
@@ -698,10 +698,13 @@ void Gen3A(struct node* root,int flag){
                 current_temp++;
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
-                if(Glookup(root->NAME))
-                    TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
+                if(Llookup(root->NAME))
+                    TAinstall('M',t,itoa(Llookup(root->NAME)->BINDING+GetGtableSize()+1),NULL);
                 else
-                    TAinstall('M',t,itoa(Llookup(root->NAME)->BINDING+GetGtableSize()),NULL);
+                {
+                    TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
+                }
+                    
             }
             if(flag==0){
                 TAinstall('l',t,t,NULL);

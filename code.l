@@ -2,6 +2,7 @@
 #include "y.tab.h"
 #include "def_code.h"
 
+
 %}
 ws	[ ]
 tab	\t
@@ -62,7 +63,8 @@ decl	{ return DECL; }
 enddecl	{ return ENDDECL; }
 begin	{ return BEGINN; }
 end		{ return END; }
-main 	{ return MAIN; }
+main 	{ char *name =  (char *)malloc(30); strcpy(name,"main");
+			yylval.n = CreateNode(0,2,0,name,NULL,NULL,NULL); return MAIN; }
 return  { return RETURN; }
 {id}	{ char *name =  (char *)malloc(sizeof(yytext)); strcpy(name,yytext);
 			yylval.n = CreateNode(0,2,0,name,NULL,NULL,NULL); return ID; }

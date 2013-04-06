@@ -24,7 +24,7 @@ struct node {
     char* NAME;			/* For Identifiers */
     struct	node 	*center, *left,	*right;
     struct ArgStruct *ARGLIST;
-    struct Gsymbol *lookup;
+    struct Lsymbol *lookup;
 };
 
 struct ArgStruct{
@@ -42,7 +42,7 @@ struct Gsymbol {
     int SIZE; // Size field for arrays
     int BINDING; // Address of the Identifier in Memory
     struct ArgStruct *ARGLIST; // Argument List for functions
-
+    struct Lsymbol *LTABLE;
     /***Argstruct must store the name and type of each argument ***/
     struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Gnode;
@@ -53,18 +53,18 @@ struct Lsymbol {
     int TYPE; // TYPE can be INTEGER or BOOLEAN
     /***The TYPE field must be a TypeStruct if user defined types are allowed***/
     int VALUE; // for constants
+    int PASSTYPE;
     int BINDING; // Address of the Identifier in Memory
     struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
-} *Lnode;
-
+};
 
 int GetGtableSize();
 void printTree(struct node* root);
 struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struct node *ptr1, struct node *ptr2, struct node *ptr3);
-void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct ArgStruct* ARGLIST);
+void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct ArgStruct* ARGLIST, struct Lsymbol* LTABLE);
 struct Gsymbol *Glookup(char* NAME);
-struct Lsymbol *Llookup(char* NAME);
-void Linstall(char* NAME, int TYPE, int BINDING, int VALUE);
+struct Lsymbol *Llookup(char* NAME, struct Lsymbol* Lnode);
+void Linstall(char* NAME, int TYPE, int BINDING, int VALUE, int PASSTYPE, struct Lsymbol* Lnode);
 void TAinstall(char op, char* op1, char* op2,char* op3);
 void print_TAlist();
 void codeGen();
@@ -83,12 +83,12 @@ int returnmem = 4000;
 int mem = 1000;
 int argc = 0;
 int fcount = 0;
-
-
+int Loffset = 0;
+char* fname;
 //  Adding arguments
 struct ArgStruct* headArg = NULL;
 struct ArgStruct* newArg;
-
+struct Lsymbol* Lnode = NULL;
 
 void PrintSymbol(){
     struct Gsymbol *Gtemp = Gnode;
@@ -97,15 +97,10 @@ void PrintSymbol(){
         Gtemp =Gtemp->NEXT;
     }
     printf("\n");
-    struct Lsymbol *Ltemp = Lnode;
-    while(Ltemp != NULL){
-        printf("%s --> %d ",Ltemp->NAME,Ltemp->TYPE) ;
-        Ltemp = Ltemp->NEXT;
-    }
     printf("\n");
 }
-
-
+void makeArglist(struct ArgStruct* head, struct ArgStruct* arg);
+void printArg(struct ArgStruct* head);
 %}
 
 %union {
@@ -132,13 +127,13 @@ void PrintSymbol(){
 %left  MULT  DIVIDE  MODULUS
 
 %type <n> program main_function fbody beginbody statements statement ifelse dowhile read write
-%type <n> return expression astatement  functions function exprList parametr PvarsList Pvar Fparametr FvarsList Pvars PvarsDef
-%type <n> GdeclStatement Gvars type vars declStatement var Gvar FexprList
+%type <n> return expression astatement  functions function exprList parametr PvarsList Pvar Fparametr FvarsList Pvars PvarsDef ftype declaration declStatements 
+%type <n> GdeclStatement Gvars type vars declStatement var Gvar FexprList FvarsDef Fvars Fvar
 
 %%
 program : /*Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2,0); print_TAlist(); codeGen();}
 	| */
-	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); }
+	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); PrintSymbol(); printTree($3); }
     ;
 Gdeclaration : DECL GdeclStatements ENDDECL
     ;
@@ -153,18 +148,32 @@ Gvars : Gvar
 type : INTEGER { TYPE = INT; }
     | BOOLEAN {TYPE = BOOL; }
     ;
+ftype : INTEGER { FTYPE = INT; }
+    | BOOLEAN {FTYPE = BOOL; }
+    ;
 
 parametr : {}
 	|PvarsList { }
 	;
 
 Fparametr : {}
-    | FvarsList { argInstall(headArg); }
+    | FvarsList
     ;
 
-FvarsList : FvarsList SEMICOLON PvarsDef
-    | PvarsDef
+FvarsList : FvarsList SEMICOLON FvarsDef
+    | FvarsDef
     ;
+
+FvarsDef : type Fvars
+    ;
+
+Fvars : Fvars COMMA Fvar
+	| Fvar
+	;
+
+Fvar : ID
+	|ADDRESSOF ID
+	;
 
 PvarsList	: PvarsList SEMICOLON PvarsDef
     | PvarsDef
@@ -185,8 +194,8 @@ Pvar : ID {
 							newArg->ARGNEXT = NULL;
 		}
 	|ADDRESSOF ID  {
-						    newArg = malloc(sizeof(struct ArgStruct));
-							newArg->ARGNAME = $1->NAME;
+						   	 newArg = malloc(sizeof(struct ArgStruct));
+							newArg->ARGNAME = $2->NAME;
 							newArg->ARGTYPE = TYPE;
 							newArg->PASSTYPE = 1;
 							newArg->ARGNEXT = NULL;
@@ -197,16 +206,29 @@ functions : { $$ = NULL; }
 	| functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else $$->TYPE=-1; yyerror("Bad functions") ; }
 	;
 
-function : type ID LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER {
-																$$=CreateNode(0,'f', 0, $2->NAME, $4, $7, NULL);
-																if($7->TYPE == TYPE) { $$->TYPE=FUNC; }else{ yyerror(" return type error"); $$->TYPE = -1;}
-                                                                    fnDefCheck(TYPE, $2->NAME, headArg);
+function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME);  } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER { printf(fname);
+                                                                if(fnDefCheck(FTYPE, fname, headArg))
+                                                                {
+                                                                    struct Gsymbol* gt =  Glookup($2->NAME);
+                                                                    if(gt)
+                                                                        {
+                                                                            gt->LTABLE = Lnode;
+                                                                            gt->ARGLIST = headArg;
+                                                                        
+                                                                        }
+																}else
+																{
+																    yyerror("Function definition error");
 																}
+																$$=CreateNode(0,'f', 0, fname, $5, $8, NULL);
+																if($8->TYPE == FTYPE) { $$->TYPE=FUNC; }else{ yyerror(" return type error"); $$->TYPE = -1;}
+                                                                
+		}
 	;
 
 Gvar : ID {
             printf("*****offset of %s is %d\n",$1->NAME,Goffset);
-            Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL);
+            Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL,NULL);
             /*-----------Code Generation-------------------*/
             switch(TYPE)
             {
@@ -220,7 +242,8 @@ Gvar : ID {
             /*---------------------------------------------*/
         }
     | ID LSQUARE NUMBER RSQUARE {
-                                Ginstall($1->NAME, TYPE+2, $3->VALUE, Goffset, 0, NULL);
+                                Ginstall($1->NAME, TYPE+2, $3->VALUE, Goffset, 0, NULL, NULL);
+                                 printf("*****offset of %s[%d] is %d\n",$1->NAME,$3->VALUE,Goffset);
                                 /*-----------Code Generation-------------------*/
                                 switch(TYPE)
                                 {
@@ -231,49 +254,64 @@ Gvar : ID {
                                         Goffset += SIZEOFBOOL*$3->VALUE;
                                         break;
                                 }
-                                printf("*****offset of %s[%d] is %d\n",$1->NAME,$3->VALUE,Goffset);
+                               
                                 /*---------------------------------------------*/
                             }
-    | ID LPAREN parametr RPAREN {
-    								Ginstall($1->NAME, TYPE, 0, -1, 0, NULL);
+    | ID {
+    								Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL, NULL);
+    								printf("*****offset of function %s is %d\n",$1->NAME,Goffset);
     								/*-----------Code Generation-------------------*/
     								switch(TYPE)
                                 {
-                                    case INT :
-                                        Goffset += SIZEOFINT*$3->VALUE;
+                                    case INT:
+                                        Goffset += SIZEOFINT;
                                         break;
-                                    case BOOL :
-                                        Goffset += SIZEOFBOOL*$3->VALUE;
+                                    case BOOL:
+                                        Goffset += SIZEOFBOOL;
                                         break;
                                 }
-                                	printf("*****offset of function %s is %d\n",$1->NAME,$3->VALUE,Goffset);
+                                	
                                 /*---------------------------------------------*/
-    							}
+    							} LPAREN parametr RPAREN {}
     ;
 
-main_function : INTEGER MAIN LPAREN RPAREN LFLOWER fbody RFLOWER {
-                                                                    $$=CreateNode(0,'f', 0, "MAIN", NULL, $6, NULL);
-                                                                    if($6->TYPE == INT) { $$->TYPE=0; }else{ yyerror(" return type error"); $$->TYPE = -1;}
-                                                                }
+main_function : INTEGER MAIN {headArg = malloc(sizeof(struct ArgStruct));
+                                                                    headArg = NULL;
+                                                                    fname = (char *)malloc(30);
+                                                                    strcpy(fname,$2->NAME);
+                                                                    FTYPE = INT;
+                             }
+                                                                    
+                LPAREN RPAREN LFLOWER fbody RFLOWER { 
+                                                                    $$=CreateNode(0,'f', 0, "MAIN", NULL, $7, NULL);
+                                                                    if($7->TYPE == FTYPE) { $$->TYPE=0; }else{ yyerror(" return type error"); printf("main return %d",$7->TYPE); $$->TYPE = -1;}				 
+                                                                    $$->lookup=$7->lookup;
+                                                                }  
     ;
 
-fbody : declaration beginbody  { $$=$2; }
-    ;
+fbody : declaration { if( strcmp(fname,"main")!=0) 
+                        if (fnDefCheck(INT, fname, headArg)) 
+                        Ginstall(fname, FTYPE, 0, Goffset, 0, headArg, Lnode);else yyerror("Function definition error"); 
+                        else	Ginstall(fname, FTYPE, 0, Goffset, 0, headArg, Lnode);
+                         } 
+                        
+                        beginbody { $$ = $3;}
+    ; 
 
-declaration : DECL declStatements ENDDECL
+declaration : DECL { Lnode = malloc(sizeof(struct Lsymbol)); Lnode = NULL; Loffset = 0; } declStatements ENDDECL {  }
     ;
 declStatements : {/*empty*/}
     | declStatements declStatement
     ;
 declStatement : type vars SEMICOLON
     ;
-vars : var
+vars : var 
     | vars COMMA var
     ;
 
 var : ID {
-        printf("*****L offset of %s is %d\n",$1->NAME,Loffset);
-        Linstall($1->NAME, TYPE, Loffset, 0);
+        Linstall($1->NAME, TYPE, Loffset, 0,0, Lnode);
+         printf("*****L offset of %s is %d\n",$1->NAME,Loffset);
         /*-----------Code Generation-------------------*/
         switch(TYPE)
         {
@@ -288,11 +326,11 @@ var : ID {
     }
     ;
 
-beginbody : BEGINN statements return END {  $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); if ($2==NULL || $2->TYPE==0) $$->TYPE=$3->TYPE; else {$$->TYPE=-1; yyerror("Bad begin error");} }
+beginbody : BEGINN statements return END {  $$=CreateNode(1,'S', 0, NULL, $2, $3, NULL); if ($2==NULL || $2->TYPE==0) { $$->TYPE = $3->TYPE; } else {$$->TYPE=-1; yyerror("Bad begin error");} }
     ;
 
 statements : { $$ = NULL; }
-    | statements statement {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE==0) && $2->TYPE==0) $$->TYPE=0; else $$->TYPE=-1; yyerror("Bad statements");}
+    | statements statement {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE==0) && $2->TYPE==0) $$->TYPE=0; else { $$->TYPE=-1; yyerror("Bad statements");}}
     ;
 
 statement : ifelse { $$ = $1; }
@@ -312,7 +350,7 @@ dowhile : WHILE expression DO statements ENDWHILE SEMICOLON { $1 = CreateNode(0,
     ;
 
 astatement : ID ASSIGN expression SEMICOLON { $2 = CreateNode(0,'=', 0, NULL, $1, NULL, $3); $$=$2;
-                                            struct Lsymbol* lt = Llookup($1->NAME);
+                                            struct Lsymbol* lt = Llookup($1->NAME, Lnode);
                                             if(lt) { if (lt->TYPE == $3->TYPE ) $$->TYPE=0; }
                                             else {
                                                 struct Gsymbol* gt = Glookup($1->NAME);
@@ -327,7 +365,7 @@ astatement : ID ASSIGN expression SEMICOLON { $2 = CreateNode(0,'=', 0, NULL, $1
     ;
 
 read : READ LPAREN ID RPAREN SEMICOLON { $1 = CreateNode(0,'r', 0, NULL, NULL, $3, NULL); $$ = $1;
-                                            struct Lsymbol* lt = Llookup($3->NAME);
+                                            struct Lsymbol* lt = Llookup($3->NAME, Lnode);
                                             if(lt && (lt->TYPE == 1))
                                                 $$->TYPE=0;
                                             else {
@@ -347,7 +385,7 @@ write : WRITE LPAREN expression RPAREN SEMICOLON { $1 = CreateNode(0,'w', 0, NUL
     ;
 
 return : RETURN expression SEMICOLON { $1 = CreateNode(0,'R', 0, NULL, NULL, $2, NULL);  $$ = $1;
-                                                                            if($2->TYPE==1) $$->TYPE=0; else {$$->TYPE=-1; yyerror("Return type nomatch");}}
+                                        $$->TYPE = $2->TYPE;  }
     ;
 
 expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NULL, $3); $$ = $2; if($1->TYPE==1 && $3->TYPE ==1) $$->TYPE=1; else $$->TYPE=-1; yyerror("+ error"); }
@@ -368,7 +406,7 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
     | TRUE { $1 = CreateNode(2,'T', 0, NULL,NULL,NULL,NULL); $$ = $1;  }
     | FALSE { $1 = CreateNode(2,'F', 0, NULL, NULL, NULL, NULL); $$ = $1; }
     | NUMBER { $$=$1; }
-    | ID { $$ = $1; struct Lsymbol* lt = Llookup($1->NAME); if(lt) $$->TYPE=lt->TYPE; else {
+    | ID { $$ = $1; struct Lsymbol* lt = Llookup($1->NAME, Lnode); if(lt) $$->TYPE=lt->TYPE; else {
                                                             struct Gsymbol* gt = Glookup($1->NAME);
                                                             if(gt) {if(gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }
                                                             else { printf("ID %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}}
@@ -381,7 +419,7 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                     if(gtemp==NULL || gtemp->SIZE!=0) yyerror("Undefined Function");
                                     else
                                     {
-                                        $$->lookup = gtemp;
+                                        $$->lookup = gtemp->LTABLE;
                                         $$->TYPE = gtemp->TYPE;
                                     }
                                     struct ArgStruct* ARGLIST = gtemp->ARGLIST;
@@ -402,7 +440,7 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                                 break;
                                             }
 
-                                            if(ARGLIST->TYPE == ptemp->left->TYPE)
+                                            if(ARGLIST->ARGTYPE == ptemp->left->TYPE)
                                             {
                                                 if(ARGLIST->PASSTYPE == 1)
                                                 {
@@ -430,7 +468,7 @@ FexprList: { $$=NULL; }
 
 exprList : exprList COMMA expression { $$=CreateNode(0,',', 0, NULL,$1,$3,NULL); pcount++; }
 		| expression { $$=$1; pcount++; }
-		| ADDRESSOF ID { $$ = $1; $$->NODETYPE='v'; struct Lsymbol* lt = Llookup($1->NAME); if(lt) $$->TYPE=lt->TYPE; else {
+		| ADDRESSOF ID { $$ = $1; $$->NODETYPE='v'; struct Lsymbol* lt = Llookup($1->NAME, Lnode); if(lt) $$->TYPE=lt->TYPE; else {
                                                             struct Gsymbol* gt = Glookup($1->NAME);
                                                             if(gt) {if(gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }
                                                             else { printf("ID %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}
@@ -510,7 +548,17 @@ int argDefCheck(struct ArgStruct* arg1, struct ArgStruct* arg2)
 			{
 			return 0;
 			}
-			//Linstall(j->ARGNAME,j->ARGTYPE);
+			Linstall(i->ARGNAME, i->ARGTYPE, Loffset, 0, i->PASSTYPE, Lnode);
+            /*-----------Code Generation-------------------*/
+            switch(TYPE)
+            {
+             case INT :
+                    Loffset += SIZEOFINT;
+                  break;
+             case BOOL :
+                Loffset += SIZEOFBOOL;
+                break;
+            }
 			i=i->ARGNEXT;
 			j=j->ARGNEXT;
 
@@ -526,11 +574,35 @@ int argDefCheck(struct ArgStruct* arg1, struct ArgStruct* arg2)
 	}
 }
 
+int fnDefCheck(int type, char* name, struct ArgStruct* arg)
+{
+	   struct Gsymbol* res;
+	   res = Gnode;
+	   while(res != NULL)
+	    {
+		      if(strcmp(res->NAME, name) == 0 && res->SIZE==0)
+			{
+				 if(res->TYPE == type && argDefCheck(res->ARGLIST, arg))
+				 {
+				 	return 0;
+				 }
+				 else
+				 {
+					yyerror("Incorrect Function Definition");
+					return -1;
+
+			      	 }
+		      	}
+		      res = res->NEXT;
+	     }
+	  yyerror("Function Undeclared");
+
+}
+/**
 int argInstall(struct ArgStruct* head)
 {
 	struct ArgStruct* temp = head;
 	memcount=-1;
-	/*memcount starts at -3 for arguments, as -1: Return address and -2 Return value*/
 	while(temp!=NULL)
 	{
 		memcount = memcount - 2;
@@ -590,7 +662,7 @@ int pushArg(struct node *x, struct ArgStruct *args)
 
 	}
 }
-
+*/
 char* itoa(int value)
 {
 	char *temp=(char *)malloc(10);
@@ -628,10 +700,17 @@ void Gen3A(struct node* root,int flag){
     if(root==NULL){
         return;
     }
-
+    struct Lsymbol* ltemp;
+    char * FNAME = malloc(30);
     switch(root->NODETYPE){
         case 'f' :{
-
+            struct Gsymbol* gt = Glookup(root->NAME);
+            struct Lsymbol* lt = gt->LTABLE;
+            ltemp = lt;
+            struct ArgStruct* at = gt->ARGLIST;
+            struct Lsymbol* lcopy = (struct Lsymbol*)malloc(sizeof (struct Lsymbol));
+            int bp;
+            
             TAinstall('B',root->NAME,NULL,NULL);
             Gen3A(root->center,0);
             break;}
@@ -975,8 +1054,8 @@ void Gen3A(struct node* root,int flag){
                 current_temp++;
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
-                if(Llookup(root->NAME))
-                    TAinstall('M',t,itoa(Llookup(root->NAME)->BINDING+GetGtableSize()),NULL);
+                if(Llookup(root->NAME,ltemp))
+                    TAinstall('M',t,itoa(Llookup(root->NAME, ltemp)->BINDING+GetGtableSize()+1),NULL);
                 else
                     TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
             }
@@ -1005,35 +1084,52 @@ void Gen3A(struct node* root,int flag){
         case 'C':
         {
             int ct = current_temp;
-
+            char *t =(char *) malloc(5);
             int pc=root->VALUE;
             struct node* temp = root->center;
             struct Gsymbol* gtemp = Glookup(root->NAME);
-            struct ArgStruct* args = gtemp->lookup;
+            struct ArgStruct* args = gtemp->ARGLIST;
+            //gtemp->BINDING = 
+            while(current_temp)
+            {
+                t[0]='t';t[1]='\0';
+                strcat(t,itoa(current_temp));
+                TAinstall('P',t,NULL,NULL);
+                current_temp--;
+            }
+            
             while(pc && temp)
             {
-                if(args && args->ARGTYPE == gtemp->TYPE){
                 char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
                 Gen3A(temp->center,0);
                 strcat(t,itoa(current_temp));
-                TAinstall('V',t,NULL,NULL);
+                TAinstall('v',t,NULL,NULL);
                 current_temp--;
                 pc--;
                 temp=temp->left;
-                }
             }
-            TAinstall('B',root->NAME,NULL,NULL);
+            
+            TAinstall('C',root->NAME,NULL,NULL);
             current_temp=ct;
+            while(ct)
+            {
+                 t[0]='t';t[1]='\0';
+                strcat(t,itoa(ct));
+                TAinstall('p',t,NULL,NULL);
+                ct--;
+            }
             break;
         }
         case 'v':
         {
+            char *t =(char *) malloc(5);
             current_temp++;
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            if(Llookup(root->NAME))
-                TAinstall('M',t,itoa(Llookup(root->NAME)->BINDING+GetGtableSize()),NULL);
+            
+            if(Llookup(root->NAME, ltemp))
+                TAinstall('M',t,itoa(Llookup(root->NAME, ltemp)->BINDING+GetGtableSize()+1),NULL);
             else
                 TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
             break;

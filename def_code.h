@@ -1,16 +1,18 @@
 struct node {
-    int TYPE;			/* Integer (1), Boolean (2) or Void (3) (for statements) */
+    int TYPE;			/* Integer (1), Boolean (2) or Void (0) (for statements) */
                     /* Must point to the type expression tree for user defined types */
     int NODETYPE;			/* this field should carry following information:
                     * a) operator : (+,*,/ etc.) for expressions
                     * b) statement Type : (WHILE, READ etc.) for statements
                     * c) else 0
                     */
+    int PASSTYPE;
     int VALUE;			/* for constants */
     char* NAME;			/* For Identifiers */
-    struct	node	*center, *left,	*right;
+    struct	node 	*center, *left,	*right;
+    struct ArgStruct *ARGLIST;
+    struct Lsymbol *lookup;
 };
-
 
 struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struct node *ptr1, struct node *ptr2, struct node *ptr3) {
     struct node* temp=(struct node *)malloc(sizeof(struct node));
@@ -18,6 +20,7 @@ struct node* CreateNode(int TYPE1, int NODETYPE1, int VALUE1, char* NAME1, struc
     temp->NODETYPE		=	NODETYPE1;
     temp->VALUE		=	VALUE1;
     temp->NAME		=	NAME1;
+
     temp->left		=	ptr1; // left node
     temp->center		=	ptr2; // unknown nodes
     temp->right		=	ptr3; // right node
@@ -43,7 +46,7 @@ struct Gsymbol {
     int SIZE; // Size field for arrays
     int BINDING; // Address of the Identifier in Memory
     struct ArgStruct *ARGLIST; // Argument List for functions
-
+    struct Lsymbol *LTABLE;
     /***Argstruct must store the name and type of each argument ***/
     struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
 } *Gnode;
@@ -54,9 +57,10 @@ struct Lsymbol {
     int TYPE; // TYPE can be INTEGER or BOOLEAN
     /***The TYPE field must be a TypeStruct if user defined types are allowed***/
     int VALUE; // for constants
+    int PASSTYPE;
     int BINDING; // Address of the Identifier in Memory
     struct Lsymbol *NEXT; // Pointer to next Symbol Table Entry */
-} *Lnode;
+};
 
 
 
@@ -71,7 +75,7 @@ struct Gsymbol *Glookup(char* NAME){
     return Gtemp;
 }
 
-void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct ArgStruct* ARGLIST){ // Installation
+void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct ArgStruct* ARGLIST, struct Lsymbol* LTABLE){ // Installation
     if(Glookup(NAME) == NULL){
         struct Gsymbol* temp=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));
         temp->NAME = NAME;
@@ -80,10 +84,11 @@ void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct Arg
         temp->BINDING = BINDING;
         temp->VALUE = VALUE;
         temp->ARGLIST = ARGLIST;
+        temp->LTABLE= LTABLE;
         temp->NEXT = Gnode;
         Gnode = temp;
     }else
-        printf("ID %s redeclared\n",NAME);
+        printf("Global ID %s redeclared at %d\n",NAME, BINDING);
 }
 
 
@@ -94,8 +99,8 @@ int GetGtableSize(){
         return 0;
 }
 
-struct Lsymbol *Llookup(char* NAME){
-    struct Lsymbol *Ltemp = Lnode;
+struct Lsymbol *Llookup(char* NAME, struct Lsymbol* Ltemp1){
+    struct Lsymbol *Ltemp = Ltemp1;
     while(Ltemp != NULL){
         if(strcmp(Ltemp->NAME, NAME) == 0)
             return Ltemp;
@@ -104,13 +109,16 @@ struct Lsymbol *Llookup(char* NAME){
     return Ltemp;
 }
 
-void Linstall(char* NAME, int TYPE,int BINDING,int VALUE){
-    if(Llookup(NAME) == NULL){
+
+
+void Linstall(char* NAME, int TYPE,int BINDING,int VALUE, int PASSTYPE, struct Lsymbol* Lnode){
+    if(!Llookup(NAME, Lnode)){
         struct Lsymbol* temp=(struct Lsymbol *)malloc(sizeof(struct Lsymbol));
         temp->NAME = NAME;
         temp->TYPE = TYPE;
         temp->BINDING = BINDING;
         temp->VALUE = VALUE;
+        temp->PASSTYPE = PASSTYPE;
         temp->NEXT = Lnode;
         Lnode = temp;
     }else

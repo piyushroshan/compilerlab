@@ -1,0 +1,24 @@
+decl
+boolean a,z;
+enddecl
+integer main(){
+
+decl
+
+integer b,c,i ;
+enddecl
+
+begin
+
+z=FALSE;
+b=3;
+c=3;
+while ( c!=9 OR z )
+do
+write (b);
+c=c+1;
+endwhile;
+return 1;
+end
+
+}
