@@ -8,7 +8,7 @@
 #define FUNC 6
 #define SIZEOFINT 1 //In SIM all memory location has size of 4bytes
 #define SIZEOFBOOL 1    //changing this sizes implies i have to change code for arrayindex
-int current_reg;
+int SP;
 static int current_temp=0;
 
 struct node {
@@ -87,6 +87,7 @@ int Loffset = 0;
 char* fname;
 //  Adding arguments
 struct ArgStruct* headArg = NULL;
+struct ArgStruct* headArg2 = NULL;
 struct ArgStruct* newArg;
 struct Lsymbol* Lnode = NULL;
 
@@ -127,7 +128,7 @@ void printArg(struct ArgStruct* head);
 %left  MULT  DIVIDE  MODULUS
 
 %type <n> program main_function fbody beginbody statements statement ifelse dowhile read write
-%type <n> return expression astatement  functions function exprList parametr PvarsList Pvar Fparametr FvarsList Pvars PvarsDef ftype declaration declStatements 
+%type <n> return expression astatement  functions function exprList parametr PvarsList Pvar Fparametr FvarsList Pvars PvarsDef ftype declaration declStatements
 %type <n> GdeclStatement Gvars type vars declStatement var Gvar FexprList FvarsDef Fvars Fvar
 
 %%
@@ -167,8 +168,8 @@ FvarsList : FvarsList SEMICOLON FvarsDef
 FvarsDef : type Fvars
     ;
 
-Fvars : Fvars COMMA Fvar
-	| Fvar
+Fvars : Fvars COMMA Fvar { makeArglist(headArg2, newArg);    }
+	| Fvar { makeArglist(headArg2, newArg);  }
 	;
 
 Fvar : ID
@@ -207,6 +208,12 @@ functions : { $$ = NULL; }
 	;
 
 function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME);  } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER { printf(fname);
+                                                                struct Gsymbol* gt =  Glookup($2->NAME);
+                                                                if(gt)
+                                                                {
+                                                                    gt->LTABLE = Lnode;
+                                                                    gt->ARGLIST = headArg2;
+                                                                }
                                                                 if(fnDefCheck(FTYPE, fname, headArg))
                                                                 {
                                                                     struct Gsymbol* gt =  Glookup($2->NAME);
@@ -214,7 +221,7 @@ function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME);  } LPA
                                                                         {
                                                                             gt->LTABLE = Lnode;
                                                                             gt->ARGLIST = headArg;
-                                                                        
+
                                                                         }
 																}else
 																{
@@ -222,7 +229,7 @@ function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME);  } LPA
 																}
 																$$=CreateNode(0,'f', 0, fname, $5, $8, NULL);
 																if($8->TYPE == FTYPE) { $$->TYPE=FUNC; }else{ yyerror(" return type error"); $$->TYPE = -1;}
-                                                                
+
 		}
 	;
 
@@ -254,10 +261,12 @@ Gvar : ID {
                                         Goffset += SIZEOFBOOL*$3->VALUE;
                                         break;
                                 }
-                               
+
                                 /*---------------------------------------------*/
                             }
     | ID {
+                                headArg = malloc(sizeof(struct ArgStruct));
+                                headArg = NULL;
     								Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL, NULL);
     								printf("*****offset of function %s is %d\n",$1->NAME,Goffset);
     								/*-----------Code Generation-------------------*/
@@ -270,33 +279,51 @@ Gvar : ID {
                                         Goffset += SIZEOFBOOL;
                                         break;
                                 }
-                                	
+
                                 /*---------------------------------------------*/
-    							} LPAREN parametr RPAREN {}
+    							} LPAREN parametr RPAREN {
+
+    							struct Gsymbol* gt =  Glookup($2->NAME);
+                            if(gt)
+                            {
+                                gt->LTABLE = Lnode;
+                                gt->ARGLIST = headArg;
+
+    							}
     ;
 
-main_function : INTEGER MAIN {headArg = malloc(sizeof(struct ArgStruct));
-                                                                    headArg = NULL;
+main_function : INTEGER MAIN {headArg2 = malloc(sizeof(struct ArgStruct));
+                                                                    headArg2 = NULL;
                                                                     fname = (char *)malloc(30);
                                                                     strcpy(fname,$2->NAME);
                                                                     FTYPE = INT;
                              }
-                                                                    
-                LPAREN RPAREN LFLOWER fbody RFLOWER { 
+
+                LPAREN RPAREN LFLOWER fbody RFLOWER {
                                                                     $$=CreateNode(0,'f', 0, "MAIN", NULL, $7, NULL);
-                                                                    if($7->TYPE == FTYPE) { $$->TYPE=0; }else{ yyerror(" return type error"); printf("main return %d",$7->TYPE); $$->TYPE = -1;}				 
+                                                                    if($7->TYPE == FTYPE) { $$->TYPE=0; }else{ yyerror(" return type error"); printf("main return %d",$7->TYPE); $$->TYPE = -1;}
                                                                     $$->lookup=$7->lookup;
-                                                                }  
+                                                                }
     ;
 
-fbody : declaration { if( strcmp(fname,"main")!=0) 
-                        if (fnDefCheck(INT, fname, headArg)) 
-                        Ginstall(fname, FTYPE, 0, Goffset, 0, headArg, Lnode);else yyerror("Function definition error"); 
-                        else	Ginstall(fname, FTYPE, 0, Goffset, 0, headArg, Lnode);
-                         } 
-                        
-                        beginbody { $$ = $3;}
-    ; 
+fbody : declaration { if( strcmp(fname,"main")!=0)
+                        if (fnDefCheck(INT, fname, headArg))
+                        {
+                            struct Gsymbol* gt = Glookup(fname);
+                            if(gt)
+                            {
+                                gt->LTABLE = Lnode;
+                            }
+                        }
+                        else yyerror("Function definition error");
+                        else
+                        {
+                            Ginstall(fname, FTYPE, 0, Goffset, 0, NULL, Lnode);
+                    }
+                    }
+
+                    beginbody { $$ = $3;}
+    ;
 
 declaration : DECL { Lnode = malloc(sizeof(struct Lsymbol)); Lnode = NULL; Loffset = 0; } declStatements ENDDECL {  }
     ;
@@ -305,7 +332,7 @@ declStatements : {/*empty*/}
     ;
 declStatement : type vars SEMICOLON
     ;
-vars : var 
+vars : var
     | vars COMMA var
     ;
 
@@ -454,7 +481,19 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                                         yyerror("argument type error");
                                                         break;
                                                     }
-                                                }
+
+                                                }else if(ARGLIST->PASSTYPE == 0)
+                                                    if(ptemp->left->NODETYPE==',')
+                                                    {
+                                                        ARGLIST=ARGLIST->ARGNEXT;
+                                                        ptemp = ptemp->center;
+                                                        pcount--;
+                                                    }
+                                                    else{
+                                                        yyerror("argument type error");
+                                                        break;
+                                                    }
+
                                             }
                                         }
                                     }
@@ -710,7 +749,7 @@ void Gen3A(struct node* root,int flag){
             struct ArgStruct* at = gt->ARGLIST;
             struct Lsymbol* lcopy = (struct Lsymbol*)malloc(sizeof (struct Lsymbol));
             int bp;
-            
+
             TAinstall('B',root->NAME,NULL,NULL);
             Gen3A(root->center,0);
             break;}
@@ -1089,7 +1128,7 @@ void Gen3A(struct node* root,int flag){
             struct node* temp = root->center;
             struct Gsymbol* gtemp = Glookup(root->NAME);
             struct ArgStruct* args = gtemp->ARGLIST;
-            //gtemp->BINDING = 
+            //gtemp->BINDING =
             while(current_temp)
             {
                 t[0]='t';t[1]='\0';
@@ -1097,7 +1136,7 @@ void Gen3A(struct node* root,int flag){
                 TAinstall('P',t,NULL,NULL);
                 current_temp--;
             }
-            
+
             while(pc && temp)
             {
                 char *t =(char *) malloc(5);
@@ -1109,7 +1148,7 @@ void Gen3A(struct node* root,int flag){
                 pc--;
                 temp=temp->left;
             }
-            
+
             TAinstall('C',root->NAME,NULL,NULL);
             current_temp=ct;
             while(ct)
@@ -1127,9 +1166,9 @@ void Gen3A(struct node* root,int flag){
             current_temp++;
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-            
+
             if(Llookup(root->NAME, ltemp))
-                TAinstall('M',t,itoa(Llookup(root->NAME, ltemp)->BINDING+GetGtableSize()+1),NULL);
+                TAinstall('M',t,itoa(Llookup(root->NAME, ltemp)->BINDING+1+SP),NULL);
             else
                 TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
             break;

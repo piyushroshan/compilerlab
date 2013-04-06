@@ -1,4 +1,3 @@
 START
 MOV SP, 0
 MOV BP, 0
-HALT

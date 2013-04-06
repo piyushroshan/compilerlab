@@ -1,8 +1,21 @@
 decl
 	integer x,c ;
 	boolean z,p,o,i;
-	integer fact(integer a,b; boolean e);
+	integer fact(integer n);
 enddecl
+
+integer fact(integer n)
+{
+decl
+enddecl
+begin
+ if(n>0)
+ then
+ write( fact(n-1));
+ endif;
+ return 1;
+ end
+}
 
 integer main()
 {
@@ -13,7 +26,7 @@ boolean m;
 enddecl
 
 begin
-
+fact(3);
 write(1);
 read(x);
 return 1;
