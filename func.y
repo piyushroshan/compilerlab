@@ -717,7 +717,18 @@ char* itoa(int value)
 {
 	char *temp=(char *)malloc(10);
 	int i;
-
+    if(value<0)
+    {
+    value = 0-value;
+    for(i=8; i>0 && value ; i-- , value = value /10)
+	{
+		temp[i]=(char ) (48 + value%10 );
+	}
+	temp[i]='-';
+	
+	temp[9]='\0';
+	return (temp+i);
+    }
 	if(value==0)
 	{
 		temp[8]='0';
@@ -758,7 +769,7 @@ void Gen3A(struct node* root,int flag){
             if(gt){
             struct Lsymbol* lt = gt->LTABLE;
             ltemp = lt;
-            int offset;
+            int offset=-1;
             printf("Printing LSymbol for %s\n", root->NAME);
             PrintLSymbol(ltemp);
             struct ArgStruct* at = gt->ARGLIST;
@@ -796,7 +807,7 @@ void Gen3A(struct node* root,int flag){
                 strcat(t3,itoa(current_temp));
                 TAinstall('M',t3,t1,NULL);
                 TAinstall('+',t3,t3,t2);
-                TAinstall('l',t2,t3,NULL);
+                TAinstall('Q',t2,t3,NULL);
                 current_temp++;
                 char* t4 =(char *) malloc(5);
                 t4[0]='t';t4[1]='\0';
@@ -804,7 +815,7 @@ void Gen3A(struct node* root,int flag){
                 TAinstall('M',t3,t1,NULL);
                 TAinstall('M',t4,itoa(Llookup(at->ARGNAME,ltemp)->BINDING),NULL);
                 TAinstall('-',t3,t3,t4);
-                TAinstall('M',t3,t2,NULL);
+                TAinstall('Q',t3,t2,NULL);
                 offset = offset+1;
                 at=at->ARGNEXT;
                 current_temp--;
@@ -1218,6 +1229,7 @@ void Gen3A(struct node* root,int flag){
                 TAinstall('P',t,NULL,NULL);
                 current_temp--;
             }
+            current_temp;
             while(pc && temp)
             {
                 char *t =(char *) malloc(5);
@@ -1509,7 +1521,22 @@ void codeGen()
                 strcpy(r1,TAroot->op1);
                 char *r2 =(char *) malloc(5);
                 strcpy(r2,TAroot->op2);
-                r1[0]='R';
+                if(r1[0]=='t')
+                    r1[0]='R';
+                if(r2[0]=='t')
+                    r2[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"MOV %s,[%s]\n",r1,r2);
+                fclose(fp);
+                break;
+            }
+            case 'Q':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                char *r2 =(char *) malloc(5);
+                strcpy(r2,TAroot->op2);
+                if(r1[0]=='t')
+                    r1[0]='R';
                 if(r2[0]=='t')
                     r2[0]='R';
                 fp = fopen("sim.asm","a");
