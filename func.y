@@ -1230,15 +1230,22 @@ void Gen3A(struct node* root,int flag){
                 TAinstall('P',t,NULL,NULL);
                 current_temp--;
             }
+            struct node* tempC;
+            int pcc;
             current_temp;
             while(pc && temp)
             {
+                tempC=root->center;
+                pcc = pc-1;
+                while(pcc && tempC){
+                    tempC=tempC->left;
+                    pcc--;
+                }
                 char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
-                Gen3A(temp->center,0);
+                Gen3A(tempC->center,0);
                 strcat(t,itoa(current_temp));
                 TAinstall('P',t,NULL,NULL);
-                temp=temp->left;
                 current_temp--;
                 pc--;
             }
