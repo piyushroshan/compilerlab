@@ -1325,7 +1325,7 @@ void Gen3A(struct node* root,int flag){
                 pc--;
             }
             TAinstall('C',root->NAME,NULL,NULL);
-            printf("%c %s %s %s",'C',root->NAME,NULL,NULL);
+            //printf("%c %s %s %s",'C',root->NAME,NULL,NULL);
             pc=root->VALUE;
             while(pc)
             {
@@ -1346,6 +1346,10 @@ void Gen3A(struct node* root,int flag){
                 //printf("%c %s %s %s",'p',t,NULL,NULL);
                 current_temp++;
             }
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
+            strcat(t,itoa(current_temp));
+            TAinstall('M',t,"t0",NULL);
             break;
         }
         default:
@@ -1678,7 +1682,7 @@ fprintf(stderr, "%s\n",s);
 }
 
 
-#line 1681 "y.tab.c"
+#line 1685 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -2425,7 +2429,7 @@ case 92:
                                                             else { printf("ID %s not found\n",yystack.l_mark[-1].n->NAME); yyerror(""); yyval.n->TYPE=-1;}}
                         }
 break;
-#line 2428 "y.tab.c"
+#line 2432 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

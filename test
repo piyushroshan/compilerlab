@@ -1,36 +1,55 @@
 decl
-integer x,n,i;
-integer print(integer y,z);
-
+integer r;
+integer fibrec(integer n);
 enddecl
 
-integer print(integer y,z){
 
+
+integer fibrec(integer n) {
 decl
-
-
+integer rvalue;
 enddecl
-
 begin
-write(y);
-write(z);
-write(12345);
-i=print(y,z-1);
-return 1;
+if (n==0) then
+        rvalue=0;
+else
+    if (n == 1) then
+        rvalue= 1;
+    else
+     rvalue = fibrec(n - 1) + fibrec(n - 2);
+    endif;
+endif;
+
+return rvalue;
 end
+
 }
+
 
 integer main( ){ // Main definition should always begin like this
 
 decl
+
+integer n,i ;
 
 enddecl
 
 begin
 
 read (n);
-write (n);
-i=print(30,n-1);
-return 1;	 // Any integer value may be returned
+
+i = 1;
+
+while ( i <= n) do
+
+write ( fibrec(i));
+
+i = i + 1;
+
+endwhile;
+
+return 1;    // Any integer value may be returned
+
 end
+
 }

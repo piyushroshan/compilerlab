@@ -1250,7 +1250,7 @@ void Gen3A(struct node* root,int flag){
                 pc--;
             }
             TAinstall('C',root->NAME,NULL,NULL);
-            printf("%c %s %s %s",'C',root->NAME,NULL,NULL);
+            //printf("%c %s %s %s",'C',root->NAME,NULL,NULL);
             pc=root->VALUE;
             while(pc)
             {
@@ -1271,6 +1271,10 @@ void Gen3A(struct node* root,int flag){
                 //printf("%c %s %s %s",'p',t,NULL,NULL);
                 current_temp++;
             }
+            char *t =(char *) malloc(5);
+            t[0]='t';t[1]='\0';
+            strcat(t,itoa(current_temp));
+            TAinstall('M',t,"t0",NULL);
             break;
         }
         default:
