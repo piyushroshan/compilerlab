@@ -1,53 +1,35 @@
 decl
-
-integer factorial(integer n,a,s);
+integer x,n,i;
+integer print();
 
 enddecl
 
-integer factorial (integer n,a,s) {
+integer print(){
+
 decl
 
-integer rvalue;
 
 enddecl
 
 begin
+read(x);
+write(x);
 
-if (n==1) then
-
-rvalue = 1;
-
-else
-rvalue = n * n-1 ;
-
-endif;
-
-return rvalue;	 // Note only one RETURN statement is allowed.
-
+return 1;
 end
-
 }
 
 integer main( ){ // Main definition should always begin like this
 
 decl
 
-integer n,i ;
-
 enddecl
 
 begin
 
 read (n);
-
-i = 1;
-
-while ( i <= n) do
-i = i + 1;
-write ( factorial(2,3,4));
-
-endwhile;
-
+write (n);
+i=print();
 return 1;	 // Any integer value may be returned
 
 end

@@ -92,11 +92,37 @@ void Ginstall(char* NAME, int TYPE, int SIZE, int BINDING, int VALUE, struct Arg
 }
 
 
-int GetGtableSize(){
-    if(Gnode)
-        return (Gnode->BINDING + Gnode->SIZE);
+int GetLtableSize(char* NAME){
+    if(Glookup(NAME))
+    {
+        int size;
+        struct Gsymbol *gtemp = Glookup(NAME);
+        size = Getsize(gtemp->LTABLE);
+        return size;
+    }
     else
         return 0;
+}
+
+int Getsize(struct Lsymbol* Lt)
+{
+        struct Lsymbol * Ltemp=Lt;
+        int size=0;
+        while(Ltemp != NULL){
+            switch(Ltemp->TYPE)
+            {
+            case 1:
+                    size += 1;
+                    break;
+            case 2:
+                    size += 1;
+                    break;
+            }
+         printf("TYPE size %d\n",Ltemp->TYPE);
+        Ltemp=Ltemp->NEXT;
+        }
+        printf("gtable size %d\n",size);
+        return size;
 }
 
 struct Lsymbol *Llookup(char* NAME, struct Lsymbol* Ltemp1){

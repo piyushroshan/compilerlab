@@ -2776,22 +2776,30 @@ yyreturn:
 
 int main(){
     Goffset = 0;
-    SP=0;
+    
     FILE *fp;
-    fp = fopen("sim.asm","w");
-    fclose(fp);
-    yyparse();
-    fp = fopen("sim.asm","a");
-    fprintf(fp,"START\n");
-    fprintf(fp,"MOV SP, 100\n");
-    fprintf(fp,"MOV BP, 0\n");
-    fprintf(fp,"CALL main\n");
-    fclose(fp);
-    fp = fopen("sim.asm","a");
-    fprintf(fp,"HALT\n");
-    fclose(fp);
-    return 0;
-
+        fp = fopen("sim.asm","w");
+        fclose(fp);
+        yyparse();
+        fp = fopen("sim.asm","a");
+        fprintf(fp,"\nSTART\n");
+		fprintf(fp,"MOV R1,%d\n",Goffset+1);
+		fprintf(fp,"INR R1\n");
+		fprintf(fp,"MOV SP,R1\n");
+		fprintf(fp,"MOV R2,SP\n");
+		fprintf(fp,"MOV R3,%d\n",GetLtableSize("main"));
+		fprintf(fp,"ADD R2,R3\n");
+		fprintf(fp,"MOV SP,R2\n");
+		fprintf(fp,"CALL main\n");
+		fprintf(fp,"MOV SP,R1\n");
+		fprintf(fp,"MOV R2,SP\n");
+		fprintf(fp,"MOV R3,%d\n",GetLtableSize("main"));
+		fprintf(fp,"SUB R2,R3\n");
+		fprintf(fp,"MOV SP,R2\n");
+		fprintf(fp,"MOV R1,%d\n",Goffset+1);
+		fprintf(fp,"HALT\n");
+        fclose(fp);
+        return 0;
 }
 
 
@@ -2935,71 +2943,7 @@ int fnDefCheck(int type, char* name, struct ArgStruct* arg)
 	  yyerror("Function Undeclared");
 
 }
-/**
-int argInstall(struct ArgStruct* head)
-{
-	struct ArgStruct* temp = head;
-	memcount=-1;
-	while(temp!=NULL)
-	{
-		memcount = memcount - 2;
-		Linstall(temp->ARGNAME,temp->ARGTYPE);
-		temp=temp->ARGNEXT;
-	}
-	memcount=1;
-}
 
-int pushArg(struct node *x, struct ArgStruct *args)
-{
-	FILE *fp;
-	int res=0;
-	if(x==NULL)
-	{
-		if(args==NULL)
-		{
-			return 0;
-		}
-		else
-		{
-		 	yyerror("Arguments Mismatch");
-		}
-	}
-	else
-	{
-		if(args==NULL)
-		{
-			yyerror("Arguments Mismatch");
-		}
-		else
-		{
-		  	if(x->TYPE==args->ARGTYPE )
-		  	{
-				if(args->PASSTYPE==1)
-				{
-				  if(x->NODETYPE!='v')
-				  {
-				  	yyerror("Pass By Reference Error");
-				  }
-				}
-
-				res = pushArg(x->P3,args->ARGNEXT) + 1;
-				traverse(x);
-				fp = fopen("sim.asm","a");
-		  		fprintf(fp,"PUSH R%d\n",regcount-1);
-		  		regcount--;
-		  		fclose(fp);
-		  		return res;
-		  	}
-		  	else
-		  	{
-		  		yyerror("Arguments mismatch");
-			}
-
-		}
-
-	}
-}
-*/
 char* itoa(int value)
 {
 	char *temp=(char *)malloc(10);
@@ -3045,23 +2989,33 @@ void Gen3A(struct node* root,int flag){
             if(gt){
             struct Lsymbol* lt = gt->LTABLE;
             ltemp = lt;
+            int offset;
             printf("Printing LSymbol for %s\n", root->NAME);
             PrintLSymbol(ltemp);
             struct ArgStruct* at = gt->ARGLIST;
             struct Lsymbol* lcopy = (struct Lsymbol*)malloc(sizeof (struct Lsymbol));
-            int bp=SP+50;
             FNAME = malloc(30);
             FNAME[0]='\0';
             strcat(FNAME,root->NAME);
             TAinstall('B',root->NAME,NULL,NULL);
-            current_temp=1;
-                int offset = 0;
-                char *t1 =(char *) malloc(5);
-                t1[0]='t';t1[1]='\0';
-                strcat(t1,itoa(current_temp));
-                TAinstall('M',t1,"SP",NULL);
-                while(at)
-                {
+            TAinstall('P',"BP",NULL,NULL);
+			TAinstall('M',"BP","SP",NULL);
+			char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            strcat(t1,itoa(current_temp));
+            TAinstall('M',t1,"SP",NULL);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            current_temp++;
+            strcat(t2,itoa(current_temp));
+            printf("Gtable size %s %d",root->NAME,GetLtableSize(root->NAME));
+            TAinstall('M',t2,itoa(GetLtableSize(root->NAME)),NULL);
+            TAinstall('-',t1,t1,t2);
+            current_temp--;
+            TAinstall('M',"SP",t1,NULL);
+            TAinstall('M',t1,"BP",NULL);
+            while(at)
+            {
                 current_temp++;
                 char *t2 =(char *) malloc(5);
                 t2[0]='t';t2[1]='\0';
@@ -3072,16 +3026,19 @@ void Gen3A(struct node* root,int flag){
                 t3[0]='t';t3[1]='\0';
                 strcat(t3,itoa(current_temp));
                 TAinstall('M',t3,t1,NULL);
-                TAinstall('-',t3,t3,t2);
+                TAinstall('+',t3,t3,t2);
                 TAinstall('l',t2,t3,NULL);
-                t3 =(char *) malloc(5);
-                t3[0]='t';t3[1]='\0';
-                strcat(t3,itoa(current_temp));
-                TAinstall('M',t3,itoa(Llookup(at->ARGNAME,ltemp)->BINDING),NULL);
-                TAinstall('+',t3,t3,t1);
+                current_temp++;
+                char* t4 =(char *) malloc(5);
+                t4[0]='t';t4[1]='\0';
+                strcat(t4,itoa(current_temp));
+                TAinstall('M',t3,t1,NULL);
+                TAinstall('M',t4,itoa(Llookup(at->ARGNAME,ltemp)->BINDING),NULL);
+                TAinstall('-',t3,t3,t4);
                 TAinstall('M',t3,t2,NULL);
                 offset = offset+1;
                 at=at->ARGNEXT;
+                current_temp--;
                 current_temp--;
                 current_temp--;
             }
@@ -3436,20 +3393,16 @@ void Gen3A(struct node* root,int flag){
                  {  
                     current_temp++;
                     char *t1 =(char *) malloc(5);
-                     t1[0]='\0';
-                    strcat(t1,"SP");
+                     t1[0]='t';t1[1]='\0';
+                    strcat(t1,itoa(current_temp));
+                    current_temp++;
                     char *t2 =(char *) malloc(5);
                      t2[0]='t';t2[1]='\0';
                     strcat(t2,itoa(current_temp));
-                    current_temp++;
-                    char *t3 =(char *) malloc(5);
-                     t3[0]='t';t3[1]='\0';
-                    strcat(t3,itoa(current_temp));
-                    
-                    TAinstall('M',t2,t1,NULL);
-                    TAinstall('M',t3,itoa(Llookup(root->NAME, ltemp)->BINDING),NULL);
-                    TAinstall('+',t2,t2,t3);
-                    TAinstall('M',t,t2,NULL);
+                    TAinstall('M',t1,"BP",NULL);
+                    TAinstall('M',t2,itoa(Llookup(root->NAME, ltemp)->BINDING),NULL);
+                    TAinstall('-',t1,t1,t2);
+                    TAinstall('M',t,t1,NULL);
                     current_temp--;
                     current_temp--;
                 }
@@ -3496,23 +3449,6 @@ void Gen3A(struct node* root,int flag){
                 TAinstall('P',t,NULL,NULL);
                 current_temp--;
             }
-            char *t =(char *) malloc(5);
-            t[0]='\0';
-            strcat(t,"SP");
-            char *t1 =(char *) malloc(5);
-            t1[0]='t';t1[1]='\0';
-            current_temp++;
-            strcat(t1,itoa(current_temp));
-            TAinstall('M',t1,t,NULL);
-            char *t2 =(char *) malloc(5);
-            t2[0]='t';t2[1]='\0';
-            current_temp++;
-            strcat(t2,itoa(current_temp));
-            TAinstall('M',t2,itoa(50),NULL);
-            TAinstall('+',t1,t1,t2);
-            TAinstall('M',t,t1,NULL);
-            current_temp--;
-            current_temp--;
             while(pc && temp)
             {
                 char *t =(char *) malloc(5);
@@ -3523,10 +3459,7 @@ void Gen3A(struct node* root,int flag){
                 //printf("%c %s %s %s",'v',t,NULL,NULL);
                 current_temp--;
                 pc--;
-                if(temp->left)
-                temp=temp->left;
             }
-            
             TAinstall('C',root->NAME,NULL,NULL);
             printf("%c %s %s %s",'C',root->NAME,NULL,NULL);
             pc=root->VALUE;
@@ -3534,28 +3467,11 @@ void Gen3A(struct node* root,int flag){
             {
                 char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
-                strcat(t,itoa(0));
+                strcat(t,itoa(1));
                 TAinstall('p',t,NULL,NULL);
                 //printf("%c %s %s %s",'v',t,NULL,NULL);
                 pc--;
             }
-            t =(char *) malloc(5);
-            t[0]='\0';
-            strcat(t,"SP");
-            t1 =(char *) malloc(5);
-            t1[0]='t';t1[1]='\0';
-            current_temp++;
-            strcat(t1,itoa(current_temp));
-            TAinstall('M',t1,t,NULL);
-            t2 =(char *) malloc(5);
-            t2[0]='t';t2[1]='\0';
-            current_temp++;
-            strcat(t2,itoa(current_temp));
-            TAinstall('M',t2,itoa(50),NULL);
-            TAinstall('-',t1,t1,t2);
-            TAinstall('M',t,t1,NULL);
-            current_temp--;
-            current_temp--;
             current_temp=1;
             while(current_temp<=ct)
             {
@@ -3844,6 +3760,7 @@ void codeGen()
             case 'P':{
                 char *r1 =(char *) malloc(5);
                 strcpy(r1,TAroot->op1);
+                if(r1[0]=='t')
                 r1[0]='R';
                 fp = fopen("sim.asm","a");
                 fprintf(fp,"PUSH %s\n",r1);
@@ -3853,6 +3770,7 @@ void codeGen()
             case 'p':{
                 char *r1 =(char *) malloc(5);
                 strcpy(r1,TAroot->op1);
+                if(r1[0]=='t')
                 r1[0]='R';
                 fp = fopen("sim.asm","a");
                 fprintf(fp,"POP %s\n",r1);
@@ -3862,9 +3780,12 @@ void codeGen()
             case 'R':{
                 char *r1 =(char *) malloc(5);
                 strcpy(r1,TAroot->op1);
+                if(r1[0]=='t')
                 r1[0]='R';
                 fp = fopen("sim.asm","a");
                 fprintf(fp,"MOV R0,%s\n",r1);
+                fprintf(fp,"MOV SP, BP\n");
+			    fprintf(fp,"POP BP\n");
                 fprintf(fp,"RET\n");
                 fclose(fp);
                 break;
