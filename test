@@ -1,10 +1,10 @@
 decl
 integer x,n,i;
-integer print(integer y);
+integer print(integer y,z);
 
 enddecl
 
-integer print(integer y){
+integer print(integer y,z){
 
 decl
 
@@ -12,13 +12,10 @@ decl
 enddecl
 
 begin
-
-
 write(y);
-if(y!=1) then
-read(x);
-i=print(x);
-endif;
+write(z);
+write(12345);
+i=print(y,z-1);
 return 1;
 end
 }
@@ -33,7 +30,7 @@ begin
 
 read (n);
 write (n);
-i=print(n);
+i=print(30,n-1);
 return 1;	 // Any integer value may be returned
 end
 }

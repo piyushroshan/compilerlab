@@ -545,7 +545,7 @@ exprList : exprList COMMA expression { $$=CreateNode(0,'z', 0, NULL,$1,$3,NULL);
 
 int main(){
     Goffset = 0;
-    
+
     FILE *fp;
         fp = fopen("sim.asm","w");
         fclose(fp);
@@ -725,7 +725,7 @@ char* itoa(int value)
 		temp[i]=(char ) (48 + value%10 );
 	}
 	temp[i]='-';
-	
+
 	temp[9]='\0';
 	return (temp+i);
     }
@@ -762,14 +762,14 @@ void Gen3A(struct node* root,int flag){
     if(root==NULL){
         return;
     }
-    
+
     switch(root->NODETYPE){
         case 'f' :{
             struct Gsymbol* gt = Glookup(root->NAME);
             if(gt){
             struct Lsymbol* lt = gt->LTABLE;
             ltemp = lt;
-            int offset=-1;
+            int offset=2;
             printf("Printing LSymbol for %s\n", root->NAME);
             PrintLSymbol(ltemp);
             struct ArgStruct* at = gt->ARGLIST;
@@ -790,7 +790,7 @@ void Gen3A(struct node* root,int flag){
             strcat(t2,itoa(current_temp));
             printf("Gtable size %s %d",root->NAME,GetLtableSize(root->NAME));
             TAinstall('M',t2,itoa(GetLtableSize(root->NAME)),NULL);
-            TAinstall('-',t1,t1,t2);
+            TAinstall('+',t1,t1,t2);
             current_temp--;
             TAinstall('M',"SP",t1,NULL);
             TAinstall('M',t1,"BP",NULL);
@@ -806,16 +806,17 @@ void Gen3A(struct node* root,int flag){
                 t3[0]='t';t3[1]='\0';
                 strcat(t3,itoa(current_temp));
                 TAinstall('M',t3,t1,NULL);
-                TAinstall('+',t3,t3,t2);
-                TAinstall('Q',t2,t3,NULL);
+                TAinstall('-',t3,t3,t2);
+                TAinstall('l',t2,t3,NULL);
+                //TAinstall('w',t2,NULL,NULL);
                 current_temp++;
                 char* t4 =(char *) malloc(5);
                 t4[0]='t';t4[1]='\0';
                 strcat(t4,itoa(current_temp));
                 TAinstall('M',t3,t1,NULL);
-                TAinstall('M',t4,itoa(Llookup(at->ARGNAME,ltemp)->BINDING),NULL);
-                TAinstall('-',t3,t3,t4);
-                TAinstall('Q',t3,t2,NULL);
+                TAinstall('M',t4,itoa(((Llookup(at->ARGNAME,ltemp))->BINDING)+1),NULL);
+                TAinstall('+',t3,t3,t4);
+                TAinstall('=',t3,t2,NULL);
                 offset = offset+1;
                 at=at->ARGNEXT;
                 current_temp--;
@@ -1170,7 +1171,7 @@ void Gen3A(struct node* root,int flag){
                 //printf("Printing LSymbol for %s when looking for %s\n",FNAME, root->NAME);
                 //PrintLSymbol(ltemp);
                 if(Llookup(root->NAME,ltemp))
-                 {  
+                 {
                     current_temp++;
                     char *t1 =(char *) malloc(5);
                      t1[0]='t';t1[1]='\0';
@@ -1180,8 +1181,8 @@ void Gen3A(struct node* root,int flag){
                      t2[0]='t';t2[1]='\0';
                     strcat(t2,itoa(current_temp));
                     TAinstall('M',t1,"BP",NULL);
-                    TAinstall('M',t2,itoa(Llookup(root->NAME, ltemp)->BINDING),NULL);
-                    TAinstall('-',t1,t1,t2);
+                    TAinstall('M',t2,itoa(Llookup(root->NAME, ltemp)->BINDING+1),NULL);
+                    TAinstall('+',t1,t1,t2);
                     TAinstall('M',t,t1,NULL);
                     current_temp--;
                     current_temp--;
@@ -1237,7 +1238,7 @@ void Gen3A(struct node* root,int flag){
                 Gen3A(temp->center,0);
                 strcat(t,itoa(current_temp));
                 TAinstall('P',t,NULL,NULL);
-                //printf("%c %s %s %s",'v',t,NULL,NULL);
+                temp=temp->left;
                 current_temp--;
                 pc--;
             }
@@ -1495,8 +1496,10 @@ void codeGen()
                 strcpy(r1,TAroot->op1);
                 char *r2 =(char *) malloc(5);
                 strcpy(r2,TAroot->op2);
-                r1[0]='R';
-                r2[0]='R';
+                if(r1[0]=='t')
+                    r1[0]='R';
+                if(r2[0]=='t')
+                    r2[0]='R';
                 fp = fopen("sim.asm","a");
                 fprintf(fp,"MOV [%s],%s\n",r1,r2);
                 fclose(fp);
@@ -1517,20 +1520,6 @@ void codeGen()
                 break;
             }
             case 'l':{
-                char *r1 =(char *) malloc(5);
-                strcpy(r1,TAroot->op1);
-                char *r2 =(char *) malloc(5);
-                strcpy(r2,TAroot->op2);
-                if(r1[0]=='t')
-                    r1[0]='R';
-                if(r2[0]=='t')
-                    r2[0]='R';
-                fp = fopen("sim.asm","a");
-                fprintf(fp,"MOV %s,[%s]\n",r1,r2);
-                fclose(fp);
-                break;
-            }
-            case 'Q':{
                 char *r1 =(char *) malloc(5);
                 strcpy(r1,TAroot->op1);
                 char *r2 =(char *) malloc(5);
