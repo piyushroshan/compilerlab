@@ -146,7 +146,7 @@ void printArg(struct ArgStruct* head);
 %%
 program : /*Gdeclaration  main_function { printf("PARSING SUCCESS\n"); $$=$2; PrintSymbol(); printTree($2); Gen3A($2,0); print_TAlist(); codeGen();}
 	| */
-	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); PrintSymbol(); printTree($$); Gen3A($$,0); print_TAlist(); }
+	Gdeclaration functions main_function { printf("PARSING SUCCESS\n"); $$=CreateNode(0,'S', 0, NULL, $2, $3, NULL); PrintSymbol(); printTree($$); Gen3A($$,0); print_TAlist();codeGen(); }
     ;
 Gdeclaration : DECL GdeclStatements ENDDECL
     ;
@@ -302,7 +302,7 @@ function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); } LPAR
                                                                 }
                                                                 $$=CreateNode(0,'f', 0, fname, $5, $8, NULL);
                                                                 if($8->TYPE == FTYPE) { $$->TYPE=FUNC; }else{ yyerror(" return type error"); $$->TYPE = -1;}
-                                                                PrintLSymbol(Lnode);
+                                                                //PrintLSymbol(Lnode);
 
         }
     ;
@@ -315,7 +315,7 @@ main_function : INTEGER MAIN {                                      headArg = (s
                              }
 
                 LPAREN RPAREN LFLOWER fbody RFLOWER {
-                                                                    $$=CreateNode(0,'f', 0, "MAIN", NULL, $7, NULL);
+                                                                    $$=CreateNode(0,'f', 0, "main", NULL, $7, NULL);
                                                                     if($7->TYPE == FTYPE) { $$->TYPE=0; }else{ yyerror(" return type error"); printf("main return %d",$7->TYPE); $$->TYPE = -1;}
                                                                     $$->lookup=$7->lookup;
                                                                 }
@@ -515,6 +515,8 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                             }else
                                             {
                                                  yyerror("match type error 1");
+                                                 ARGLIST=ARGLIST->ARGNEXT;
+                                                 ptemp = ptemp->left;
                                             }
                                             pcount--;
                                         }else
@@ -550,6 +552,7 @@ int main(){
     fprintf(fp,"START\n");
     fprintf(fp,"MOV SP, 0\n");
     fprintf(fp,"MOV BP, 0\n");
+    SP=0;
     fclose(fp);
     yyparse();
     fp = fopen("sim.asm","a");
@@ -802,18 +805,21 @@ void Gen3A(struct node* root,int flag){
     if(root==NULL){
         return;
     }
-    struct Lsymbol* ltemp;
+    struct Lsymbol* ltemp = NULL;
     char * FNAME = malloc(30);
+    FNAME = NULL;
     switch(root->NODETYPE){
         case 'f' :{
             struct Gsymbol* gt = Glookup(root->NAME);
+            if(gt){
             struct Lsymbol* lt = gt->LTABLE;
             ltemp = lt;
             struct ArgStruct* at = gt->ARGLIST;
             struct Lsymbol* lcopy = (struct Lsymbol*)malloc(sizeof (struct Lsymbol));
-            int bp;
+            int bp=SP+200;
             TAinstall('B',root->NAME,NULL,NULL);
             Gen3A(root->center,0);
+            }
             break;}
         case 'S':
             Gen3A(root->left,0);
@@ -1111,6 +1117,7 @@ void Gen3A(struct node* root,int flag){
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('E',t1, t1, t2);
+            printf("%c %s %s %s",'E',t1, t1, t2);
             current_temp--;
             break;
         }
@@ -1206,29 +1213,32 @@ void Gen3A(struct node* root,int flag){
                 Gen3A(temp->center,0);
                 strcat(t,itoa(current_temp));
                 TAinstall('v',t,NULL,NULL);
+                printf("%c %s %s %s",'v',t,NULL,NULL);
                 current_temp--;
                 pc--;
                 temp=temp->left;
             }
 
             TAinstall('C',root->NAME,NULL,NULL);
+            printf("%c %s %s %s",'C',root->NAME,NULL,NULL);
             current_temp=ct;
             while(ct)
             {
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(ct));
                 TAinstall('p',t,NULL,NULL);
+                printf("%c %s %s %s",'p',t,NULL,NULL);
                 ct--;
             }
             break;
         }
-        case 'v':
+        case 'z':
         {
             char *t =(char *) malloc(5);
             current_temp++;
             t[0]='t';t[1]='\0';
             strcat(t,itoa(current_temp));
-
+            printf("%c %s %s %s",'z',t,"debugging",NULL);
             if(Llookup(root->NAME, ltemp))
                 TAinstall('M',t,itoa(Llookup(root->NAME, ltemp)->BINDING+1+SP),NULL);
             else

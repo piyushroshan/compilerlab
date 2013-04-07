@@ -12,12 +12,10 @@ enddecl
 begin
 x=1;
 if (x==1) then
-
 x = 1;
-
 else
 
-x = fact(1,2,3,TRUE,FALSE);
+x = fact(11,23,33,h,FALSE);
 
 endif;
  return 1;
