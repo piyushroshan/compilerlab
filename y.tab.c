@@ -2516,7 +2516,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 535 "func.y"
-    { (yyval.n)=CreateNode(0,'z', 0, NULL,(yyvsp[(1) - (3)].n),(yyvsp[(3) - (3)].n),NULL); pcount++; }
+    { (yyval.n)=CreateNode(0,'z', 0, NULL,(yyvsp[(1) - (3)].n),(yyvsp[(3) - (3)].n),NULL); pcount++; (yyvsp[(3) - (3)].n)->PASSTYPE=0; }
     break;
 
   case 92:
@@ -2776,16 +2776,17 @@ yyreturn:
 
 int main(){
     Goffset = 0;
+    SP=0;
     FILE *fp;
     fp = fopen("sim.asm","w");
     fclose(fp);
+    yyparse();
     fp = fopen("sim.asm","a");
     fprintf(fp,"START\n");
-    fprintf(fp,"MOV SP, 0\n");
+    fprintf(fp,"MOV SP, 100\n");
     fprintf(fp,"MOV BP, 0\n");
-    SP=0;
+    fprintf(fp,"CALL main\n");
     fclose(fp);
-    yyparse();
     fp = fopen("sim.asm","a");
     fprintf(fp,"HALT\n");
     fclose(fp);
@@ -3031,27 +3032,63 @@ char* newlabel() {
     //printf("Newlabel %s\n",temp);
     return temp;
 }
-
+struct Lsymbol* ltemp = NULL;
+char * FNAME;
 void Gen3A(struct node* root,int flag){
     if(root==NULL){
         return;
     }
-    struct Lsymbol* ltemp = NULL;
-    char * FNAME = malloc(30);
-    FNAME = NULL;
+    
     switch(root->NODETYPE){
         case 'f' :{
             struct Gsymbol* gt = Glookup(root->NAME);
             if(gt){
             struct Lsymbol* lt = gt->LTABLE;
             ltemp = lt;
+            printf("Printing LSymbol for %s\n", root->NAME);
+            PrintLSymbol(ltemp);
             struct ArgStruct* at = gt->ARGLIST;
             struct Lsymbol* lcopy = (struct Lsymbol*)malloc(sizeof (struct Lsymbol));
-            int bp=SP+200;
+            int bp=SP+50;
+            FNAME = malloc(30);
+            FNAME[0]='\0';
+            strcat(FNAME,root->NAME);
             TAinstall('B',root->NAME,NULL,NULL);
+            current_temp=1;
+                int offset = 0;
+                char *t1 =(char *) malloc(5);
+                t1[0]='t';t1[1]='\0';
+                strcat(t1,itoa(current_temp));
+                TAinstall('M',t1,"SP",NULL);
+                while(at)
+                {
+                current_temp++;
+                char *t2 =(char *) malloc(5);
+                t2[0]='t';t2[1]='\0';
+                strcat(t2,itoa(current_temp));
+                TAinstall('M',t2,itoa(offset),NULL);
+                current_temp++;
+                char *t3 =(char *) malloc(5);
+                t3[0]='t';t3[1]='\0';
+                strcat(t3,itoa(current_temp));
+                TAinstall('M',t3,t1,NULL);
+                TAinstall('-',t3,t3,t2);
+                TAinstall('l',t2,t3,NULL);
+                t3 =(char *) malloc(5);
+                t3[0]='t';t3[1]='\0';
+                strcat(t3,itoa(current_temp));
+                TAinstall('M',t3,itoa(Llookup(at->ARGNAME,ltemp)->BINDING),NULL);
+                TAinstall('+',t3,t3,t1);
+                TAinstall('M',t3,t2,NULL);
+                offset = offset+1;
+                at=at->ARGNEXT;
+                current_temp--;
+                current_temp--;
+            }
             Gen3A(root->center,0);
             }
-            break;}
+            break;
+        }
         case 'S':
             Gen3A(root->left,0);
             Gen3A(root->center,0);
@@ -3348,7 +3385,7 @@ void Gen3A(struct node* root,int flag){
             t2[0]='t';t2[1]='\0';
             strcat(t2,itoa(current_temp));
             TAinstall('E',t1, t1, t2);
-            printf("%c %s %s %s",'E',t1, t1, t2);
+            //printf("%c %s %s %s",'E',t1, t1, t2);
             current_temp--;
             break;
         }
@@ -3393,8 +3430,29 @@ void Gen3A(struct node* root,int flag){
                 current_temp++;
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
+                //printf("Printing LSymbol for %s when looking for %s\n",FNAME, root->NAME);
+                //PrintLSymbol(ltemp);
                 if(Llookup(root->NAME,ltemp))
-                    TAinstall('M',t,itoa(Llookup(root->NAME, ltemp)->BINDING+GetGtableSize()+1),NULL);
+                 {  
+                    current_temp++;
+                    char *t1 =(char *) malloc(5);
+                     t1[0]='\0';
+                    strcat(t1,"SP");
+                    char *t2 =(char *) malloc(5);
+                     t2[0]='t';t2[1]='\0';
+                    strcat(t2,itoa(current_temp));
+                    current_temp++;
+                    char *t3 =(char *) malloc(5);
+                     t3[0]='t';t3[1]='\0';
+                    strcat(t3,itoa(current_temp));
+                    
+                    TAinstall('M',t2,t1,NULL);
+                    TAinstall('M',t3,itoa(Llookup(root->NAME, ltemp)->BINDING),NULL);
+                    TAinstall('+',t2,t2,t3);
+                    TAinstall('M',t,t2,NULL);
+                    current_temp--;
+                    current_temp--;
+                }
                 else
                     TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
             }
@@ -3423,57 +3481,91 @@ void Gen3A(struct node* root,int flag){
         case 'C':
         {
             int ct = current_temp;
-            char *t =(char *) malloc(5);
             int pc=root->VALUE;
             struct node* temp = root->center;
             struct Gsymbol* gtemp = Glookup(root->NAME);
             struct ArgStruct* args = gtemp->ARGLIST;
+            printf("printing Argument");
+            printArg(args);
             //gtemp->BINDING =
             while(current_temp)
             {
+                char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
                 TAinstall('P',t,NULL,NULL);
                 current_temp--;
             }
-
+            char *t =(char *) malloc(5);
+            t[0]='\0';
+            strcat(t,"SP");
+            char *t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
+            current_temp++;
+            strcat(t1,itoa(current_temp));
+            TAinstall('M',t1,t,NULL);
+            char *t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            current_temp++;
+            strcat(t2,itoa(current_temp));
+            TAinstall('M',t2,itoa(50),NULL);
+            TAinstall('+',t1,t1,t2);
+            TAinstall('M',t,t1,NULL);
+            current_temp--;
+            current_temp--;
             while(pc && temp)
             {
                 char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
                 Gen3A(temp->center,0);
                 strcat(t,itoa(current_temp));
-                TAinstall('v',t,NULL,NULL);
-                printf("%c %s %s %s",'v',t,NULL,NULL);
+                TAinstall('P',t,NULL,NULL);
+                //printf("%c %s %s %s",'v',t,NULL,NULL);
                 current_temp--;
                 pc--;
+                if(temp->left)
                 temp=temp->left;
             }
-
+            
             TAinstall('C',root->NAME,NULL,NULL);
             printf("%c %s %s %s",'C',root->NAME,NULL,NULL);
-            current_temp=ct;
-            while(ct)
+            pc=root->VALUE;
+            while(pc)
             {
+                char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
-                strcat(t,itoa(ct));
+                strcat(t,itoa(0));
                 TAinstall('p',t,NULL,NULL);
-                printf("%c %s %s %s",'p',t,NULL,NULL);
-                ct--;
+                //printf("%c %s %s %s",'v',t,NULL,NULL);
+                pc--;
             }
-            break;
-        }
-        case 'z':
-        {
-            char *t =(char *) malloc(5);
+            t =(char *) malloc(5);
+            t[0]='\0';
+            strcat(t,"SP");
+            t1 =(char *) malloc(5);
+            t1[0]='t';t1[1]='\0';
             current_temp++;
-            t[0]='t';t[1]='\0';
-            strcat(t,itoa(current_temp));
-            printf("%c %s %s %s",'z',t,"debugging",NULL);
-            if(Llookup(root->NAME, ltemp))
-                TAinstall('M',t,itoa(Llookup(root->NAME, ltemp)->BINDING+1+SP),NULL);
-            else
-                TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
+            strcat(t1,itoa(current_temp));
+            TAinstall('M',t1,t,NULL);
+            t2 =(char *) malloc(5);
+            t2[0]='t';t2[1]='\0';
+            current_temp++;
+            strcat(t2,itoa(current_temp));
+            TAinstall('M',t2,itoa(50),NULL);
+            TAinstall('-',t1,t1,t2);
+            TAinstall('M',t,t1,NULL);
+            current_temp--;
+            current_temp--;
+            current_temp=1;
+            while(current_temp<=ct)
+            {
+                char *t =(char *) malloc(5);
+                t[0]='t';t[1]='\0';
+                strcat(t,itoa(current_temp));
+                TAinstall('p',t,NULL,NULL);
+                //printf("%c %s %s %s",'p',t,NULL,NULL);
+                current_temp++;
+            }
             break;
         }
         default:
@@ -3718,7 +3810,8 @@ void codeGen()
                 strcpy(r1,TAroot->op1);
                 char *r2 =(char *) malloc(5);
                 strcpy(r2,TAroot->op2);
-                r1[0]='R';
+                if(r1[0]=='t')
+                    r1[0]='R';
                 if(r2[0]=='t')
                     r2[0]='R';
                 fp = fopen("sim.asm","a");
@@ -3748,13 +3841,37 @@ void codeGen()
                 fclose(fp);
                 break;
             }
+            case 'P':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                r1[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"PUSH %s\n",r1);
+                fclose(fp);
+                break;
+            }
+            case 'p':{
+                char *r1 =(char *) malloc(5);
+                strcpy(r1,TAroot->op1);
+                r1[0]='R';
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"POP %s\n",r1);
+                fclose(fp);
+                break;
+            }
             case 'R':{
                 char *r1 =(char *) malloc(5);
                 strcpy(r1,TAroot->op1);
                 r1[0]='R';
                 fp = fopen("sim.asm","a");
                 fprintf(fp,"MOV R0,%s\n",r1);
-                //fprintf(fp,"RET\n");
+                fprintf(fp,"RET\n");
+                fclose(fp);
+                break;
+            }
+            case 'C':{
+                fp = fopen("sim.asm","a");
+                fprintf(fp,"CALL %s\n",TAroot->op1);
                 fclose(fp);
                 break;
             }

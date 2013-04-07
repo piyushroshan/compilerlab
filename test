@@ -1,50 +1,54 @@
 decl
-	integer x,c ;
-	boolean z,i;
-	integer fact(integer n,a,b; boolean h,x);
+
+integer factorial(integer n,a,s);
+
 enddecl
 
-integer fact(integer n,a,b; boolean h,x)
-{
+integer factorial (integer n,a,s) {
 decl
-integer x;
-enddecl
-begin
-x=1;
-if (x==1) then
-x = 1;
-else
 
-x = fact(11,23,33,h,FALSE);
-
-endif;
- return 1;
- end
-}
-
-integer main()
-{
-decl
-integer y,t;
-boolean m;
+integer rvalue;
 
 enddecl
 
 begin
-if (x==1) then
 
-x = 1;
+if (n==1) then
+
+rvalue = 1;
 
 else
-
-x = 11;
+rvalue = n * n-1 ;
 
 endif;
-write(1);
-read(x);
-return 1;
+
+return rvalue;	 // Note only one RETURN statement is allowed.
+
 end
 
 }
 
+integer main( ){ // Main definition should always begin like this
 
+decl
+
+integer n,i ;
+
+enddecl
+
+begin
+
+read (n);
+
+i = 1;
+
+while ( i <= n) do
+i = i + 1;
+write ( factorial(2,3,4));
+
+endwhile;
+
+return 1;	 // Any integer value may be returned
+
+end
+}
