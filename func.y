@@ -260,7 +260,7 @@ Gvar : ID {
                                 /*---------------------------------------------*/
                             }
     | ID {
-                                
+
                                 headArg = NULL;
                                 Ginstall($1->NAME, TYPE, 0, Goffset, 0, NULL, NULL);
                                 printf("*****offset of function %s is %d\n",$1->NAME,Goffset);
@@ -286,14 +286,14 @@ Gvar : ID {
     							}else
                                     yyerror("function not found");
                         }
-    							
+
     ;
 
 functions : { $$ = NULL; }
     | functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else {$$->TYPE=-1; yyerror("Bad functions") ;} }
     ;
 
-function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER { 
+function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER {
                                                                 struct Gsymbol* gt =  Glookup($2->NAME);
                                                                 if(gt)
                                                                 {
@@ -306,7 +306,7 @@ function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); } LPAR
 
         }
     ;
-    
+
 main_function : INTEGER MAIN {                                      headArg = (struct ArgStruct*)NULL;
                                                                     headArg2 = (struct ArgStruct*)NULL;
                                                                     fname = (char *)malloc(30);
@@ -812,7 +812,6 @@ void Gen3A(struct node* root,int flag){
             struct ArgStruct* at = gt->ARGLIST;
             struct Lsymbol* lcopy = (struct Lsymbol*)malloc(sizeof (struct Lsymbol));
             int bp;
-
             TAinstall('B',root->NAME,NULL,NULL);
             Gen3A(root->center,0);
             break;}
@@ -1216,7 +1215,7 @@ void Gen3A(struct node* root,int flag){
             current_temp=ct;
             while(ct)
             {
-                 t[0]='t';t[1]='\0';
+                t[0]='t';t[1]='\0';
                 strcat(t,itoa(ct));
                 TAinstall('p',t,NULL,NULL);
                 ct--;
@@ -1532,4 +1531,4 @@ char *s;
 fprintf(stderr, "%s\n",s);
 }
 
-  
+

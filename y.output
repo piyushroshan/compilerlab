@@ -46,19 +46,19 @@
   28  Pvar : ID
   29       | ADDRESSOF ID
 
-  30  functions :
-  31            | functions function
+  30  Gvar : ID
+  31       | ID LSQUARE NUMBER RSQUARE
 
   32  $$1 :
 
-  33  function : ftype ID $$1 LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER
+  33  Gvar : ID $$1 LPAREN parametr RPAREN
 
-  34  Gvar : ID
-  35       | ID LSQUARE NUMBER RSQUARE
+  34  functions :
+  35            | functions function
 
   36  $$2 :
 
-  37  Gvar : ID $$2 LPAREN parametr RPAREN
+  37  function : ftype ID $$2 LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER
 
   38  $$3 :
 
@@ -164,9 +164,9 @@ state 2
 
 state 3
 	program : Gdeclaration . functions main_function  (1)
-	functions : .  (30)
+	functions : .  (34)
 
-	.  reduce 30
+	.  reduce 34
 
 	functions  goto 5
 
@@ -186,7 +186,7 @@ state 4
 
 state 5
 	program : Gdeclaration functions . main_function  (1)
-	functions : functions . function  (31)
+	functions : functions . function  (35)
 
 	INTEGER  shift 11
 	BOOLEAN  shift 12
@@ -252,30 +252,30 @@ state 13
 
 
 state 14
-	functions : functions function .  (31)
+	functions : functions function .  (35)
 
-	.  reduce 31
+	.  reduce 35
 
 
 state 15
-	function : ftype . ID $$1 LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER  (33)
+	function : ftype . ID $$2 LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER  (37)
 
 	ID  shift 20
 	.  error
 
 
 state 16
-	Gvar : ID .  (34)
-	Gvar : ID . LSQUARE NUMBER RSQUARE  (35)
-	Gvar : ID . $$2 LPAREN parametr RPAREN  (37)
-	$$2 : .  (36)
+	Gvar : ID .  (30)
+	Gvar : ID . LSQUARE NUMBER RSQUARE  (31)
+	Gvar : ID . $$1 LPAREN parametr RPAREN  (33)
+	$$1 : .  (32)
 
 	LSQUARE  shift 21
-	SEMICOLON  reduce 34
-	COMMA  reduce 34
-	LPAREN  reduce 36
+	SEMICOLON  reduce 30
+	COMMA  reduce 30
+	LPAREN  reduce 32
 
-	$$2  goto 22
+	$$1  goto 22
 
 
 state 17
@@ -303,23 +303,23 @@ state 19
 
 
 state 20
-	function : ftype ID . $$1 LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER  (33)
-	$$1 : .  (32)
+	function : ftype ID . $$2 LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER  (37)
+	$$2 : .  (36)
 
-	.  reduce 32
+	.  reduce 36
 
-	$$1  goto 26
+	$$2  goto 26
 
 
 state 21
-	Gvar : ID LSQUARE . NUMBER RSQUARE  (35)
+	Gvar : ID LSQUARE . NUMBER RSQUARE  (31)
 
 	NUMBER  shift 27
 	.  error
 
 
 state 22
-	Gvar : ID $$2 . LPAREN parametr RPAREN  (37)
+	Gvar : ID $$1 . LPAREN parametr RPAREN  (33)
 
 	LPAREN  shift 28
 	.  error
@@ -348,21 +348,21 @@ state 25
 
 
 state 26
-	function : ftype ID $$1 . LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER  (33)
+	function : ftype ID $$2 . LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER  (37)
 
 	LPAREN  shift 31
 	.  error
 
 
 state 27
-	Gvar : ID LSQUARE NUMBER . RSQUARE  (35)
+	Gvar : ID LSQUARE NUMBER . RSQUARE  (31)
 
 	RSQUARE  shift 32
 	.  error
 
 
 state 28
-	Gvar : ID $$2 LPAREN . parametr RPAREN  (37)
+	Gvar : ID $$1 LPAREN . parametr RPAREN  (33)
 	parametr : .  (12)
 
 	INTEGER  shift 7
@@ -389,7 +389,7 @@ state 30
 
 
 state 31
-	function : ftype ID $$1 LPAREN . Fparametr RPAREN LFLOWER fbody RFLOWER  (33)
+	function : ftype ID $$2 LPAREN . Fparametr RPAREN LFLOWER fbody RFLOWER  (37)
 	Fparametr : .  (14)
 
 	INTEGER  shift 7
@@ -403,13 +403,13 @@ state 31
 
 
 state 32
-	Gvar : ID LSQUARE NUMBER RSQUARE .  (35)
+	Gvar : ID LSQUARE NUMBER RSQUARE .  (31)
 
-	.  reduce 35
+	.  reduce 31
 
 
 state 33
-	Gvar : ID $$2 LPAREN parametr . RPAREN  (37)
+	Gvar : ID $$1 LPAREN parametr . RPAREN  (33)
 
 	RPAREN  shift 42
 	.  error
@@ -448,7 +448,7 @@ state 37
 
 
 state 38
-	function : ftype ID $$1 LPAREN Fparametr . RPAREN LFLOWER fbody RFLOWER  (33)
+	function : ftype ID $$2 LPAREN Fparametr . RPAREN LFLOWER fbody RFLOWER  (37)
 
 	RPAREN  shift 49
 	.  error
@@ -480,9 +480,9 @@ state 41
 
 
 state 42
-	Gvar : ID $$2 LPAREN parametr RPAREN .  (37)
+	Gvar : ID $$1 LPAREN parametr RPAREN .  (33)
 
-	.  reduce 37
+	.  reduce 33
 
 
 state 43
@@ -535,7 +535,7 @@ state 48
 
 
 state 49
-	function : ftype ID $$1 LPAREN Fparametr RPAREN . LFLOWER fbody RFLOWER  (33)
+	function : ftype ID $$2 LPAREN Fparametr RPAREN . LFLOWER fbody RFLOWER  (37)
 
 	LFLOWER  shift 61
 	.  error
@@ -628,7 +628,7 @@ state 60
 
 
 state 61
-	function : ftype ID $$1 LPAREN Fparametr RPAREN LFLOWER . fbody RFLOWER  (33)
+	function : ftype ID $$2 LPAREN Fparametr RPAREN LFLOWER . fbody RFLOWER  (37)
 
 	DECL  shift 58
 	.  error
@@ -690,7 +690,7 @@ state 68
 
 
 state 69
-	function : ftype ID $$1 LPAREN Fparametr RPAREN LFLOWER fbody . RFLOWER  (33)
+	function : ftype ID $$2 LPAREN Fparametr RPAREN LFLOWER fbody . RFLOWER  (37)
 
 	RFLOWER  shift 74
 	.  error
@@ -731,9 +731,9 @@ state 73
 
 
 state 74
-	function : ftype ID $$1 LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER .  (33)
+	function : ftype ID $$2 LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER .  (37)
 
-	.  reduce 33
+	.  reduce 37
 
 
 state 75
