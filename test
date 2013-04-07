@@ -37,7 +37,8 @@ enddecl
 
 begin
 
-i = 1;
+read(i);
+read(n);
 n = 9;
 z=swap(&i , &n);
 write(i);
