@@ -12,9 +12,12 @@ decl
 enddecl
 
 begin
+
 read(x);
 write(x);
-
+if(x!=1) then
+i=print();
+endif;
 return 1;
 end
 }
