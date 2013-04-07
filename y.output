@@ -134,8 +134,9 @@
   89            | exprList
 
   90  exprList : exprList COMMA expression
-  91           | expression
-  92           | ADDRESSOF ID
+  91           | exprList COMMA ADDRESSOF ID
+  92           | expression
+  93           | ADDRESSOF ID
 
 state 0
 	$accept : . program $end  (0)
@@ -1653,7 +1654,7 @@ state 141
 
 
 state 142
-	exprList : ADDRESSOF . ID  (92)
+	exprList : ADDRESSOF . ID  (93)
 
 	ID  shift 167
 	.  error
@@ -1673,7 +1674,7 @@ state 143
 	expression : expression . NEQUAL expression  (77)
 	expression : expression . AND expression  (78)
 	expression : expression . OR expression  (79)
-	exprList : expression .  (91)
+	exprList : expression .  (92)
 
 	MODULUS  shift 120
 	AND  shift 121
@@ -1688,13 +1689,14 @@ state 143
 	MINUS  shift 131
 	MULT  shift 132
 	DIVIDE  shift 133
-	COMMA  reduce 91
-	RPAREN  reduce 91
+	COMMA  reduce 92
+	RPAREN  reduce 92
 
 
 state 144
 	FexprList : exprList .  (89)
 	exprList : exprList . COMMA expression  (90)
+	exprList : exprList . COMMA ADDRESSOF ID  (91)
 
 	COMMA  shift 168
 	RPAREN  reduce 89
@@ -2248,23 +2250,25 @@ state 166
 
 
 state 167
-	exprList : ADDRESSOF ID .  (92)
+	exprList : ADDRESSOF ID .  (93)
 
-	.  reduce 92
+	.  reduce 93
 
 
 state 168
 	exprList : exprList COMMA . expression  (90)
+	exprList : exprList COMMA . ADDRESSOF ID  (91)
 
 	ID  shift 101
 	TRUE  shift 102
 	FALSE  shift 103
+	ADDRESSOF  shift 175
 	NOT  shift 104
 	NUMBER  shift 105
 	LPAREN  shift 106
 	.  error
 
-	expression  goto 175
+	expression  goto 176
 
 
 state 169
@@ -2276,7 +2280,7 @@ state 169
 state 170
 	ifelse : IF expression THEN statements ENDIF . SEMICOLON  (58)
 
-	SEMICOLON  shift 176
+	SEMICOLON  shift 177
 	.  error
 
 
@@ -2286,13 +2290,13 @@ state 171
 
 	.  reduce 51
 
-	statements  goto 177
+	statements  goto 178
 
 
 state 172
 	dowhile : WHILE expression DO statements ENDWHILE . SEMICOLON  (60)
 
-	SEMICOLON  shift 178
+	SEMICOLON  shift 179
 	.  error
 
 
@@ -2312,7 +2316,7 @@ state 173
 	expression : expression . AND expression  (78)
 	expression : expression . OR expression  (79)
 
-	SEMICOLON  shift 179
+	SEMICOLON  shift 180
 	MODULUS  shift 120
 	AND  shift 121
 	OR  shift 122
@@ -2332,11 +2336,18 @@ state 173
 state 174
 	read : READ LPAREN ID LSQUARE expression RSQUARE . RPAREN SEMICOLON  (64)
 
-	RPAREN  shift 180
+	RPAREN  shift 181
 	.  error
 
 
 state 175
+	exprList : exprList COMMA ADDRESSOF . ID  (91)
+
+	ID  shift 182
+	.  error
+
+
+state 176
 	expression : expression . PLUS expression  (67)
 	expression : expression . MINUS expression  (68)
 	expression : expression . MULT expression  (69)
@@ -2369,13 +2380,13 @@ state 175
 	RPAREN  reduce 90
 
 
-state 176
+state 177
 	ifelse : IF expression THEN statements ENDIF SEMICOLON .  (58)
 
 	.  reduce 58
 
 
-state 177
+state 178
 	statements : statements . statement  (52)
 	ifelse : IF expression THEN statements ELSE statements . ENDIF SEMICOLON  (59)
 
@@ -2383,7 +2394,7 @@ state 177
 	READ  shift 83
 	WRITE  shift 84
 	IF  shift 85
-	ENDIF  shift 181
+	ENDIF  shift 183
 	WHILE  shift 86
 	.  error
 
@@ -2395,43 +2406,49 @@ state 177
 	astatement  goto 94
 
 
-state 178
+state 179
 	dowhile : WHILE expression DO statements ENDWHILE SEMICOLON .  (60)
 
 	.  reduce 60
 
 
-state 179
+state 180
 	astatement : ID LSQUARE expression RSQUARE ASSIGN expression SEMICOLON .  (62)
 
 	.  reduce 62
 
 
-state 180
+state 181
 	read : READ LPAREN ID LSQUARE expression RSQUARE RPAREN . SEMICOLON  (64)
 
-	SEMICOLON  shift 182
-	.  error
-
-
-state 181
-	ifelse : IF expression THEN statements ELSE statements ENDIF . SEMICOLON  (59)
-
-	SEMICOLON  shift 183
+	SEMICOLON  shift 184
 	.  error
 
 
 state 182
+	exprList : exprList COMMA ADDRESSOF ID .  (91)
+
+	.  reduce 91
+
+
+state 183
+	ifelse : IF expression THEN statements ELSE statements ENDIF . SEMICOLON  (59)
+
+	SEMICOLON  shift 185
+	.  error
+
+
+state 184
 	read : READ LPAREN ID LSQUARE expression RSQUARE RPAREN SEMICOLON .  (64)
 
 	.  reduce 64
 
 
-state 183
+state 185
 	ifelse : IF expression THEN statements ELSE statements ENDIF SEMICOLON .  (59)
 
 	.  reduce 59
 
 
 47 terminals, 45 nonterminals
-93 grammar rules, 184 states
+94 grammar rules, 186 states

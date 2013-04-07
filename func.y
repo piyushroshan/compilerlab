@@ -453,11 +453,11 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
     | ID { $$ = $1; struct Lsymbol* lt = Llookup($1->NAME, Lnode); if(lt) $$->TYPE=lt->TYPE; else {
                                                             struct Gsymbol* gt = Glookup($1->NAME);
                                                             if(gt) {if(gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }
-                                                            else { printf("ID %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}}
+                                                            else { printf("ID %s not found\n",$1->NAME); yyerror("ID "); $$->TYPE=-1;}}}
     | ID LSQUARE expression RSQUARE {   $1->center = $3; $$ = $1;  struct Gsymbol* gt = Glookup($1->NAME);
                                                                     if(gt) { if(gt->SIZE!=0 && $3->TYPE==1)
                                                                     $$->TYPE=gt->TYPE; else $$->TYPE=-1; yyerror("array type expression"); }
-                                                                    else { printf("Array %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}
+                                                                    else { printf("Array %s not found\n",$1->NAME); yyerror("Array"); $$->TYPE=-1;}}
 	| ID LPAREN FexprList RPAREN { struct Gsymbol* gtemp = Glookup($1->NAME);
                                     $$=CreateNode(0,'C', pcount, $1->NAME,NULL,$3,NULL);
                                     if(gtemp==NULL || gtemp->SIZE!=0) yyerror("Undefined Function");
@@ -533,12 +533,9 @@ FexprList: { $$=NULL; }
         ;
 
 exprList : exprList COMMA expression { $$=CreateNode(0,'z', 0, NULL,$1,$3,NULL); pcount++; $3->PASSTYPE=0; }
+        | exprList COMMA ADDRESSOF ID { $$=CreateNode(0,'z', 0, NULL,$1,$4,NULL); pcount++; $4->PASSTYPE=1; }
 		| expression { $$=CreateNode(0,'z', 0, NULL,NULL,$1,NULL); pcount++; $1->PASSTYPE=0; }
-		| ADDRESSOF ID { $$ = $1; $$->PASSTYPE=1; struct Lsymbol* lt = Llookup($1->NAME, Lnode); if(lt) $$->TYPE=lt->TYPE; else {
-                                                            struct Gsymbol* gt = Glookup($1->NAME);
-                                                            if(gt) {if(gt->SIZE==0) $$->TYPE=gt->TYPE; else $$->TYPE=-1; }
-                                                            else { printf("ID %s not found\n",$1->NAME); yyerror(""); $$->TYPE=-1;}}
-                        }
+		| ADDRESSOF ID { $$=CreateNode(0,'z', 0, NULL,NULL,$2,NULL); $2->PASSTYPE=1; pcount++;}
 		;
 
 %%
@@ -1172,20 +1169,40 @@ void Gen3A(struct node* root,int flag){
                 //PrintLSymbol(ltemp);
                 if(Llookup(root->NAME,ltemp))
                  {
-                    current_temp++;
-                    char *t1 =(char *) malloc(5);
-                     t1[0]='t';t1[1]='\0';
-                    strcat(t1,itoa(current_temp));
-                    current_temp++;
-                    char *t2 =(char *) malloc(5);
-                     t2[0]='t';t2[1]='\0';
-                    strcat(t2,itoa(current_temp));
-                    TAinstall('M',t1,"BP",NULL);
-                    TAinstall('M',t2,itoa(Llookup(root->NAME, ltemp)->BINDING+1),NULL);
-                    TAinstall('+',t1,t1,t2);
-                    TAinstall('M',t,t1,NULL);
-                    current_temp--;
-                    current_temp--;
+                    if(!Llookup(root->NAME,ltemp)->PASSTYPE)
+                    {
+                        current_temp++;
+                        char *t1 =(char *) malloc(5);
+                        t1[0]='t';t1[1]='\0';
+                        strcat(t1,itoa(current_temp));
+                        current_temp++;
+                        char *t2 =(char *) malloc(5);
+                        t2[0]='t';t2[1]='\0';
+                        strcat(t2,itoa(current_temp));
+                        TAinstall('M',t1,"BP",NULL);
+                        TAinstall('M',t2,itoa(Llookup(root->NAME, ltemp)->BINDING+1),NULL);
+                        TAinstall('+',t1,t1,t2);
+                        TAinstall('M',t,t1,NULL);
+                        current_temp--;
+                        current_temp--;
+                    }else
+                    {
+                        current_temp++;
+                        char *t1 =(char *) malloc(5);
+                        t1[0]='t';t1[1]='\0';
+                        strcat(t1,itoa(current_temp));
+                        current_temp++;
+                        char *t2 =(char *) malloc(5);
+                        t2[0]='t';t2[1]='\0';
+                        strcat(t2,itoa(current_temp));
+                        TAinstall('M',t1,"BP",NULL);
+                        TAinstall('M',t2,itoa(Llookup(root->NAME, ltemp)->BINDING+1),NULL);
+                        TAinstall('+',t1,t1,t2);
+                        TAinstall('M',t,t1,NULL);
+                        TAinstall('l',t,t,NULL);
+                        current_temp--;
+                        current_temp--;
+                    }
                 }
                 else
                     TAinstall('M',t,itoa(Glookup(root->NAME)->BINDING),NULL);
@@ -1243,7 +1260,7 @@ void Gen3A(struct node* root,int flag){
                 }
                 char *t =(char *) malloc(5);
                 t[0]='t';t[1]='\0';
-                Gen3A(tempC->center,0);
+                Gen3A(tempC->center,tempC->center->PASSTYPE);
                 strcat(t,itoa(current_temp));
                 TAinstall('P',t,NULL,NULL);
                 current_temp--;
