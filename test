@@ -1,5 +1,6 @@
 decl
 integer swap(integer &x , &y);
+integer factorial(integer n);
 enddecl
 
 
@@ -8,7 +9,7 @@ integer swap (integer &x, &y) {
 
 decl
 
-integer q; // q is re-declared causing suppression of global declaration
+integer q;
 
 enddecl
 
@@ -26,24 +27,41 @@ end  // Note that SIL doesn’t support void functions.
 
 }
 
+integer factorial (integer n) {
+
+decl
+
+integer rvalue; 
+
+enddecl
+
+begin
+if(n==1) then
+  rvalue = 1;
+else
+  rvalue = n * factorial(n-1);
+endif;
+return rvalue; // swap must return an integer.
+
+end  // Note that SIL doesn’t support void functions.
+
+}
 
 integer main( ){ // Main definition should always begin like this
 
 decl
 
-integer n,i,z;
+integer d,i,z;
 
 enddecl
 
 begin
 
 read(i);
-read(n);
-n = 9;
-z=swap(&i , &n);
+read(d);
+z=swap(&i , &d);
+write(factorial(d));
 write(i);
-write(n);
-
 return 1;    // Any integer value may be returned
 
 end

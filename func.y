@@ -293,7 +293,8 @@ functions : { $$ = NULL; }
     | functions function {  $$=CreateNode(0,'S', 0, NULL, $1, $2, NULL); if (($1==NULL || $1->TYPE == FUNC) && $2->TYPE== FUNC) $$->TYPE= FUNC; else {$$->TYPE=-1; yyerror("Bad functions") ;} }
     ;
 
-function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER {
+function : ftype ID { fname = (char *)malloc(30); strcpy(fname,$2->NAME); headArg = (struct ArgStruct*)NULL;
+                                                                    headArg2 = (struct ArgStruct*)NULL; } LPAREN Fparametr RPAREN LFLOWER fbody RFLOWER {
                                                                 struct Gsymbol* gt =  Glookup($2->NAME);
                                                                 if(gt)
                                                                 {
@@ -458,7 +459,7 @@ expression : expression PLUS expression { $2 = CreateNode(0,'+', 0, NULL, $1, NU
                                                                     if(gt) { if(gt->SIZE!=0 && $3->TYPE==1)
                                                                     $$->TYPE=gt->TYPE; else $$->TYPE=-1; yyerror("array type expression"); }
                                                                     else { printf("Array %s not found\n",$1->NAME); yyerror("Array"); $$->TYPE=-1;}}
-	| ID LPAREN FexprList RPAREN { struct Gsymbol* gtemp = Glookup($1->NAME);
+    | ID LPAREN FexprList RPAREN { struct Gsymbol* gtemp = Glookup($1->NAME);
                                     $$=CreateNode(0,'C', pcount, $1->NAME,NULL,$3,NULL);
                                     if(gtemp==NULL || gtemp->SIZE!=0) yyerror("Undefined Function");
                                     else
@@ -532,10 +533,16 @@ FexprList: { $$=NULL; }
         | exprList { $$ = $1; }
         ;
 
-exprList : exprList COMMA expression { $$=CreateNode(0,'z', 0, NULL,$1,$3,NULL); pcount++; $3->PASSTYPE=0; }
-        | exprList COMMA ADDRESSOF ID { $$=CreateNode(0,'z', 0, NULL,$1,$4,NULL); pcount++; $4->PASSTYPE=1; }
-		| expression { $$=CreateNode(0,'z', 0, NULL,NULL,$1,NULL); pcount++; $1->PASSTYPE=0; }
-		| ADDRESSOF ID { $$=CreateNode(0,'z', 0, NULL,NULL,$2,NULL); $2->PASSTYPE=1; pcount++;}
+exprList : exprList COMMA expression { $3->PASSTYPE=0; $$=CreateNode(0,'z', 0, NULL,$1,$3,NULL); pcount++;  }
+        | exprList COMMA ADDRESSOF ID { $4->PASSTYPE=1; struct Lsymbol* lt = Llookup($4->NAME, Lnode); if(lt) $4->TYPE=lt->TYPE; else {
+                                                            struct Gsymbol* gt = Glookup($4->NAME);
+                                                            if(gt) {if(gt->SIZE==0) $4->TYPE=gt->TYPE; else $4->TYPE=-1; }
+                                                            else { printf("ID %s not found\n",$4->NAME); yyerror("ID "); $4->TYPE=-1;}} $$=CreateNode(0,'z', 0, NULL,$1,$4,NULL); pcount++;  }
+		| expression { $1->PASSTYPE=0; $$=CreateNode(0,'z', 0, NULL,NULL,$1,NULL); pcount++;  }
+		| ADDRESSOF ID { $2->PASSTYPE=1; struct Lsymbol* lt = Llookup($2->NAME, Lnode); if(lt) $2->TYPE=lt->TYPE; else {
+                                                            struct Gsymbol* gt = Glookup($2->NAME);
+                                                            if(gt) {if(gt->SIZE==0) $2->TYPE=gt->TYPE; else $2->TYPE=-1; }
+                                                            else { printf("ID %s not found\n",$2->NAME); yyerror("ID "); $2->TYPE=-1;}} $$=CreateNode(0,'z', 0, NULL,NULL,$2,NULL);  pcount++;}
 		;
 
 %%
@@ -681,6 +688,7 @@ int argDefCheck(struct ArgStruct* arg1, struct ArgStruct* arg2)
 	}
 	else
 	{
+		printf("J more ERROR--\n");
 	 	return 0;
 	}
 }
@@ -699,6 +707,7 @@ int fnDefCheck(int type, char* name, struct ArgStruct* arg)
 				 }
 				 else
 				 {
+					printf("Incorrect Function Definition %s\n",res->NAME);
 					yyerror("Incorrect Function Definition");
 					return -1;
 
@@ -771,13 +780,13 @@ void Gen3A(struct node* root,int flag){
             PrintLSymbol(ltemp);
             struct ArgStruct* at = gt->ARGLIST;
             struct Lsymbol* lcopy = (struct Lsymbol*)malloc(sizeof (struct Lsymbol));
-            FNAME = malloc(30);
+            FNAME = (char *)malloc(30);
             FNAME[0]='\0';
             strcat(FNAME,root->NAME);
             TAinstall('B',root->NAME,NULL,NULL);
             TAinstall('P',"BP",NULL,NULL);
-			TAinstall('M',"BP","SP",NULL);
-			char *t1 =(char *) malloc(5);
+	     TAinstall('M',"BP","SP",NULL);
+	    char *t1 =(char *) malloc(5);
             t1[0]='t';t1[1]='\0';
             strcat(t1,itoa(current_temp));
             TAinstall('M',t1,"SP",NULL);
@@ -1165,8 +1174,8 @@ void Gen3A(struct node* root,int flag){
                 current_temp++;
                 t[0]='t';t[1]='\0';
                 strcat(t,itoa(current_temp));
-                //printf("Printing LSymbol for %s when looking for %s\n",FNAME, root->NAME);
-                //PrintLSymbol(ltemp);
+                printf("Printing LSymbol for %s when looking for %s\n",FNAME, root->NAME);
+                PrintLSymbol(ltemp);
                 if(Llookup(root->NAME,ltemp))
                  {
                     if(!Llookup(root->NAME,ltemp)->PASSTYPE)
